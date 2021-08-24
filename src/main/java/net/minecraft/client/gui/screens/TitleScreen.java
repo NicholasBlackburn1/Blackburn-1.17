@@ -51,7 +51,7 @@ public class TitleScreen extends Screen {
    private static final String DEMO_LEVEL_ID = "Demo_World";
    public static final String COPYRIGHT_TEXT = "Copyright Mojang AB. Do not distribute!";
    public static final CubeMap CUBE_MAP = new CubeMap(new ResourceLocation("textures/gui/title/background/panorama"));
-   private static final ResourceLocation PANORAMA_OVERLAY = new ResourceLocation("textures/gui/title/background/background.png");
+   private static ResourceLocation PANORAMA_OVERLAY = new ResourceLocation("textures/gui/title/background/background.png");
    private static final ResourceLocation ACCESSIBILITY_TEXTURE = new ResourceLocation("textures/gui/accessibility.png");
    private final boolean minceraftEasterEgg;
    @Nullable
@@ -88,7 +88,7 @@ public class TitleScreen extends Screen {
    }
 
    public static CompletableFuture<Void> preloadResources(TextureManager p_96755_, Executor p_96756_) {
-      return CompletableFuture.allOf(p_96755_.preload(MINECRAFT_EDITION, p_96756_), p_96755_.preload(PANORAMA_OVERLAY, p_96756_), CUBE_MAP.preload(p_96755_, p_96756_));
+      return CompletableFuture.allOf(p_96755_.preload(MINECRAFT_EDITION, p_96756_), CUBE_MAP.preload(p_96755_, p_96756_));
    }
 
    public boolean isPauseScreen() {
@@ -120,6 +120,7 @@ public class TitleScreen extends Screen {
          this.minecraft.setScreen(new LanguageSelectScreen(this, this.minecraft.options, this.minecraft.getLanguageManager()));
       }, new TranslatableComponent("narrator.button.language")));
       */
+      
       this.addRenderableWidget(new Button(this.width / 2 - 200, j+72, 100, 20, new TranslatableComponent("menu.options"), (p_96788_) -> {
          this.minecraft.setScreen(new OptionsScreen(this, this.minecraft.options));
       }));
@@ -263,31 +264,31 @@ public class TitleScreen extends Screen {
        */
         // this one will be for Setting backgrounds  between 12 am and 3 am
       if(calendar.get(Calendar.HOUR_OF_DAY) > 3){
-      this.minecraft.getTextureManager().getTexture(new ResourceLocation("textures/gui/title/background/background.png"));
+         PANORAMA_OVERLAY =new ResourceLocation("textures/gui/title/background/background.png");
       }
       if(calendar.get(Calendar.HOUR_OF_DAY)==0){
-      this.minecraft.getTextureManager().getTexture(new ResourceLocation("textures/gui/title/background/60c78e0cdf42a17e71c961126d83e09c.png"));
+         PANORAMA_OVERLAY =new ResourceLocation("textures/gui/title/background/60c78e0cdf42a17e71c961126d83e09c.png");
 
       }
       if(calendar.get(Calendar.HOUR_OF_DAY) ==1){
-      this.minecraft.getTextureManager().getTexture(new ResourceLocation("textures/gui/title/background/me.png"));
+         PANORAMA_OVERLAY= new ResourceLocation("textures/gui/title/background/me.png");
       
       }
       if(calendar.get(Calendar.HOUR_OF_DAY) ==2){
-         this.minecraft.getTextureManager().getTexture(new ResourceLocation("textures/gui/title/background/UwUCuteFurryies.png"));
+         PANORAMA_OVERLAY= new ResourceLocation("textures/gui/title/background/cutiefurrie.png");
          
       }
       
       if(calendar.get(Calendar.HOUR_OF_DAY) ==3){
-         this.minecraft.getTextureManager().getTexture(new ResourceLocation("textures/gui/title/background/UwUMe.png"));
+         PANORAMA_OVERLAY= new ResourceLocation("textures/gui/title/background/uwume.png");
          
       } 
       
       if(calendar.get(Calendar.MONTH) == Calendar.DECEMBER && calendar.get(Calendar.DATE)  == 6){
-               this.minecraft.getTextureManager().getTexture(new ResourceLocation("textures/gui/title/background/Bday.png"));
+         PANORAMA_OVERLAY = new ResourceLocation("textures/gui/title/background/Bday.png");
 
       }
-            
+   
       float f = this.fading ? (float)(Util.getMillis() - this.fadeInStart) / 1000.0F : 1.0F;
       this.panorama.render(p_96742_, Mth.clamp(f, 0.0F, 1.0F));
       int i = 274;
