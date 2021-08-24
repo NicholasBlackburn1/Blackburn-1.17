@@ -302,7 +302,7 @@ public class TitleScreen extends Screen {
          }
 
          drawString(p_96739_, this.font, s, 2, this.height - 10, 16777215 | l);
-         drawString(p_96739_, this.font, "Copyright Nicholas Blackburn. Please distribute!", this.copyrightX, this.height - 10, 16777215 | l);
+         drawString(p_96739_, this.font, "Copyright Nicholas Blackburn!", this.copyrightX, this.height - 10, 16777215 | l);
          if (p_96740_ > this.copyrightX && p_96740_ < this.copyrightX + this.copyrightWidth && p_96741_ > this.height - 10 && p_96741_ < this.height) {
             fill(p_96739_, this.copyrightX, this.height - 1, this.copyrightX + this.copyrightWidth, this.height, 16777215 | l);
          }
