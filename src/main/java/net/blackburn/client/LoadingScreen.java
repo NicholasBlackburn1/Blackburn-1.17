@@ -9,7 +9,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
-;
+
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
 import org.lwjgl.stb.STBEasyFont;
@@ -30,7 +30,7 @@ public class LoadingScreen {
         this.window = minecraft.getWindow();
     }
     // Allows render of bakgorund
-    private void renderBackground() {
+    public void renderBackground() {
         GL11.glBegin(GL11.GL_QUADS);
         boolean isDarkBackground = minecraft.options.darkMojangStudiosBackground;
         GL11.glColor4f(isDarkBackground ? 0 : (239F / 255F), isDarkBackground ? 0 : (50F / 255F), isDarkBackground ? 0 : (61F / 255F), 1); //Color from LoadingOverlay
@@ -64,7 +64,7 @@ public class LoadingScreen {
         GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
         ByteBuffer charBuffer = MemoryUtil.memAlloc(message.length() * 270);
         int quads = STBEasyFont.stb_easy_font_print(0, 0, message, null, charBuffer);
-        GL14.glVertexPointer(2, GL11.GL_FLOAT, 16, charBuffer);
+        GL11.glVertexPointer(2, GL11.GL_FLOAT, 16, charBuffer);
         //
         RenderSystem.enableBlend();
         RenderSystem.disableTexture();
@@ -91,7 +91,7 @@ public class LoadingScreen {
         memorycolour[2] = ((i) & 0xFF) / 255.0f;
         memorycolour[1] = ((i >> 8 ) & 0xFF) / 255.0f;
         memorycolour[0] = ((i >> 16 ) & 0xFF) / 255.0f;
-
+       
         renderMessage("Hello Hacked mc 1.17", memorycolour,  1, 1.0f);
     }
 }

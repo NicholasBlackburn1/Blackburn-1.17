@@ -4,6 +4,9 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+
+import static org.lwjgl.opengl.GL11.glVertexPointer;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
@@ -23,7 +26,19 @@ import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.blackburn.client.LoadingScreen;
+
+import com.mojang.blaze3d.platform.Window;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.Mth;
+
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL14;
+import org.lwjgl.stb.STBEasyFont;
+import org.lwjgl.system.MemoryUtil;
+
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryUsage;
+import java.nio.ByteBuffer;
 
 @OnlyIn(Dist.CLIENT)
 public class LoadingOverlay extends Overlay {
@@ -48,14 +63,14 @@ public class LoadingOverlay extends Overlay {
    private float currentProgress;
    private long fadeOutStart = -1L;
    private long fadeInStart = -1L;
-   private LoadingScreen loading;
+
 
    public LoadingOverlay(Minecraft p_96172_, ReloadInstance p_96173_, Consumer<Optional<Throwable>> p_96174_, boolean p_96175_) {
       this.minecraft = p_96172_;
       this.reload = p_96173_;
       this.onFinish = p_96174_;
       this.fadeIn = p_96175_;
-      this.loading = new LoadingScreen(p_96172_);
+     
    
    }
 
@@ -104,8 +119,7 @@ public class LoadingOverlay extends Overlay {
          GlStateManager._clear(16384, Minecraft.ON_OSX);
          f2 = 1.0F;  
       }
-      
-      loading.writeStuffToLoading();
+
 
       int j2 = (int)((double)this.minecraft.getWindow().getGuiScaledWidth() * 0.5D);
       int k2 = (int)((double)this.minecraft.getWindow().getGuiScaledHeight() * 0.5D);
@@ -123,9 +137,12 @@ public class LoadingOverlay extends Overlay {
       blit(p_96178_, j2, k2 - i1, j1, (int)d1, 0.0625F, 60.0F, 120, 60, 120, 120);
       RenderSystem.defaultBlendFunc();
       RenderSystem.disableBlend();
+
       int k1 = (int)((double)this.minecraft.getWindow().getGuiScaledHeight() * 0.8325D);
       float f6 = this.reload.getActualProgress();
       this.currentProgress = Mth.clamp(this.currentProgress * 0.95F + f6 * 0.050000012F, 0.0F, 1.0F);
+      final float[] memorycolour = new float[] { 0.0f, 333.0f, 0.0f};
+   
       if (f < 1.0F) {
          this.drawProgressBar(p_96178_, i / 2 - j1, k1 - 5, i / 2 + j1, k1 + 5, 1.0F - Mth.clamp(f, 0.0F, 1.0F));
       }
@@ -133,7 +150,8 @@ public class LoadingOverlay extends Overlay {
       if (f >= 2.0F) {
          this.minecraft.setOverlay((Overlay)null);
       }
-
+    
+      
       if (this.fadeOutStart == -1L && this.reload.isDone() && (!this.fadeIn || f1 >= 2.0F)) {
          try {
             this.reload.checkExceptions();
@@ -146,9 +164,11 @@ public class LoadingOverlay extends Overlay {
          if (this.minecraft.screen != null) {
             this.minecraft.screen.init(this.minecraft, this.minecraft.getWindow().getGuiScaledWidth(), this.minecraft.getWindow().getGuiScaledHeight());
          }
+
       }
 
    }
+
 
    private void drawProgressBar(PoseStack p_96183_, int p_96184_, int p_96185_, int p_96186_, int p_96187_, float p_96188_) {
       int i = Mth.ceil((float)(p_96186_ - p_96184_ - 2) * this.currentProgress);

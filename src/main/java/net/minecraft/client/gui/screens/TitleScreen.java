@@ -294,19 +294,15 @@ public class TitleScreen extends Screen {
             p_96739_.popPose();
          }
 
-         String s = "Minecraft " + SharedConstants.getCurrentVersion().getName();
-         if (this.minecraft.isDemo()) {
-            s = s + " Demo";
-         } else {
-            s = s + ("release".equalsIgnoreCase(this.minecraft.getVersionType()) ? "" : "/" + this.minecraft.getVersionType());
-         }
+         String s = "BlackburnCraft " + SharedConstants.getCurrentVersion().getName();
+        
 
-         if (this.minecraft.isProbablyModded()) {
+         if (true) {
             s = s + I18n.get("menu.modded");
          }
 
          drawString(p_96739_, this.font, s, 2, this.height - 10, 16777215 | l);
-         drawString(p_96739_, this.font, "Copyright Mojang AB. Do not distribute!", this.copyrightX, this.height - 10, 16777215 | l);
+         drawString(p_96739_, this.font, "Copyright Nicholas Blackburn. Please distribute!", this.copyrightX, this.height - 10, 16777215 | l);
          if (p_96740_ > this.copyrightX && p_96740_ < this.copyrightX + this.copyrightWidth && p_96741_ > this.height - 10 && p_96741_ < this.height) {
             fill(p_96739_, this.copyrightX, this.height - 1, this.copyrightX + this.copyrightWidth, this.height, 16777215 | l);
          }
