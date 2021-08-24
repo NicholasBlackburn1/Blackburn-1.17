@@ -104,7 +104,7 @@ public class TitleScreen extends Screen {
          this.splash = this.minecraft.getSplashManager().getSplash();
       }
 
-      this.copyrightWidth = this.font.width("Copyright Mojang AB. Do not distribute!");
+      this.copyrightWidth = this.font.width("Copyright Nicholas Blackburn!");
       this.copyrightX = this.width - this.copyrightWidth - 2;
       int i = 24;
       int j = this.height / 4 + 48;
@@ -306,7 +306,7 @@ public class TitleScreen extends Screen {
       if ((l & -67108864) != 0) {
    
          RenderSystem.setShaderTexture(0, MINECRAFT_EDITION);
-         blit(p_96739_, j + 88, 67, 0.0F, 0.0F, 98, 14, 128, 16);
+         blit(p_96739_, j - 60, 50, 0.0F, 0.0F, 98, 14, 128, 16);
          if (this.splash != null) {
             p_96739_.pushPose();
             p_96739_.translate((double)(this.width / 2 - 100), 70.0F, 0.0F);
