@@ -8,6 +8,8 @@ import com.mojang.math.Vector3f;
 import com.mojang.realmsclient.RealmsMainScreen;
 import com.mojang.realmsclient.gui.screens.RealmsNotificationsScreen;
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -245,10 +247,44 @@ public class TitleScreen extends Screen {
    }
 
    public void render(PoseStack p_96739_, int p_96740_, int p_96741_, float p_96742_) {
+      Calendar calendar = Calendar.getInstance();
+      calendar.setTime(new Date());
+
       if (this.fadeInStart == 0L && this.fading) {
          this.fadeInStart = Util.getMillis();
       }
 
+      /***
+       * 
+       * This is where i add my custom background screens
+       */
+        // this one will be for Setting backgrounds  between 12 am and 3 am
+      if(calendar.get(Calendar.HOUR_OF_DAY) > 3){
+      this.minecraft.getTextureManager().getTexture(new ResourceLocation("textures/gui/title/background/background.png"));
+      }
+      if(calendar.get(Calendar.HOUR_OF_DAY)==0){
+      this.minecraft.getTextureManager().getTexture(new ResourceLocation("textures/gui/title/background/60c78e0cdf42a17e71c961126d83e09c.png"));
+
+      }
+      if(calendar.get(Calendar.HOUR_OF_DAY) ==1){
+      this.minecraft.getTextureManager().getTexture(new ResourceLocation("textures/gui/title/background/me.png"));
+      
+      }
+      if(calendar.get(Calendar.HOUR_OF_DAY) ==2){
+         this.minecraft.getTextureManager().getTexture(new ResourceLocation("textures/gui/title/background/UwUCuteFurryies.png"));
+         
+      }
+      
+      if(calendar.get(Calendar.HOUR_OF_DAY) ==3){
+         this.minecraft.getTextureManager().getTexture(new ResourceLocation("textures/gui/title/background/UwUMe.png"));
+         
+      } 
+      
+      if(calendar.get(Calendar.MONTH) == Calendar.DECEMBER && calendar.get(Calendar.DATE)  == 6){
+               this.minecraft.getTextureManager().getTexture(new ResourceLocation("textures/gui/title/background/Bday.png"));
+
+      }
+            
       float f = this.fading ? (float)(Util.getMillis() - this.fadeInStart) / 1000.0F : 1.0F;
       this.panorama.render(p_96742_, Mth.clamp(f, 0.0F, 1.0F));
       int i = 274;
