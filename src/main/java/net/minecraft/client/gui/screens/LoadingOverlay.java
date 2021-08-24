@@ -23,6 +23,7 @@ import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.blackburn.client.LoadingScreen;
 
 @OnlyIn(Dist.CLIENT)
 public class LoadingOverlay extends Overlay {
@@ -47,12 +48,15 @@ public class LoadingOverlay extends Overlay {
    private float currentProgress;
    private long fadeOutStart = -1L;
    private long fadeInStart = -1L;
+   private LoadingScreen loading;
 
    public LoadingOverlay(Minecraft p_96172_, ReloadInstance p_96173_, Consumer<Optional<Throwable>> p_96174_, boolean p_96175_) {
       this.minecraft = p_96172_;
       this.reload = p_96173_;
       this.onFinish = p_96174_;
       this.fadeIn = p_96175_;
+      this.loading = new LoadingScreen(p_96172_);
+   
    }
 
    public static void registerTextures(Minecraft p_96190_) {
@@ -64,6 +68,7 @@ public class LoadingOverlay extends Overlay {
    }
 
    public void render(PoseStack p_96178_, int p_96179_, int p_96180_, float p_96181_) {
+    
       int i = this.minecraft.getWindow().getGuiScaledWidth();
       int j = this.minecraft.getWindow().getGuiScaledHeight();
       long k = Util.getMillis();
@@ -97,8 +102,10 @@ public class LoadingOverlay extends Overlay {
          float f5 = (float)(i2 & 255) / 255.0F;
          GlStateManager._clearColor(f3, f4, f5, 1.0F);
          GlStateManager._clear(16384, Minecraft.ON_OSX);
-         f2 = 1.0F;
+         f2 = 1.0F;  
       }
+      
+      loading.writeStuffToLoading();
 
       int j2 = (int)((double)this.minecraft.getWindow().getGuiScaledWidth() * 0.5D);
       int k2 = (int)((double)this.minecraft.getWindow().getGuiScaledHeight() * 0.5D);
