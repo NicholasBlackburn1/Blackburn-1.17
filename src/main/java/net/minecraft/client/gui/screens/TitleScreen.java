@@ -114,13 +114,16 @@ public class TitleScreen extends Screen {
          this.createNormalMenuOptions(j, 24);
       }
 
+      /**
+       * COMMENTED OUT BUTTON NOT NEEDED RN BUT COULD BE USED FOR DISPLAYING ABOUT AND UPDATE
       this.addRenderableWidget(new ImageButton(this.width / 2 - 124, j + 72 + 12, 20, 20, 0, 106, 20, Button.WIDGETS_LOCATION, 256, 256, (p_96791_) -> {
          this.minecraft.setScreen(new LanguageSelectScreen(this, this.minecraft.options, this.minecraft.getLanguageManager()));
       }, new TranslatableComponent("narrator.button.language")));
-      this.addRenderableWidget(new Button(this.width / 2 - 100, j + 72 + 12, 98, 20, new TranslatableComponent("menu.options"), (p_96788_) -> {
+      */
+      this.addRenderableWidget(new Button(this.width / 2 - 200, j+72, 100, 20, new TranslatableComponent("menu.options"), (p_96788_) -> {
          this.minecraft.setScreen(new OptionsScreen(this, this.minecraft.options));
       }));
-      this.addRenderableWidget(new Button(this.width / 2 + 2, j + 72 + 12, 98, 20, new TranslatableComponent("menu.quit"), (p_96786_) -> {
+      this.addRenderableWidget(new Button(this.width / 2 - 200, j + 72+ 25, 100, 20, new TranslatableComponent("menu.quit"), (p_96786_) -> {
          this.minecraft.stop();
       }));
       this.addRenderableWidget(new ImageButton(this.width / 2 + 104, j + 72 + 12, 20, 20, 0, 0, 20, ACCESSIBILITY_TEXTURE, 32, 64, (p_96784_) -> {
@@ -138,7 +141,7 @@ public class TitleScreen extends Screen {
    }
 
    private void createNormalMenuOptions(int p_96764_, int p_96765_) {
-      this.addRenderableWidget(new Button(this.width / 2 - 100, p_96764_, 100, 20, new TranslatableComponent("menu.singleplayer"), (p_96781_) -> {
+      this.addRenderableWidget(new Button(this.width / 2 - 200, p_96764_, 100, 20, new TranslatableComponent("menu.singleplayer"), (p_96781_) -> {
          this.minecraft.setScreen(new SelectWorldScreen(this));
       }));
       boolean flag = this.minecraft.allowsMultiplayer();
@@ -156,18 +159,18 @@ public class TitleScreen extends Screen {
             p_169456_.accept(this.text);
          }
       };
-      (this.addRenderableWidget(new Button(this.width / 2 - 100, p_96764_ + p_96765_ * 1, 100, 20, new TranslatableComponent("menu.multiplayer"), (p_169450_) -> {
+      (this.addRenderableWidget(new Button(this.width / 2 - 200, p_96764_ + p_96765_ * 1, 100, 20, new TranslatableComponent("menu.multiplayer"), (p_169450_) -> {
          Screen screen = (Screen)(this.minecraft.options.skipMultiplayerWarning ? new JoinMultiplayerScreen(this) : new SafetyScreen(this));
          this.minecraft.setScreen(screen);
       }, button$ontooltip))).active = flag;
-      (this.addRenderableWidget(new Button(this.width / 2 - 100, p_96764_ + p_96765_ * 2, 100, 20, new TranslatableComponent("menu.online"), (p_96776_) -> {
+      (this.addRenderableWidget(new Button(this.width / 2 - 200, p_96764_ + p_96765_ * 2, 100, 20, new TranslatableComponent("menu.online"), (p_96776_) -> {
          this.realmsButtonClicked();
       }, button$ontooltip))).active = flag;
    }
 
    private void createDemoMenuOptions(int p_96773_, int p_96774_) {
       boolean flag = this.checkDemoWorldPresence();
-      this.addRenderableWidget(new Button(this.width / 2 - 100, p_96773_, 100, 20, new TranslatableComponent("menu.playdemo"), (p_169444_) -> {
+      this.addRenderableWidget(new Button(this.width / 2 - 200, p_96773_, 100, 20, new TranslatableComponent("menu.playdemo"), (p_169444_) -> {
          if (flag) {
             this.minecraft.loadLevel("Demo_World");
          } else {
@@ -176,7 +179,7 @@ public class TitleScreen extends Screen {
          }
 
       }));
-      this.resetDemoButton = this.addRenderableWidget(new Button(this.width / 2 - 100, p_96773_ + p_96774_ * 1, 100, 20, new TranslatableComponent("menu.resetdemo"), (p_169441_) -> {
+      this.resetDemoButton = this.addRenderableWidget(new Button(this.width / 2 - 200, p_96773_ + p_96774_ * 1, 100, 20, new TranslatableComponent("menu.resetdemo"), (p_169441_) -> {
          LevelStorageSource levelstoragesource = this.minecraft.getLevelSource();
 
          try {
