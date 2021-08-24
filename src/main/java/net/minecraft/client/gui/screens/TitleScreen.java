@@ -51,7 +51,7 @@ public class TitleScreen extends Screen {
    private static final String DEMO_LEVEL_ID = "Demo_World";
    public static final String COPYRIGHT_TEXT = "Copyright Mojang AB. Do not distribute!";
    public static final CubeMap CUBE_MAP = new CubeMap(new ResourceLocation("textures/gui/title/background/panorama"));
-   private static final ResourceLocation PANORAMA_OVERLAY = new ResourceLocation("textures/gui/title/background/panorama_overlay.png");
+   private static final ResourceLocation PANORAMA_OVERLAY = new ResourceLocation("textures/gui/title/background/background.png");
    private static final ResourceLocation ACCESSIBILITY_TEXTURE = new ResourceLocation("textures/gui/accessibility.png");
    private final boolean minceraftEasterEgg;
    @Nullable
@@ -138,7 +138,7 @@ public class TitleScreen extends Screen {
    }
 
    private void createNormalMenuOptions(int p_96764_, int p_96765_) {
-      this.addRenderableWidget(new Button(this.width / 2 - 100, p_96764_, 200, 20, new TranslatableComponent("menu.singleplayer"), (p_96781_) -> {
+      this.addRenderableWidget(new Button(this.width / 2 - 100, p_96764_, 100, 20, new TranslatableComponent("menu.singleplayer"), (p_96781_) -> {
          this.minecraft.setScreen(new SelectWorldScreen(this));
       }));
       boolean flag = this.minecraft.allowsMultiplayer();
@@ -156,18 +156,18 @@ public class TitleScreen extends Screen {
             p_169456_.accept(this.text);
          }
       };
-      (this.addRenderableWidget(new Button(this.width / 2 - 100, p_96764_ + p_96765_ * 1, 200, 20, new TranslatableComponent("menu.multiplayer"), (p_169450_) -> {
+      (this.addRenderableWidget(new Button(this.width / 2 - 100, p_96764_ + p_96765_ * 1, 100, 20, new TranslatableComponent("menu.multiplayer"), (p_169450_) -> {
          Screen screen = (Screen)(this.minecraft.options.skipMultiplayerWarning ? new JoinMultiplayerScreen(this) : new SafetyScreen(this));
          this.minecraft.setScreen(screen);
       }, button$ontooltip))).active = flag;
-      (this.addRenderableWidget(new Button(this.width / 2 - 100, p_96764_ + p_96765_ * 2, 200, 20, new TranslatableComponent("menu.online"), (p_96776_) -> {
+      (this.addRenderableWidget(new Button(this.width / 2 - 100, p_96764_ + p_96765_ * 2, 100, 20, new TranslatableComponent("menu.online"), (p_96776_) -> {
          this.realmsButtonClicked();
       }, button$ontooltip))).active = flag;
    }
 
    private void createDemoMenuOptions(int p_96773_, int p_96774_) {
       boolean flag = this.checkDemoWorldPresence();
-      this.addRenderableWidget(new Button(this.width / 2 - 100, p_96773_, 200, 20, new TranslatableComponent("menu.playdemo"), (p_169444_) -> {
+      this.addRenderableWidget(new Button(this.width / 2 - 100, p_96773_, 100, 20, new TranslatableComponent("menu.playdemo"), (p_169444_) -> {
          if (flag) {
             this.minecraft.loadLevel("Demo_World");
          } else {
@@ -176,7 +176,7 @@ public class TitleScreen extends Screen {
          }
 
       }));
-      this.resetDemoButton = this.addRenderableWidget(new Button(this.width / 2 - 100, p_96773_ + p_96774_ * 1, 200, 20, new TranslatableComponent("menu.resetdemo"), (p_169441_) -> {
+      this.resetDemoButton = this.addRenderableWidget(new Button(this.width / 2 - 100, p_96773_ + p_96774_ * 1, 100, 20, new TranslatableComponent("menu.resetdemo"), (p_169441_) -> {
          LevelStorageSource levelstoragesource = this.minecraft.getLevelSource();
 
          try {
