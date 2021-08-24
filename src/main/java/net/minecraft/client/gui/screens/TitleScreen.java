@@ -57,7 +57,7 @@ public class TitleScreen extends Screen {
    @Nullable
    private String splash;
    private Button resetDemoButton;
-   private static final ResourceLocation MINECRAFT_LOGO = new ResourceLocation("textures/gui/title/minecraft.png");
+   private static final ResourceLocation MINECRAFT_LOGO = new ResourceLocation("textures/gui/title/clintcraft.png");
    private static final ResourceLocation MINECRAFT_EDITION = new ResourceLocation("textures/gui/title/edition.png");
    private Screen realmsNotificationsScreen;
    private int copyrightWidth;
@@ -88,7 +88,7 @@ public class TitleScreen extends Screen {
    }
 
    public static CompletableFuture<Void> preloadResources(TextureManager p_96755_, Executor p_96756_) {
-      return CompletableFuture.allOf(p_96755_.preload(MINECRAFT_LOGO, p_96756_), p_96755_.preload(MINECRAFT_EDITION, p_96756_), p_96755_.preload(PANORAMA_OVERLAY, p_96756_), CUBE_MAP.preload(p_96755_, p_96756_));
+      return CompletableFuture.allOf(p_96755_.preload(MINECRAFT_EDITION, p_96756_), p_96755_.preload(PANORAMA_OVERLAY, p_96756_), CUBE_MAP.preload(p_96755_, p_96756_));
    }
 
    public boolean isPauseScreen() {
@@ -301,30 +301,15 @@ public class TitleScreen extends Screen {
       blit(p_96739_, 0, 0, this.width, this.height, 0.0F, 0.0F, 16, 128, 16, 128);
       float f1 = this.fading ? Mth.clamp(f - 1.0F, 0.0F, 1.0F) : 1.0F;
       int l = Mth.ceil(f1 * 255.0F) << 24;
-      if ((l & -67108864) != 0) {
-         RenderSystem.setShader(GameRenderer::getPositionTexShader);
-         RenderSystem.setShaderTexture(0, MINECRAFT_LOGO);
-         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, f1);
-         if (this.minceraftEasterEgg) {
-            this.blitOutlineBlack(j, 30, (p_169447_, p_169448_) -> {
-               this.blit(p_96739_, p_169447_ + 0, p_169448_, 0, 0, 99, 44);
-               this.blit(p_96739_, p_169447_ + 99, p_169448_, 129, 0, 27, 44);
-               this.blit(p_96739_, p_169447_ + 99 + 26, p_169448_, 126, 0, 3, 44);
-               this.blit(p_96739_, p_169447_ + 99 + 26 + 3, p_169448_, 99, 0, 26, 44);
-               this.blit(p_96739_, p_169447_ + 155, p_169448_, 0, 45, 155, 44);
-            });
-         } else {
-            this.blitOutlineBlack(j, 30, (p_96768_, p_96769_) -> {
-               this.blit(p_96739_, p_96768_ + 0, p_96769_, 0, 0, 155, 44);
-               this.blit(p_96739_, p_96768_ + 155, p_96769_, 0, 45, 155, 44);
-            });
-         }
 
+      //Minecraft title exdiditon logo
+      if ((l & -67108864) != 0) {
+   
          RenderSystem.setShaderTexture(0, MINECRAFT_EDITION);
          blit(p_96739_, j + 88, 67, 0.0F, 0.0F, 98, 14, 128, 16);
          if (this.splash != null) {
             p_96739_.pushPose();
-            p_96739_.translate((double)(this.width / 2 + 90), 70.0D, 0.0D);
+            p_96739_.translate((double)(this.width / 2 - 100), 70.0F, 0.0F);
             p_96739_.mulPose(Vector3f.ZP.rotationDegrees(-20.0F));
             float f2 = 1.8F - Mth.abs(Mth.sin((float)(Util.getMillis() % 1000L) / 1000.0F * ((float)Math.PI * 2F)) * 0.1F);
             f2 = f2 * 100.0F / (float)(this.font.width(this.splash) + 32);
