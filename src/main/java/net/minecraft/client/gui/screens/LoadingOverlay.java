@@ -44,7 +44,7 @@ import java.nio.ByteBuffer;
 
 @OnlyIn(Dist.CLIENT)
 public class LoadingOverlay extends Overlay {
-   static final ResourceLocation MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/title.png");
+   static final ResourceLocation MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo.png");
    private static final int LOGO_BACKGROUND_COLOR = FastColor.ARGB32.color(255, 239, 50, 61);
    private static final int LOGO_BACKGROUND_COLOR_DARK = FastColor.ARGB32.color(255, 0, 0, 0);
    private static final IntSupplier BRAND_BACKGROUND = () -> {
@@ -92,8 +92,8 @@ public class LoadingOverlay extends Overlay {
       int  dsp_highty= 400;
       int dsp_width = 300;
 
-      int image_width =  500;
-      int image_hight = 100;
+      int image_width =  600;
+      int image_hight = 50;
 
       int i = this.minecraft.getWindow().getGuiScaledWidth();
       int j = this.minecraft.getWindow().getGuiScaledHeight();
