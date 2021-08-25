@@ -12,6 +12,8 @@ import java.io.InputStream;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
+
+import net.blackburn.client.EarlyLoaderGUI;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -42,7 +44,7 @@ import java.nio.ByteBuffer;
 
 @OnlyIn(Dist.CLIENT)
 public class LoadingOverlay extends Overlay {
-   static final ResourceLocation MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/mojangstudios.png");
+   static final ResourceLocation MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/title.png");
    private static final int LOGO_BACKGROUND_COLOR = FastColor.ARGB32.color(255, 239, 50, 61);
    private static final int LOGO_BACKGROUND_COLOR_DARK = FastColor.ARGB32.color(255, 0, 0, 0);
    private static final IntSupplier BRAND_BACKGROUND = () -> {
@@ -59,6 +61,7 @@ public class LoadingOverlay extends Overlay {
    private final Minecraft minecraft;
    private final ReloadInstance reload;
    private final Consumer<Optional<Throwable>> onFinish;
+   private EarlyLoaderGUI earlyloader;
    private final boolean fadeIn;
    private float currentProgress;
    private long fadeOutStart = -1L;
@@ -70,12 +73,12 @@ public class LoadingOverlay extends Overlay {
       this.reload = p_96173_;
       this.onFinish = p_96174_;
       this.fadeIn = p_96175_;
-     
    
    }
 
    public static void registerTextures(Minecraft p_96190_) {
       p_96190_.getTextureManager().register(MOJANG_STUDIOS_LOGO_LOCATION, new LoadingOverlay.LogoTexture());
+      
    }
 
    private static int replaceAlpha(int p_169325_, int p_169326_) {
@@ -83,7 +86,8 @@ public class LoadingOverlay extends Overlay {
    }
 
    public void render(PoseStack p_96178_, int p_96179_, int p_96180_, float p_96181_) {
-    
+      this.earlyloader =  new EarlyLoaderGUI(this.minecraft);
+
       int i = this.minecraft.getWindow().getGuiScaledWidth();
       int j = this.minecraft.getWindow().getGuiScaledHeight();
       long k = Util.getMillis();
@@ -120,7 +124,7 @@ public class LoadingOverlay extends Overlay {
          f2 = 1.0F;  
       }
 
-
+      
       int j2 = (int)((double)this.minecraft.getWindow().getGuiScaledWidth() * 0.5D);
       int k2 = (int)((double)this.minecraft.getWindow().getGuiScaledHeight() * 0.5D);
       double d1 = Math.min((double)this.minecraft.getWindow().getGuiScaledWidth() * 0.75D, (double)this.minecraft.getWindow().getGuiScaledHeight()) * 0.25D;
@@ -133,8 +137,8 @@ public class LoadingOverlay extends Overlay {
       RenderSystem.blendFunc(770, 1);
       RenderSystem.setShader(GameRenderer::getPositionTexShader);
       RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, f2);
-      blit(p_96178_, j2 - j1, k2 - i1, j1, (int)d1, -0.0625F, 0.0F, 120, 60, 120, 120);
-      blit(p_96178_, j2, k2 - i1, j1, (int)d1, 0.0625F, 60.0F, 120, 60, 120, 120);
+     
+      blit(p_96178_, j2, k2 - i1, j1, (int)d1, 0.0525F, 60.0F, 900, 60, 900, 900);
       RenderSystem.defaultBlendFunc();
       RenderSystem.disableBlend();
 
@@ -142,7 +146,7 @@ public class LoadingOverlay extends Overlay {
       float f6 = this.reload.getActualProgress();
       this.currentProgress = Mth.clamp(this.currentProgress * 0.95F + f6 * 0.050000012F, 0.0F, 1.0F);
       final float[] memorycolour = new float[] { 0.0f, 333.0f, 0.0f};
-   
+      
       if (f < 1.0F) {
          this.drawProgressBar(p_96178_, i / 2 - j1, k1 - 5, i / 2 + j1, k1 + 5, 1.0F - Mth.clamp(f, 0.0F, 1.0F));
       }
