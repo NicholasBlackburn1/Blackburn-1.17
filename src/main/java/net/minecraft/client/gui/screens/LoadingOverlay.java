@@ -145,7 +145,7 @@ public class LoadingOverlay extends Overlay {
       RenderSystem.setShader(GameRenderer::getPositionTexShader);
       RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, f2);
       
-      blit(p_96178_, 100, image_hight, image_width, 50, 0, 50F, dsp_hightx, dsp_highty ,120, 120);
+      blit(p_96178_, 100, image_hight, image_width, 100, 0, 50F, dsp_hightx, dsp_highty ,120, dsp_hightx);
       RenderSystem.defaultBlendFunc();
       RenderSystem.disableBlend();
 
