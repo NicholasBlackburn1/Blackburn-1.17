@@ -88,8 +88,12 @@ public class LoadingOverlay extends Overlay {
    public void render(PoseStack p_96178_, int p_96179_, int p_96180_, float p_96181_) {
       this.earlyloader =  new EarlyLoaderGUI(this.minecraft);
 
-      int logo_hight = 100;
-      int logo_width = 500;
+      int  dsp_hightx = 300;
+      int  dsp_highty= 400;
+      int dsp_width = 300;
+
+      int image_width =  500;
+      int image_hight = 100;
 
       int i = this.minecraft.getWindow().getGuiScaledWidth();
       int j = this.minecraft.getWindow().getGuiScaledHeight();
@@ -141,7 +145,7 @@ public class LoadingOverlay extends Overlay {
       RenderSystem.setShader(GameRenderer::getPositionTexShader);
       RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, f2);
       
-      blit(p_96178_, j2, k2 - i1, j1, (int)d1, 0.0025F, 10.0F, 200, 60, logo_width, logo_hight);
+      blit(p_96178_, 100, image_hight, image_width, 50, 0, 50F, dsp_hightx, dsp_highty ,120, 120);
       RenderSystem.defaultBlendFunc();
       RenderSystem.disableBlend();
 
