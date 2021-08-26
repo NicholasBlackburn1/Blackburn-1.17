@@ -30,7 +30,7 @@ import net.optifine.util.PropertiesOrdered;
 
 public class LoadingOverlay extends Overlay
 {
-    static final ResourceLocation MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/mojangstudios.png");
+    static final ResourceLocation MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo.png");
     private static final int LOGO_BACKGROUND_COLOR = FastColor.ARGB32.color(255, 239, 50, 61);
     private static final int LOGO_BACKGROUND_COLOR_DARK = FastColor.ARGB32.color(255, 0, 0, 0);
     private static final IntSupplier BRAND_BACKGROUND = () ->
@@ -126,6 +126,13 @@ public class LoadingOverlay extends Overlay
             GlStateManager._clear(16384, Minecraft.ON_OSX);
             f2 = 1.0F;
         }
+        int dsp_width = 300;
+
+        int image_width =  600;
+        int image_hight = 20;
+
+        int  dsp_hightx = 300;
+        int dsp_highty= 400;
 
         int j2 = (int)((double)this.minecraft.getWindow().getGuiScaledWidth() * 0.5D);
         int k2 = (int)((double)this.minecraft.getWindow().getGuiScaledHeight() * 0.5D);
@@ -139,24 +146,11 @@ public class LoadingOverlay extends Overlay
         RenderSystem.blendFunc(770, 1);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, f2);
-        boolean flag = true;
 
-        if (this.blendState != null)
-        {
-            this.blendState.apply();
-
-            if (!this.blendState.isEnabled() && this.fadeOut)
-            {
-                flag = false;
-            }
-        }
-
-        if (flag)
-        {
-            blit(pMatrixStack, j2 - j1, k2 - i1, j1, (int)d1, -0.0625F, 0.0F, 120, 60, 120, 120);
-            blit(pMatrixStack, j2, k2 - i1, j1, (int)d1, 0.0625F, 60.0F, 120, 60, 120, 120);
-        }
-
+        blit(pMatrixStack, 100, image_hight, image_width, 270, -2, 30F, dsp_hightx, dsp_highty ,120, dsp_hightx);
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.disableBlend();
+        
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
         int k1 = (int)((double)this.minecraft.getWindow().getGuiScaledHeight() * 0.8325D);
