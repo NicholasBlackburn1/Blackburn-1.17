@@ -43,19 +43,6 @@ public class EarlyLoaderGUI {
         this.handledElsewhere = true;
     }
 
-    public void renderFromGUI() {
-        
-        RenderSystem.clearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.clear(GL11.GL_COLOR_BUFFER_BIT, Minecraft.ON_OSX);
-        GL11.glPushMatrix();
-        setupMatrix();
-        renderBackground();
-        renderMemoryInfo();
-        window.updateDisplay();
-        GL11.glPopMatrix();
-
-
-    }
 
     @SuppressWarnings("deprecation")
     void renderTick() {
@@ -108,21 +95,9 @@ public class EarlyLoaderGUI {
 
     private static final float[] memorycolour = new float[] { 0.0f, 0.0f, 0.0f};
 
-    private void renderMemoryInfo() {
-        final MemoryUsage heapusage = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
-        final MemoryUsage offheapusage = ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage();
-        final float pctmemory = (float) heapusage.getUsed() / heapusage.getMax();
-        String memory = String.format("Memory Heap: %d / %d MB (%.1f%%)  OffHeap: %d MB", heapusage.getUsed() >> 20, heapusage.getMax() >> 20, pctmemory * 100.0, offheapusage.getUsed() >> 20);
-
-        final int i = Mth.hsvToRgb((1.0f - (float)Math.pow(pctmemory, 1.5f)) / 3f, 1.0f, 0.5f);
-        memorycolour[2] = ((i) & 0xFF) / 255.0f;
-        memorycolour[1] = ((i >> 8 ) & 0xFF) / 255.0f;
-        memorycolour[0] = ((i >> 16 ) & 0xFF) / 255.0f;
-        renderMessage(memory, memorycolour, 1, 1.0f);
-    }
 
    
-    void renderMessage(final String message, final float[] colour, int line, float alpha) {
+    public void renderMessage(final String message, final float[] colour, int line, float alpha) {
          GL11.glBegin(GL11.GL_QUADS);
          GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
          ByteBuffer charBuffer = MemoryUtil.memAlloc(message.length() * 270);

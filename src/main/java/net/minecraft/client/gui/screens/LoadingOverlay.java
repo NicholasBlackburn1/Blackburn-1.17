@@ -27,7 +27,7 @@ import net.optifine.reflect.Reflector;
 import net.optifine.render.GlBlendState;
 import net.optifine.shaders.config.ShaderPackParser;
 import net.optifine.util.PropertiesOrdered;
-
+import net.blackburn.client.EarlyLoaderGUI;
 import net.blackburn.Const;
 
 public class LoadingOverlay extends Overlay
@@ -60,7 +60,7 @@ public class LoadingOverlay extends Overlay
     private int colorProgress = 16777215;
     private GlBlendState blendState = null;
     private boolean fadeOut = false;
-
+    
     public LoadingOverlay(Minecraft p_96172_, ReloadInstance p_96173_, Consumer<Optional<Throwable>> p_96174_, boolean p_96175_)
     {
         this.minecraft = p_96172_;
@@ -81,6 +81,8 @@ public class LoadingOverlay extends Overlay
 
     public void render(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks)
     {
+        EarlyLoaderGUI easygui = new EarlyLoaderGUI(minecraft);
+        
         int i = this.minecraft.getWindow().getGuiScaledWidth();
         int j = this.minecraft.getWindow().getGuiScaledHeight();
         long k = Util.getMillis();
@@ -142,10 +144,12 @@ public class LoadingOverlay extends Overlay
         RenderSystem.blendFunc(770, 1);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, f2);
-
+        final float[] memorycolour = new float[] { 0.0f, 0.0f, 0.0f};
         // this allows me to add custom logo
+        
         blit(pMatrixStack,Const.px, Const.py, Const.pUOffset, Const.pVOffset, Const.pWidth, Const.pHight,Const.pTextureWidth,Const.pTextureHeight);
-      
+        //easygui.renderMessage("I HACKED MC 1.17", memorycolour, 2, 1);
+
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
         int k1 = (int)((double)this.minecraft.getWindow().getGuiScaledHeight() * 0.8325D);
