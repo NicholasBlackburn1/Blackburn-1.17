@@ -7,145 +7,180 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 
-public class IntArrayTag extends CollectionTag<IntTag> {
-   private static final int SELF_SIZE_IN_BITS = 192;
-   public static final TagType<IntArrayTag> TYPE = new TagType<IntArrayTag>() {
-      public IntArrayTag load(DataInput p_128662_, int p_128663_, NbtAccounter p_128664_) throws IOException {
-         p_128664_.accountBits(192L);
-         int i = p_128662_.readInt();
-         p_128664_.accountBits(32L * (long)i);
-         int[] aint = new int[i];
+public class IntArrayTag extends CollectionTag<IntTag>
+{
+    private static final int SELF_SIZE_IN_BITS = 192;
+    public static final TagType<IntArrayTag> TYPE = new TagType<IntArrayTag>()
+    {
+        public IntArrayTag load(DataInput pInput, int pDepth, NbtAccounter pAccounter) throws IOException
+        {
+            pAccounter.accountBits(192L);
+            int i = pInput.readInt();
+            pAccounter.accountBits(32L * (long)i);
+            int[] aint = new int[i];
 
-         for(int j = 0; j < i; ++j) {
-            aint[j] = p_128662_.readInt();
-         }
+            for (int j = 0; j < i; ++j)
+            {
+                aint[j] = pInput.readInt();
+            }
 
-         return new IntArrayTag(aint);
-      }
+            return new IntArrayTag(aint);
+        }
+        public String getName()
+        {
+            return "INT[]";
+        }
+        public String getPrettyName()
+        {
+            return "TAG_Int_Array";
+        }
+    };
+    private int[] data;
 
-      public String getName() {
-         return "INT[]";
-      }
+    public IntArrayTag(int[] p_128605_)
+    {
+        this.data = p_128605_;
+    }
 
-      public String getPrettyName() {
-         return "TAG_Int_Array";
-      }
-   };
-   private int[] data;
+    public IntArrayTag(List<Integer> p_128603_)
+    {
+        this(toArray(p_128603_));
+    }
 
-   public IntArrayTag(int[] p_128605_) {
-      this.data = p_128605_;
-   }
+    private static int[] toArray(List<Integer> pIntegers)
+    {
+        int[] aint = new int[pIntegers.size()];
 
-   public IntArrayTag(List<Integer> p_128603_) {
-      this(toArray(p_128603_));
-   }
+        for (int i = 0; i < pIntegers.size(); ++i)
+        {
+            Integer integer = pIntegers.get(i);
+            aint[i] = integer == null ? 0 : integer;
+        }
 
-   private static int[] toArray(List<Integer> p_128621_) {
-      int[] aint = new int[p_128621_.size()];
+        return aint;
+    }
 
-      for(int i = 0; i < p_128621_.size(); ++i) {
-         Integer integer = p_128621_.get(i);
-         aint[i] = integer == null ? 0 : integer;
-      }
+    public void write(DataOutput pOutput) throws IOException
+    {
+        pOutput.writeInt(this.data.length);
 
-      return aint;
-   }
+        for (int i : this.data)
+        {
+            pOutput.writeInt(i);
+        }
+    }
 
-   public void write(DataOutput p_128616_) throws IOException {
-      p_128616_.writeInt(this.data.length);
+    public byte getId()
+    {
+        return 11;
+    }
 
-      for(int i : this.data) {
-         p_128616_.writeInt(i);
-      }
+    public TagType<IntArrayTag> getType()
+    {
+        return TYPE;
+    }
 
-   }
+    public String toString()
+    {
+        return this.getAsString();
+    }
 
-   public byte getId() {
-      return 11;
-   }
+    public IntArrayTag copy()
+    {
+        int[] aint = new int[this.data.length];
+        System.arraycopy(this.data, 0, aint, 0, this.data.length);
+        return new IntArrayTag(aint);
+    }
 
-   public TagType<IntArrayTag> getType() {
-      return TYPE;
-   }
+    public boolean equals(Object p_128647_)
+    {
+        if (this == p_128647_)
+        {
+            return true;
+        }
+        else
+        {
+            return p_128647_ instanceof IntArrayTag && Arrays.equals(this.data, ((IntArrayTag)p_128647_).data);
+        }
+    }
 
-   public String toString() {
-      return this.getAsString();
-   }
+    public int hashCode()
+    {
+        return Arrays.hashCode(this.data);
+    }
 
-   public IntArrayTag copy() {
-      int[] aint = new int[this.data.length];
-      System.arraycopy(this.data, 0, aint, 0, this.data.length);
-      return new IntArrayTag(aint);
-   }
+    public int[] getAsIntArray()
+    {
+        return this.data;
+    }
 
-   public boolean equals(Object p_128647_) {
-      if (this == p_128647_) {
-         return true;
-      } else {
-         return p_128647_ instanceof IntArrayTag && Arrays.equals(this.data, ((IntArrayTag)p_128647_).data);
-      }
-   }
+    public void accept(TagVisitor p_177869_)
+    {
+        p_177869_.visitIntArray(this);
+    }
 
-   public int hashCode() {
-      return Arrays.hashCode(this.data);
-   }
+    public int size()
+    {
+        return this.data.length;
+    }
 
-   public int[] getAsIntArray() {
-      return this.data;
-   }
+    public IntTag get(int p_128608_)
+    {
+        return IntTag.valueOf(this.data[p_128608_]);
+    }
 
-   public void accept(TagVisitor p_177869_) {
-      p_177869_.visitIntArray(this);
-   }
+    public IntTag set(int p_128610_, IntTag p_128611_)
+    {
+        int i = this.data[p_128610_];
+        this.data[p_128610_] = p_128611_.getAsInt();
+        return IntTag.valueOf(i);
+    }
 
-   public int size() {
-      return this.data.length;
-   }
+    public void add(int p_128629_, IntTag p_128630_)
+    {
+        this.data = ArrayUtils.add(this.data, p_128629_, p_128630_.getAsInt());
+    }
 
-   public IntTag get(int p_128608_) {
-      return IntTag.valueOf(this.data[p_128608_]);
-   }
+    public boolean setTag(int pIndex, Tag pNbt)
+    {
+        if (pNbt instanceof NumericTag)
+        {
+            this.data[pIndex] = ((NumericTag)pNbt).getAsInt();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
-   public IntTag set(int p_128610_, IntTag p_128611_) {
-      int i = this.data[p_128610_];
-      this.data[p_128610_] = p_128611_.getAsInt();
-      return IntTag.valueOf(i);
-   }
+    public boolean addTag(int pIndex, Tag pNbt)
+    {
+        if (pNbt instanceof NumericTag)
+        {
+            this.data = ArrayUtils.add(this.data, pIndex, ((NumericTag)pNbt).getAsInt());
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
-   public void add(int p_128629_, IntTag p_128630_) {
-      this.data = ArrayUtils.add(this.data, p_128629_, p_128630_.getAsInt());
-   }
+    public IntTag remove(int p_128627_)
+    {
+        int i = this.data[p_128627_];
+        this.data = ArrayUtils.remove(this.data, p_128627_);
+        return IntTag.valueOf(i);
+    }
 
-   public boolean setTag(int p_128613_, Tag p_128614_) {
-      if (p_128614_ instanceof NumericTag) {
-         this.data[p_128613_] = ((NumericTag)p_128614_).getAsInt();
-         return true;
-      } else {
-         return false;
-      }
-   }
+    public byte getElementType()
+    {
+        return 3;
+    }
 
-   public boolean addTag(int p_128632_, Tag p_128633_) {
-      if (p_128633_ instanceof NumericTag) {
-         this.data = ArrayUtils.add(this.data, p_128632_, ((NumericTag)p_128633_).getAsInt());
-         return true;
-      } else {
-         return false;
-      }
-   }
-
-   public IntTag remove(int p_128627_) {
-      int i = this.data[p_128627_];
-      this.data = ArrayUtils.remove(this.data, p_128627_);
-      return IntTag.valueOf(i);
-   }
-
-   public byte getElementType() {
-      return 3;
-   }
-
-   public void clear() {
-      this.data = new int[0];
-   }
+    public void clear()
+    {
+        this.data = new int[0];
+    }
 }

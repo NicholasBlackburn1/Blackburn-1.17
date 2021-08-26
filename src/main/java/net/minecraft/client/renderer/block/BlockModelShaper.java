@@ -12,72 +12,84 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
-public class BlockModelShaper {
-   private final Map<BlockState, BakedModel> modelByStateCache = Maps.newIdentityHashMap();
-   private final ModelManager modelManager;
+public class BlockModelShaper
+{
+    private final Map<BlockState, BakedModel> modelByStateCache = Maps.newIdentityHashMap();
+    private final ModelManager modelManager;
 
-   public BlockModelShaper(ModelManager p_110880_) {
-      this.modelManager = p_110880_;
-   }
+    public BlockModelShaper(ModelManager p_110880_)
+    {
+        this.modelManager = p_110880_;
+    }
 
-   public TextureAtlasSprite getParticleIcon(BlockState p_110883_) {
-      return this.getBlockModel(p_110883_).getParticleIcon();
-   }
+    public TextureAtlasSprite getParticleIcon(BlockState pState)
+    {
+        return this.getBlockModel(pState).getParticleIcon();
+    }
 
-   public BakedModel getBlockModel(BlockState p_110894_) {
-      BakedModel bakedmodel = this.modelByStateCache.get(p_110894_);
-      if (bakedmodel == null) {
-         bakedmodel = this.modelManager.getMissingModel();
-      }
+    public BakedModel getBlockModel(BlockState pState)
+    {
+        BakedModel bakedmodel = this.modelByStateCache.get(pState);
 
-      return bakedmodel;
-   }
+        if (bakedmodel == null)
+        {
+            bakedmodel = this.modelManager.getMissingModel();
+        }
 
-   public ModelManager getModelManager() {
-      return this.modelManager;
-   }
+        return bakedmodel;
+    }
 
-   public void rebuildCache() {
-      this.modelByStateCache.clear();
+    public ModelManager getModelManager()
+    {
+        return this.modelManager;
+    }
 
-      for(Block block : Registry.BLOCK) {
-         block.getStateDefinition().getPossibleStates().forEach((p_110898_) -> {
-            this.modelByStateCache.put(p_110898_, this.modelManager.getModel(stateToModelLocation(p_110898_)));
-         });
-      }
+    public void rebuildCache()
+    {
+        this.modelByStateCache.clear();
 
-   }
+        for (Block block : Registry.BLOCK)
+        {
+            block.getStateDefinition().getPossibleStates().forEach((p_110898_) ->
+            {
+                this.modelByStateCache.put(p_110898_, this.modelManager.getModel(stateToModelLocation(p_110898_)));
+            });
+        }
+    }
 
-   public static ModelResourceLocation stateToModelLocation(BlockState p_110896_) {
-      return stateToModelLocation(Registry.BLOCK.getKey(p_110896_.getBlock()), p_110896_);
-   }
+    public static ModelResourceLocation stateToModelLocation(BlockState pLocation)
+    {
+        return stateToModelLocation(Registry.BLOCK.getKey(pLocation.getBlock()), pLocation);
+    }
 
-   public static ModelResourceLocation stateToModelLocation(ResourceLocation p_110890_, BlockState p_110891_) {
-      return new ModelResourceLocation(p_110890_, statePropertiesToString(p_110891_.getValues()));
-   }
+    public static ModelResourceLocation stateToModelLocation(ResourceLocation pLocation, BlockState pState)
+    {
+        return new ModelResourceLocation(pLocation, statePropertiesToString(pState.getValues()));
+    }
 
-   public static String statePropertiesToString(Map<Property<?>, Comparable<?>> p_110888_) {
-      StringBuilder stringbuilder = new StringBuilder();
+    public static String statePropertiesToString(Map < Property<?>, Comparable<? >> pPropertyValues)
+    {
+        StringBuilder stringbuilder = new StringBuilder();
 
-      for(Entry<Property<?>, Comparable<?>> entry : p_110888_.entrySet()) {
-         if (stringbuilder.length() != 0) {
-            stringbuilder.append(',');
-         }
+        for (Entry < Property<?>, Comparable<? >> entry : pPropertyValues.entrySet())
+        {
+            if (stringbuilder.length() != 0)
+            {
+                stringbuilder.append(',');
+            }
 
-         Property<?> property = entry.getKey();
-         stringbuilder.append(property.getName());
-         stringbuilder.append('=');
-         stringbuilder.append(getValue(property, entry.getValue()));
-      }
+            Property<?> property = entry.getKey();
+            stringbuilder.append(property.getName());
+            stringbuilder.append('=');
+            stringbuilder.append(getValue(property, entry.getValue()));
+        }
 
-      return stringbuilder.toString();
-   }
+        return stringbuilder.toString();
+    }
 
-   private static <T extends Comparable<T>> String getValue(Property<T> p_110885_, Comparable<?> p_110886_) {
-      return p_110885_.getName((T)p_110886_);
-   }
+    private static <T extends Comparable<T>> String getValue(Property<T> pProperty, Comparable<?> pValue)
+    {
+        return pProperty.getName((T)pValue);
+    }
 }

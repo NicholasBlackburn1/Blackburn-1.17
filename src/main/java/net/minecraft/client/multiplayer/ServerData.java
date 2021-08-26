@@ -8,110 +8,132 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
-public class ServerData {
-   public String name;
-   public String ip;
-   public Component status;
-   public Component motd;
-   public long ping;
-   public int protocol = SharedConstants.getCurrentVersion().getProtocolVersion();
-   public Component version = new TextComponent(SharedConstants.getCurrentVersion().getName());
-   public boolean pinged;
-   public List<Component> playerList = Collections.emptyList();
-   private ServerData.ServerPackStatus packStatus = ServerData.ServerPackStatus.PROMPT;
-   @Nullable
-   private String iconB64;
-   private boolean lan;
+public class ServerData
+{
+    public String name;
+    public String ip;
+    public Component status;
+    public Component motd;
+    public long ping;
+    public int protocol = SharedConstants.getCurrentVersion().getProtocolVersion();
+    public Component version = new TextComponent(SharedConstants.getCurrentVersion().getName());
+    public boolean pinged;
+    public List<Component> playerList = Collections.emptyList();
+    private ServerData.ServerPackStatus packStatus = ServerData.ServerPackStatus.PROMPT;
+    @Nullable
+    private String iconB64;
+    private boolean lan;
 
-   public ServerData(String p_105375_, String p_105376_, boolean p_105377_) {
-      this.name = p_105375_;
-      this.ip = p_105376_;
-      this.lan = p_105377_;
-   }
+    public ServerData(String p_105375_, String p_105376_, boolean p_105377_)
+    {
+        this.name = p_105375_;
+        this.ip = p_105376_;
+        this.lan = p_105377_;
+    }
 
-   public CompoundTag write() {
-      CompoundTag compoundtag = new CompoundTag();
-      compoundtag.putString("name", this.name);
-      compoundtag.putString("ip", this.ip);
-      if (this.iconB64 != null) {
-         compoundtag.putString("icon", this.iconB64);
-      }
+    public CompoundTag write()
+    {
+        CompoundTag compoundtag = new CompoundTag();
+        compoundtag.putString("name", this.name);
+        compoundtag.putString("ip", this.ip);
 
-      if (this.packStatus == ServerData.ServerPackStatus.ENABLED) {
-         compoundtag.putBoolean("acceptTextures", true);
-      } else if (this.packStatus == ServerData.ServerPackStatus.DISABLED) {
-         compoundtag.putBoolean("acceptTextures", false);
-      }
+        if (this.iconB64 != null)
+        {
+            compoundtag.putString("icon", this.iconB64);
+        }
 
-      return compoundtag;
-   }
+        if (this.packStatus == ServerData.ServerPackStatus.ENABLED)
+        {
+            compoundtag.putBoolean("acceptTextures", true);
+        }
+        else if (this.packStatus == ServerData.ServerPackStatus.DISABLED)
+        {
+            compoundtag.putBoolean("acceptTextures", false);
+        }
 
-   public ServerData.ServerPackStatus getResourcePackStatus() {
-      return this.packStatus;
-   }
+        return compoundtag;
+    }
 
-   public void setResourcePackStatus(ServerData.ServerPackStatus p_105380_) {
-      this.packStatus = p_105380_;
-   }
+    public ServerData.ServerPackStatus getResourcePackStatus()
+    {
+        return this.packStatus;
+    }
 
-   public static ServerData read(CompoundTag p_105386_) {
-      ServerData serverdata = new ServerData(p_105386_.getString("name"), p_105386_.getString("ip"), false);
-      if (p_105386_.contains("icon", 8)) {
-         serverdata.setIconB64(p_105386_.getString("icon"));
-      }
+    public void setResourcePackStatus(ServerData.ServerPackStatus pMode)
+    {
+        this.packStatus = pMode;
+    }
 
-      if (p_105386_.contains("acceptTextures", 1)) {
-         if (p_105386_.getBoolean("acceptTextures")) {
-            serverdata.setResourcePackStatus(ServerData.ServerPackStatus.ENABLED);
-         } else {
-            serverdata.setResourcePackStatus(ServerData.ServerPackStatus.DISABLED);
-         }
-      } else {
-         serverdata.setResourcePackStatus(ServerData.ServerPackStatus.PROMPT);
-      }
+    public static ServerData read(CompoundTag pNbtCompound)
+    {
+        ServerData serverdata = new ServerData(pNbtCompound.getString("name"), pNbtCompound.getString("ip"), false);
 
-      return serverdata;
-   }
+        if (pNbtCompound.contains("icon", 8))
+        {
+            serverdata.setIconB64(pNbtCompound.getString("icon"));
+        }
 
-   @Nullable
-   public String getIconB64() {
-      return this.iconB64;
-   }
+        if (pNbtCompound.contains("acceptTextures", 1))
+        {
+            if (pNbtCompound.getBoolean("acceptTextures"))
+            {
+                serverdata.setResourcePackStatus(ServerData.ServerPackStatus.ENABLED);
+            }
+            else
+            {
+                serverdata.setResourcePackStatus(ServerData.ServerPackStatus.DISABLED);
+            }
+        }
+        else
+        {
+            serverdata.setResourcePackStatus(ServerData.ServerPackStatus.PROMPT);
+        }
 
-   public void setIconB64(@Nullable String p_105384_) {
-      this.iconB64 = p_105384_;
-   }
+        return serverdata;
+    }
 
-   public boolean isLan() {
-      return this.lan;
-   }
+    @Nullable
+    public String getIconB64()
+    {
+        return this.iconB64;
+    }
 
-   public void copyFrom(ServerData p_105382_) {
-      this.ip = p_105382_.ip;
-      this.name = p_105382_.name;
-      this.setResourcePackStatus(p_105382_.getResourcePackStatus());
-      this.iconB64 = p_105382_.iconB64;
-      this.lan = p_105382_.lan;
-   }
+    public void setIconB64(@Nullable String pIcon)
+    {
+        this.iconB64 = pIcon;
+    }
 
-   @OnlyIn(Dist.CLIENT)
-   public static enum ServerPackStatus {
-      ENABLED("enabled"),
-      DISABLED("disabled"),
-      PROMPT("prompt");
+    public boolean isLan()
+    {
+        return this.lan;
+    }
 
-      private final Component name;
+    public void copyFrom(ServerData pServerData)
+    {
+        this.ip = pServerData.ip;
+        this.name = pServerData.name;
+        this.setResourcePackStatus(pServerData.getResourcePackStatus());
+        this.iconB64 = pServerData.iconB64;
+        this.lan = pServerData.lan;
+    }
 
-      private ServerPackStatus(String p_105399_) {
-         this.name = new TranslatableComponent("addServer.resourcePack." + p_105399_);
-      }
+    public static enum ServerPackStatus
+    {
+        ENABLED("enabled"),
+        DISABLED("disabled"),
+        PROMPT("prompt");
 
-      public Component getName() {
-         return this.name;
-      }
-   }
+        private final Component name;
+
+        private ServerPackStatus(String p_105399_)
+        {
+            this.name = new TranslatableComponent("addServer.resourcePack." + p_105399_);
+        }
+
+        public Component getName()
+        {
+            return this.name;
+        }
+    }
 }

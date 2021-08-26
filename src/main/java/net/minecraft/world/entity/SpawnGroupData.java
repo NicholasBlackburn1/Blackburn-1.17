@@ -1,4 +1,5 @@
 package net.minecraft.world.entity;
 
-public interface SpawnGroupData {
+public interface SpawnGroupData
+{
 }

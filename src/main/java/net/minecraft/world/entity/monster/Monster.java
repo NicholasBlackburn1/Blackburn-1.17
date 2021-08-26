@@ -24,98 +24,125 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.ServerLevelAccessor;
 
-public abstract class Monster extends PathfinderMob implements Enemy {
-   protected Monster(EntityType<? extends Monster> p_33002_, Level p_33003_) {
-      super(p_33002_, p_33003_);
-      this.xpReward = 5;
-   }
+public abstract class Monster extends PathfinderMob implements Enemy
+{
+    protected Monster(EntityType <? extends Monster > p_33002_, Level p_33003_)
+    {
+        super(p_33002_, p_33003_);
+        this.xpReward = 5;
+    }
 
-   public SoundSource getSoundSource() {
-      return SoundSource.HOSTILE;
-   }
+    public SoundSource getSoundSource()
+    {
+        return SoundSource.HOSTILE;
+    }
 
-   public void aiStep() {
-      this.updateSwingTime();
-      this.updateNoActionTime();
-      super.aiStep();
-   }
+    public void aiStep()
+    {
+        this.updateSwingTime();
+        this.updateNoActionTime();
+        super.aiStep();
+    }
 
-   protected void updateNoActionTime() {
-      float f = this.getBrightness();
-      if (f > 0.5F) {
-         this.noActionTime += 2;
-      }
+    protected void updateNoActionTime()
+    {
+        float f = this.getBrightness();
 
-   }
+        if (f > 0.5F)
+        {
+            this.noActionTime += 2;
+        }
+    }
 
-   protected boolean shouldDespawnInPeaceful() {
-      return true;
-   }
+    protected boolean shouldDespawnInPeaceful()
+    {
+        return true;
+    }
 
-   protected SoundEvent getSwimSound() {
-      return SoundEvents.HOSTILE_SWIM;
-   }
+    protected SoundEvent getSwimSound()
+    {
+        return SoundEvents.HOSTILE_SWIM;
+    }
 
-   protected SoundEvent getSwimSplashSound() {
-      return SoundEvents.HOSTILE_SPLASH;
-   }
+    protected SoundEvent getSwimSplashSound()
+    {
+        return SoundEvents.HOSTILE_SPLASH;
+    }
 
-   protected SoundEvent getHurtSound(DamageSource p_33034_) {
-      return SoundEvents.HOSTILE_HURT;
-   }
+    protected SoundEvent getHurtSound(DamageSource pDamageSource)
+    {
+        return SoundEvents.HOSTILE_HURT;
+    }
 
-   protected SoundEvent getDeathSound() {
-      return SoundEvents.HOSTILE_DEATH;
-   }
+    protected SoundEvent getDeathSound()
+    {
+        return SoundEvents.HOSTILE_DEATH;
+    }
 
-   protected SoundEvent getFallDamageSound(int p_33041_) {
-      return p_33041_ > 4 ? SoundEvents.HOSTILE_BIG_FALL : SoundEvents.HOSTILE_SMALL_FALL;
-   }
+    protected SoundEvent getFallDamageSound(int pHeight)
+    {
+        return pHeight > 4 ? SoundEvents.HOSTILE_BIG_FALL : SoundEvents.HOSTILE_SMALL_FALL;
+    }
 
-   public float getWalkTargetValue(BlockPos p_33013_, LevelReader p_33014_) {
-      return 0.5F - p_33014_.getBrightness(p_33013_);
-   }
+    public float getWalkTargetValue(BlockPos pPos, LevelReader pLevel)
+    {
+        return 0.5F - pLevel.getBrightness(pPos);
+    }
 
-   public static boolean isDarkEnoughToSpawn(ServerLevelAccessor p_33009_, BlockPos p_33010_, Random p_33011_) {
-      if (p_33009_.getBrightness(LightLayer.SKY, p_33010_) > p_33011_.nextInt(32)) {
-         return false;
-      } else {
-         int i = p_33009_.getLevel().isThundering() ? p_33009_.getMaxLocalRawBrightness(p_33010_, 10) : p_33009_.getMaxLocalRawBrightness(p_33010_);
-         return i <= p_33011_.nextInt(8);
-      }
-   }
+    public static boolean isDarkEnoughToSpawn(ServerLevelAccessor pLevel, BlockPos pPos, Random pRandom)
+    {
+        if (pLevel.getBrightness(LightLayer.SKY, pPos) > pRandom.nextInt(32))
+        {
+            return false;
+        }
+        else
+        {
+            int i = pLevel.getLevel().isThundering() ? pLevel.getMaxLocalRawBrightness(pPos, 10) : pLevel.getMaxLocalRawBrightness(pPos);
+            return i <= pRandom.nextInt(8);
+        }
+    }
 
-   public static boolean checkMonsterSpawnRules(EntityType<? extends Monster> p_33018_, ServerLevelAccessor p_33019_, MobSpawnType p_33020_, BlockPos p_33021_, Random p_33022_) {
-      return p_33019_.getDifficulty() != Difficulty.PEACEFUL && isDarkEnoughToSpawn(p_33019_, p_33021_, p_33022_) && checkMobSpawnRules(p_33018_, p_33019_, p_33020_, p_33021_, p_33022_);
-   }
+    public static boolean checkMonsterSpawnRules(EntityType <? extends Monster > pType, ServerLevelAccessor pLevel, MobSpawnType pReason, BlockPos pPos, Random pRandom)
+    {
+        return pLevel.getDifficulty() != Difficulty.PEACEFUL && isDarkEnoughToSpawn(pLevel, pPos, pRandom) && checkMobSpawnRules(pType, pLevel, pReason, pPos, pRandom);
+    }
 
-   public static boolean checkAnyLightMonsterSpawnRules(EntityType<? extends Monster> p_33024_, LevelAccessor p_33025_, MobSpawnType p_33026_, BlockPos p_33027_, Random p_33028_) {
-      return p_33025_.getDifficulty() != Difficulty.PEACEFUL && checkMobSpawnRules(p_33024_, p_33025_, p_33026_, p_33027_, p_33028_);
-   }
+    public static boolean checkAnyLightMonsterSpawnRules(EntityType <? extends Monster > pType, LevelAccessor pLevel, MobSpawnType pReason, BlockPos pPos, Random pRandom)
+    {
+        return pLevel.getDifficulty() != Difficulty.PEACEFUL && checkMobSpawnRules(pType, pLevel, pReason, pPos, pRandom);
+    }
 
-   public static AttributeSupplier.Builder createMonsterAttributes() {
-      return Mob.createMobAttributes().add(Attributes.ATTACK_DAMAGE);
-   }
+    public static AttributeSupplier.Builder createMonsterAttributes()
+    {
+        return Mob.createMobAttributes().add(Attributes.ATTACK_DAMAGE);
+    }
 
-   protected boolean shouldDropExperience() {
-      return true;
-   }
+    protected boolean shouldDropExperience()
+    {
+        return true;
+    }
 
-   protected boolean shouldDropLoot() {
-      return true;
-   }
+    protected boolean shouldDropLoot()
+    {
+        return true;
+    }
 
-   public boolean isPreventingPlayerRest(Player p_33036_) {
-      return true;
-   }
+    public boolean isPreventingPlayerRest(Player p_33036_)
+    {
+        return true;
+    }
 
-   public ItemStack getProjectile(ItemStack p_33038_) {
-      if (p_33038_.getItem() instanceof ProjectileWeaponItem) {
-         Predicate<ItemStack> predicate = ((ProjectileWeaponItem)p_33038_.getItem()).getSupportedHeldProjectiles();
-         ItemStack itemstack = ProjectileWeaponItem.getHeldProjectile(this, predicate);
-         return itemstack.isEmpty() ? new ItemStack(Items.ARROW) : itemstack;
-      } else {
-         return ItemStack.EMPTY;
-      }
-   }
+    public ItemStack getProjectile(ItemStack pShootable)
+    {
+        if (pShootable.getItem() instanceof ProjectileWeaponItem)
+        {
+            Predicate<ItemStack> predicate = ((ProjectileWeaponItem)pShootable.getItem()).getSupportedHeldProjectiles();
+            ItemStack itemstack = ProjectileWeaponItem.getHeldProjectile(this, predicate);
+            return itemstack.isEmpty() ? new ItemStack(Items.ARROW) : itemstack;
+        }
+        else
+        {
+            return ItemStack.EMPTY;
+        }
+    }
 }

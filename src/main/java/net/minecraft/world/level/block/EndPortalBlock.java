@@ -19,46 +19,56 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class EndPortalBlock extends BaseEntityBlock {
-   protected static final VoxelShape SHAPE = Block.box(0.0D, 6.0D, 0.0D, 16.0D, 12.0D, 16.0D);
+public class EndPortalBlock extends BaseEntityBlock
+{
+    protected static final VoxelShape SHAPE = Block.box(0.0D, 6.0D, 0.0D, 16.0D, 12.0D, 16.0D);
 
-   protected EndPortalBlock(BlockBehaviour.Properties p_53017_) {
-      super(p_53017_);
-   }
+    protected EndPortalBlock(BlockBehaviour.Properties p_53017_)
+    {
+        super(p_53017_);
+    }
 
-   public BlockEntity newBlockEntity(BlockPos p_153196_, BlockState p_153197_) {
-      return new TheEndPortalBlockEntity(p_153196_, p_153197_);
-   }
+    public BlockEntity newBlockEntity(BlockPos p_153196_, BlockState p_153197_)
+    {
+        return new TheEndPortalBlockEntity(p_153196_, p_153197_);
+    }
 
-   public VoxelShape getShape(BlockState p_53038_, BlockGetter p_53039_, BlockPos p_53040_, CollisionContext p_53041_) {
-      return SHAPE;
-   }
+    public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext)
+    {
+        return SHAPE;
+    }
 
-   public void entityInside(BlockState p_53025_, Level p_53026_, BlockPos p_53027_, Entity p_53028_) {
-      if (p_53026_ instanceof ServerLevel && !p_53028_.isPassenger() && !p_53028_.isVehicle() && p_53028_.canChangeDimensions() && Shapes.joinIsNotEmpty(Shapes.create(p_53028_.getBoundingBox().move((double)(-p_53027_.getX()), (double)(-p_53027_.getY()), (double)(-p_53027_.getZ()))), p_53025_.getShape(p_53026_, p_53027_), BooleanOp.AND)) {
-         ResourceKey<Level> resourcekey = p_53026_.dimension() == Level.END ? Level.OVERWORLD : Level.END;
-         ServerLevel serverlevel = ((ServerLevel)p_53026_).getServer().getLevel(resourcekey);
-         if (serverlevel == null) {
-            return;
-         }
+    public void entityInside(BlockState pState, Level pLevel, BlockPos pPos, Entity pEntity)
+    {
+        if (pLevel instanceof ServerLevel && !pEntity.isPassenger() && !pEntity.isVehicle() && pEntity.canChangeDimensions() && Shapes.joinIsNotEmpty(Shapes.create(pEntity.getBoundingBox().move((double)(-pPos.getX()), (double)(-pPos.getY()), (double)(-pPos.getZ()))), pState.getShape(pLevel, pPos), BooleanOp.AND))
+        {
+            ResourceKey<Level> resourcekey = pLevel.dimension() == Level.END ? Level.OVERWORLD : Level.END;
+            ServerLevel serverlevel = ((ServerLevel)pLevel).getServer().getLevel(resourcekey);
 
-         p_53028_.changeDimension(serverlevel);
-      }
+            if (serverlevel == null)
+            {
+                return;
+            }
 
-   }
+            pEntity.changeDimension(serverlevel);
+        }
+    }
 
-   public void animateTick(BlockState p_53030_, Level p_53031_, BlockPos p_53032_, Random p_53033_) {
-      double d0 = (double)p_53032_.getX() + p_53033_.nextDouble();
-      double d1 = (double)p_53032_.getY() + 0.8D;
-      double d2 = (double)p_53032_.getZ() + p_53033_.nextDouble();
-      p_53031_.addParticle(ParticleTypes.SMOKE, d0, d1, d2, 0.0D, 0.0D, 0.0D);
-   }
+    public void animateTick(BlockState pState, Level pLevel, BlockPos pPos, Random pRand)
+    {
+        double d0 = (double)pPos.getX() + pRand.nextDouble();
+        double d1 = (double)pPos.getY() + 0.8D;
+        double d2 = (double)pPos.getZ() + pRand.nextDouble();
+        pLevel.addParticle(ParticleTypes.SMOKE, d0, d1, d2, 0.0D, 0.0D, 0.0D);
+    }
 
-   public ItemStack getCloneItemStack(BlockGetter p_53021_, BlockPos p_53022_, BlockState p_53023_) {
-      return ItemStack.EMPTY;
-   }
+    public ItemStack getCloneItemStack(BlockGetter pLevel, BlockPos pPos, BlockState pState)
+    {
+        return ItemStack.EMPTY;
+    }
 
-   public boolean canBeReplaced(BlockState p_53035_, Fluid p_53036_) {
-      return false;
-   }
+    public boolean canBeReplaced(BlockState pState, Fluid pFluid)
+    {
+        return false;
+    }
 }

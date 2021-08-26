@@ -18,43 +18,53 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class MagmaBlock extends Block {
-   private static final int BUBBLE_COLUMN_CHECK_DELAY = 20;
+public class MagmaBlock extends Block
+{
+    private static final int BUBBLE_COLUMN_CHECK_DELAY = 20;
 
-   public MagmaBlock(BlockBehaviour.Properties p_54800_) {
-      super(p_54800_);
-   }
+    public MagmaBlock(BlockBehaviour.Properties p_54800_)
+    {
+        super(p_54800_);
+    }
 
-   public void stepOn(Level p_153777_, BlockPos p_153778_, BlockState p_153779_, Entity p_153780_) {
-      if (!p_153780_.fireImmune() && p_153780_ instanceof LivingEntity && !EnchantmentHelper.hasFrostWalker((LivingEntity)p_153780_)) {
-         p_153780_.hurt(DamageSource.HOT_FLOOR, 1.0F);
-      }
+    public void stepOn(Level p_153777_, BlockPos p_153778_, BlockState p_153779_, Entity p_153780_)
+    {
+        if (!p_153780_.fireImmune() && p_153780_ instanceof LivingEntity && !EnchantmentHelper.hasFrostWalker((LivingEntity)p_153780_))
+        {
+            p_153780_.hurt(DamageSource.HOT_FLOOR, 1.0F);
+        }
 
-      super.stepOn(p_153777_, p_153778_, p_153779_, p_153780_);
-   }
+        super.stepOn(p_153777_, p_153778_, p_153779_, p_153780_);
+    }
 
-   public void tick(BlockState p_54806_, ServerLevel p_54807_, BlockPos p_54808_, Random p_54809_) {
-      BubbleColumnBlock.updateColumn(p_54807_, p_54808_.above(), p_54806_);
-   }
+    public void tick(BlockState pState, ServerLevel pLevel, BlockPos pPos, Random pRand)
+    {
+        BubbleColumnBlock.updateColumn(pLevel, pPos.above(), pState);
+    }
 
-   public BlockState updateShape(BlockState p_54811_, Direction p_54812_, BlockState p_54813_, LevelAccessor p_54814_, BlockPos p_54815_, BlockPos p_54816_) {
-      if (p_54812_ == Direction.UP && p_54813_.is(Blocks.WATER)) {
-         p_54814_.getBlockTicks().scheduleTick(p_54815_, this, 20);
-      }
+    public BlockState updateShape(BlockState pState, Direction pFacing, BlockState pFacingState, LevelAccessor pLevel, BlockPos pCurrentPos, BlockPos pFacingPos)
+    {
+        if (pFacing == Direction.UP && pFacingState.is(Blocks.WATER))
+        {
+            pLevel.getBlockTicks().scheduleTick(pCurrentPos, this, 20);
+        }
 
-      return super.updateShape(p_54811_, p_54812_, p_54813_, p_54814_, p_54815_, p_54816_);
-   }
+        return super.updateShape(pState, pFacing, pFacingState, pLevel, pCurrentPos, pFacingPos);
+    }
 
-   public void randomTick(BlockState p_54818_, ServerLevel p_54819_, BlockPos p_54820_, Random p_54821_) {
-      BlockPos blockpos = p_54820_.above();
-      if (p_54819_.getFluidState(p_54820_).is(FluidTags.WATER)) {
-         p_54819_.playSound((Player)null, p_54820_, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F, 2.6F + (p_54819_.random.nextFloat() - p_54819_.random.nextFloat()) * 0.8F);
-         p_54819_.sendParticles(ParticleTypes.LARGE_SMOKE, (double)blockpos.getX() + 0.5D, (double)blockpos.getY() + 0.25D, (double)blockpos.getZ() + 0.5D, 8, 0.5D, 0.25D, 0.5D, 0.0D);
-      }
+    public void randomTick(BlockState pState, ServerLevel pLevel, BlockPos pPos, Random pRandom)
+    {
+        BlockPos blockpos = pPos.above();
 
-   }
+        if (pLevel.getFluidState(pPos).is(FluidTags.WATER))
+        {
+            pLevel.playSound((Player)null, pPos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F, 2.6F + (pLevel.random.nextFloat() - pLevel.random.nextFloat()) * 0.8F);
+            pLevel.sendParticles(ParticleTypes.LARGE_SMOKE, (double)blockpos.getX() + 0.5D, (double)blockpos.getY() + 0.25D, (double)blockpos.getZ() + 0.5D, 8, 0.5D, 0.25D, 0.5D, 0.0D);
+        }
+    }
 
-   public void onPlace(BlockState p_54823_, Level p_54824_, BlockPos p_54825_, BlockState p_54826_, boolean p_54827_) {
-      p_54824_.getBlockTicks().scheduleTick(p_54825_, this, 20);
-   }
+    public void onPlace(BlockState pState, Level pLevel, BlockPos pPos, BlockState pOldState, boolean pIsMoving)
+    {
+        pLevel.getBlockTicks().scheduleTick(pPos, this, 20);
+    }
 }

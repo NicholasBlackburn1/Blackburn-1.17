@@ -1,11 +1,8 @@
 package com.mojang.realmsclient.gui.task;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+public interface RestartDelayCalculator
+{
+    void markExecutionStart();
 
-@OnlyIn(Dist.CLIENT)
-public interface RestartDelayCalculator {
-   void markExecutionStart();
-
-   long getNextDelayMs();
+    long getNextDelayMs();
 }

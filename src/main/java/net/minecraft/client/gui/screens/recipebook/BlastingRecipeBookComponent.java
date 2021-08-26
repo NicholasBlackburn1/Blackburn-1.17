@@ -5,18 +5,18 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
-public class BlastingRecipeBookComponent extends AbstractFurnaceRecipeBookComponent {
-   private static final Component FILTER_NAME = new TranslatableComponent("gui.recipebook.toggleRecipes.blastable");
+public class BlastingRecipeBookComponent extends AbstractFurnaceRecipeBookComponent
+{
+    private static final Component FILTER_NAME = new TranslatableComponent("gui.recipebook.toggleRecipes.blastable");
 
-   protected Component getRecipeFilterName() {
-      return FILTER_NAME;
-   }
+    protected Component getRecipeFilterName()
+    {
+        return FILTER_NAME;
+    }
 
-   protected Set<Item> getFuelItems() {
-      return AbstractFurnaceBlockEntity.getFuel().keySet();
-   }
+    protected Set<Item> getFuelItems()
+    {
+        return AbstractFurnaceBlockEntity.getFuel().keySet();
+    }
 }

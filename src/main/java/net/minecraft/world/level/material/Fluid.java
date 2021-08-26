@@ -18,86 +18,101 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public abstract class Fluid {
-   public static final IdMapper<FluidState> FLUID_STATE_REGISTRY = new IdMapper<>();
-   protected final StateDefinition<Fluid, FluidState> stateDefinition;
-   private FluidState defaultFluidState;
+public abstract class Fluid
+{
+    public static final IdMapper<FluidState> FLUID_STATE_REGISTRY = new IdMapper<>();
+    protected final StateDefinition<Fluid, FluidState> stateDefinition;
+    private FluidState defaultFluidState;
 
-   protected Fluid() {
-      StateDefinition.Builder<Fluid, FluidState> builder = new StateDefinition.Builder<>(this);
-      this.createFluidStateDefinition(builder);
-      this.stateDefinition = builder.create(Fluid::defaultFluidState, FluidState::new);
-      this.registerDefaultState(this.stateDefinition.any());
-   }
+    protected Fluid()
+    {
+        StateDefinition.Builder<Fluid, FluidState> builder = new StateDefinition.Builder<>(this);
+        this.createFluidStateDefinition(builder);
+        this.stateDefinition = builder.create(Fluid::defaultFluidState, FluidState::new);
+        this.registerDefaultState(this.stateDefinition.any());
+    }
 
-   protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> p_76121_) {
-   }
+    protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> pBuilder)
+    {
+    }
 
-   public StateDefinition<Fluid, FluidState> getStateDefinition() {
-      return this.stateDefinition;
-   }
+    public StateDefinition<Fluid, FluidState> getStateDefinition()
+    {
+        return this.stateDefinition;
+    }
 
-   protected final void registerDefaultState(FluidState p_76143_) {
-      this.defaultFluidState = p_76143_;
-   }
+    protected final void registerDefaultState(FluidState pState)
+    {
+        this.defaultFluidState = pState;
+    }
 
-   public final FluidState defaultFluidState() {
-      return this.defaultFluidState;
-   }
+    public final FluidState defaultFluidState()
+    {
+        return this.defaultFluidState;
+    }
 
-   public abstract Item getBucket();
+    public abstract Item getBucket();
 
-   protected void animateTick(Level p_76116_, BlockPos p_76117_, FluidState p_76118_, Random p_76119_) {
-   }
+    protected void animateTick(Level pLevel, BlockPos pPos, FluidState pState, Random pRandom)
+    {
+    }
 
-   protected void tick(Level p_76113_, BlockPos p_76114_, FluidState p_76115_) {
-   }
+    protected void tick(Level pLevel, BlockPos pPos, FluidState pState)
+    {
+    }
 
-   protected void randomTick(Level p_76132_, BlockPos p_76133_, FluidState p_76134_, Random p_76135_) {
-   }
+    protected void randomTick(Level pLevel, BlockPos pPos, FluidState pState, Random pRandom)
+    {
+    }
 
-   @Nullable
-   protected ParticleOptions getDripParticle() {
-      return null;
-   }
+    @Nullable
+    protected ParticleOptions getDripParticle()
+    {
+        return null;
+    }
 
-   protected abstract boolean canBeReplacedWith(FluidState p_76127_, BlockGetter p_76128_, BlockPos p_76129_, Fluid p_76130_, Direction p_76131_);
+    protected abstract boolean canBeReplacedWith(FluidState pFluidState, BlockGetter pBlockReader, BlockPos pPos, Fluid pFluid, Direction pDirection);
 
-   protected abstract Vec3 getFlow(BlockGetter p_76110_, BlockPos p_76111_, FluidState p_76112_);
+    protected abstract Vec3 getFlow(BlockGetter pBlockReader, BlockPos pPos, FluidState pFluidState);
 
-   public abstract int getTickDelay(LevelReader p_76120_);
+    public abstract int getTickDelay(LevelReader p_76120_);
 
-   protected boolean isRandomlyTicking() {
-      return false;
-   }
+    protected boolean isRandomlyTicking()
+    {
+        return false;
+    }
 
-   protected boolean isEmpty() {
-      return false;
-   }
+    protected boolean isEmpty()
+    {
+        return false;
+    }
 
-   protected abstract float getExplosionResistance();
+    protected abstract float getExplosionResistance();
 
-   public abstract float getHeight(FluidState p_76124_, BlockGetter p_76125_, BlockPos p_76126_);
+    public abstract float getHeight(FluidState p_76124_, BlockGetter p_76125_, BlockPos p_76126_);
 
-   public abstract float getOwnHeight(FluidState p_76123_);
+    public abstract float getOwnHeight(FluidState p_76123_);
 
-   protected abstract BlockState createLegacyBlock(FluidState p_76136_);
+    protected abstract BlockState createLegacyBlock(FluidState pState);
 
-   public abstract boolean isSource(FluidState p_76140_);
+    public abstract boolean isSource(FluidState pState);
 
-   public abstract int getAmount(FluidState p_76141_);
+    public abstract int getAmount(FluidState pState);
 
-   public boolean isSame(Fluid p_76122_) {
-      return p_76122_ == this;
-   }
+    public boolean isSame(Fluid pFluid)
+    {
+        return pFluid == this;
+    }
 
-   public boolean is(Tag<Fluid> p_76109_) {
-      return p_76109_.contains(this);
-   }
+    public boolean is(Tag<Fluid> pTag)
+    {
+        return pTag.contains(this);
+    }
 
-   public abstract VoxelShape getShape(FluidState p_76137_, BlockGetter p_76138_, BlockPos p_76139_);
+    public abstract VoxelShape getShape(FluidState p_76137_, BlockGetter p_76138_, BlockPos p_76139_);
 
-   public Optional<SoundEvent> getPickupSound() {
-      return Optional.empty();
-   }
+    public Optional<SoundEvent> getPickupSound()
+    {
+        return Optional.empty();
+    }
 }

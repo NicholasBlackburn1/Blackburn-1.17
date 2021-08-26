@@ -10,64 +10,88 @@ import net.minecraft.world.level.storage.loot.ValidationContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ConditionReference implements LootItemCondition {
-   private static final Logger LOGGER = LogManager.getLogger();
-   final ResourceLocation name;
+public class ConditionReference implements LootItemCondition
+{
+    private static final Logger LOGGER = LogManager.getLogger();
+    final ResourceLocation name;
 
-   ConditionReference(ResourceLocation p_81553_) {
-      this.name = p_81553_;
-   }
+    ConditionReference(ResourceLocation p_81553_)
+    {
+        this.name = p_81553_;
+    }
 
-   public LootItemConditionType getType() {
-      return LootItemConditions.REFERENCE;
-   }
+    public LootItemConditionType getType()
+    {
+        return LootItemConditions.REFERENCE;
+    }
 
-   public void validate(ValidationContext p_81560_) {
-      if (p_81560_.hasVisitedCondition(this.name)) {
-         p_81560_.reportProblem("Condition " + this.name + " is recursively called");
-      } else {
-         LootItemCondition.super.validate(p_81560_);
-         LootItemCondition lootitemcondition = p_81560_.resolveCondition(this.name);
-         if (lootitemcondition == null) {
-            p_81560_.reportProblem("Unknown condition table called " + this.name);
-         } else {
-            lootitemcondition.validate(p_81560_.enterTable(".{" + this.name + "}", this.name));
-         }
+    public void validate(ValidationContext p_81560_)
+    {
+        if (p_81560_.hasVisitedCondition(this.name))
+        {
+            p_81560_.reportProblem("Condition " + this.name + " is recursively called");
+        }
+        else
+        {
+            LootItemCondition.super.validate(p_81560_);
+            LootItemCondition lootitemcondition = p_81560_.resolveCondition(this.name);
 
-      }
-   }
+            if (lootitemcondition == null)
+            {
+                p_81560_.reportProblem("Unknown condition table called " + this.name);
+            }
+            else
+            {
+                lootitemcondition.validate(p_81560_.enterTable(".{" + this.name + "}", this.name));
+            }
+        }
+    }
 
-   public boolean test(LootContext p_81558_) {
-      LootItemCondition lootitemcondition = p_81558_.getCondition(this.name);
-      if (p_81558_.addVisitedCondition(lootitemcondition)) {
-         boolean flag;
-         try {
-            flag = lootitemcondition.test(p_81558_);
-         } finally {
-            p_81558_.removeVisitedCondition(lootitemcondition);
-         }
+    public boolean test(LootContext p_81558_)
+    {
+        LootItemCondition lootitemcondition = p_81558_.getCondition(this.name);
 
-         return flag;
-      } else {
-         LOGGER.warn("Detected infinite loop in loot tables");
-         return false;
-      }
-   }
+        if (p_81558_.addVisitedCondition(lootitemcondition))
+        {
+            boolean flag;
 
-   public static LootItemCondition.Builder conditionReference(ResourceLocation p_165481_) {
-      return () -> {
-         return new ConditionReference(p_165481_);
-      };
-   }
+            try
+            {
+                flag = lootitemcondition.test(p_81558_);
+            }
+            finally
+            {
+                p_81558_.removeVisitedCondition(lootitemcondition);
+            }
 
-   public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<ConditionReference> {
-      public void serialize(JsonObject p_81571_, ConditionReference p_81572_, JsonSerializationContext p_81573_) {
-         p_81571_.addProperty("name", p_81572_.name.toString());
-      }
+            return flag;
+        }
+        else
+        {
+            LOGGER.warn("Detected infinite loop in loot tables");
+            return false;
+        }
+    }
 
-      public ConditionReference deserialize(JsonObject p_81579_, JsonDeserializationContext p_81580_) {
-         ResourceLocation resourcelocation = new ResourceLocation(GsonHelper.getAsString(p_81579_, "name"));
-         return new ConditionReference(resourcelocation);
-      }
-   }
+    public static LootItemCondition.Builder conditionReference(ResourceLocation p_165481_)
+    {
+        return () ->
+        {
+            return new ConditionReference(p_165481_);
+        };
+    }
+
+    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<ConditionReference>
+    {
+        public void serialize(JsonObject p_81571_, ConditionReference p_81572_, JsonSerializationContext p_81573_)
+        {
+            p_81571_.addProperty("name", p_81572_.name.toString());
+        }
+
+        public ConditionReference deserialize(JsonObject p_81579_, JsonDeserializationContext p_81580_)
+        {
+            ResourceLocation resourcelocation = new ResourceLocation(GsonHelper.getAsString(p_81579_, "name"));
+            return new ConditionReference(resourcelocation);
+        }
+    }
 }

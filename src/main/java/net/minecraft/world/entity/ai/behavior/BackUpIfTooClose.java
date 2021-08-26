@@ -8,35 +8,42 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 
-public class BackUpIfTooClose<E extends Mob> extends Behavior<E> {
-   private final int tooCloseDistance;
-   private final float strafeSpeed;
+public class BackUpIfTooClose<E extends Mob> extends Behavior<E>
+{
+    private final int tooCloseDistance;
+    private final float strafeSpeed;
 
-   public BackUpIfTooClose(int p_22492_, float p_22493_) {
-      super(ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT, MemoryModuleType.LOOK_TARGET, MemoryStatus.REGISTERED, MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryStatus.VALUE_PRESENT));
-      this.tooCloseDistance = p_22492_;
-      this.strafeSpeed = p_22493_;
-   }
+    public BackUpIfTooClose(int p_22492_, float p_22493_)
+    {
+        super(ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT, MemoryModuleType.LOOK_TARGET, MemoryStatus.REGISTERED, MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryStatus.VALUE_PRESENT));
+        this.tooCloseDistance = p_22492_;
+        this.strafeSpeed = p_22493_;
+    }
 
-   protected boolean checkExtraStartConditions(ServerLevel p_22502_, E p_22503_) {
-      return this.isTargetVisible(p_22503_) && this.isTargetTooClose(p_22503_);
-   }
+    protected boolean checkExtraStartConditions(ServerLevel pLevel, E pOwner)
+    {
+        return this.isTargetVisible(pOwner) && this.isTargetTooClose(pOwner);
+    }
 
-   protected void start(ServerLevel p_22505_, E p_22506_, long p_22507_) {
-      p_22506_.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(this.getTarget(p_22506_), true));
-      p_22506_.getMoveControl().strafe(-this.strafeSpeed, 0.0F);
-      p_22506_.setYRot(Mth.rotateIfNecessary(p_22506_.getYRot(), p_22506_.yHeadRot, 0.0F));
-   }
+    protected void start(ServerLevel pLevel, E pEntity, long pGameTime)
+    {
+        pEntity.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(this.getTarget(pEntity), true));
+        pEntity.getMoveControl().strafe(-this.strafeSpeed, 0.0F);
+        pEntity.setYRot(Mth.rotateIfNecessary(pEntity.getYRot(), pEntity.yHeadRot, 0.0F));
+    }
 
-   private boolean isTargetVisible(E p_22509_) {
-      return p_22509_.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get().contains(this.getTarget(p_22509_));
-   }
+    private boolean isTargetVisible(E pMob)
+    {
+        return pMob.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get().contains(this.getTarget(pMob));
+    }
 
-   private boolean isTargetTooClose(E p_22511_) {
-      return this.getTarget(p_22511_).closerThan(p_22511_, (double)this.tooCloseDistance);
-   }
+    private boolean isTargetTooClose(E pMob)
+    {
+        return this.getTarget(pMob).closerThan(pMob, (double)this.tooCloseDistance);
+    }
 
-   private LivingEntity getTarget(E p_22513_) {
-      return p_22513_.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get();
-   }
+    private LivingEntity getTarget(E pMob)
+    {
+        return pMob.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get();
+    }
 }

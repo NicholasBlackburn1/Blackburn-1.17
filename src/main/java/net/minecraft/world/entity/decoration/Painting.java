@@ -20,105 +20,133 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 
-public class Painting extends HangingEntity {
-   public Motive motive;
+public class Painting extends HangingEntity
+{
+    public Motive motive;
 
-   public Painting(EntityType<? extends Painting> p_31904_, Level p_31905_) {
-      super(p_31904_, p_31905_);
-   }
+    public Painting(EntityType <? extends Painting > p_31904_, Level p_31905_)
+    {
+        super(p_31904_, p_31905_);
+    }
 
-   public Painting(Level p_31907_, BlockPos p_31908_, Direction p_31909_) {
-      super(EntityType.PAINTING, p_31907_, p_31908_);
-      List<Motive> list = Lists.newArrayList();
-      int i = 0;
+    public Painting(Level p_31907_, BlockPos p_31908_, Direction p_31909_)
+    {
+        super(EntityType.PAINTING, p_31907_, p_31908_);
+        List<Motive> list = Lists.newArrayList();
+        int i = 0;
 
-      for(Motive motive : Registry.MOTIVE) {
-         this.motive = motive;
-         this.setDirection(p_31909_);
-         if (this.survives()) {
-            list.add(motive);
-            int j = motive.getWidth() * motive.getHeight();
-            if (j > i) {
-               i = j;
+        for (Motive motive : Registry.MOTIVE)
+        {
+            this.motive = motive;
+            this.setDirection(p_31909_);
+
+            if (this.survives())
+            {
+                list.add(motive);
+                int j = motive.getWidth() * motive.getHeight();
+
+                if (j > i)
+                {
+                    i = j;
+                }
             }
-         }
-      }
+        }
 
-      if (!list.isEmpty()) {
-         Iterator<Motive> iterator = list.iterator();
+        if (!list.isEmpty())
+        {
+            Iterator<Motive> iterator = list.iterator();
 
-         while(iterator.hasNext()) {
-            Motive motive1 = iterator.next();
-            if (motive1.getWidth() * motive1.getHeight() < i) {
-               iterator.remove();
+            while (iterator.hasNext())
+            {
+                Motive motive1 = iterator.next();
+
+                if (motive1.getWidth() * motive1.getHeight() < i)
+                {
+                    iterator.remove();
+                }
             }
-         }
 
-         this.motive = list.get(this.random.nextInt(list.size()));
-      }
+            this.motive = list.get(this.random.nextInt(list.size()));
+        }
 
-      this.setDirection(p_31909_);
-   }
+        this.setDirection(p_31909_);
+    }
 
-   public Painting(Level p_31911_, BlockPos p_31912_, Direction p_31913_, Motive p_31914_) {
-      this(p_31911_, p_31912_, p_31913_);
-      this.motive = p_31914_;
-      this.setDirection(p_31913_);
-   }
+    public Painting(Level p_31911_, BlockPos p_31912_, Direction p_31913_, Motive p_31914_)
+    {
+        this(p_31911_, p_31912_, p_31913_);
+        this.motive = p_31914_;
+        this.setDirection(p_31913_);
+    }
 
-   public void addAdditionalSaveData(CompoundTag p_31935_) {
-      p_31935_.putString("Motive", Registry.MOTIVE.getKey(this.motive).toString());
-      p_31935_.putByte("Facing", (byte)this.direction.get2DDataValue());
-      super.addAdditionalSaveData(p_31935_);
-   }
+    public void addAdditionalSaveData(CompoundTag pCompound)
+    {
+        pCompound.putString("Motive", Registry.MOTIVE.getKey(this.motive).toString());
+        pCompound.putByte("Facing", (byte)this.direction.get2DDataValue());
+        super.addAdditionalSaveData(pCompound);
+    }
 
-   public void readAdditionalSaveData(CompoundTag p_31927_) {
-      this.motive = Registry.MOTIVE.get(ResourceLocation.tryParse(p_31927_.getString("Motive")));
-      this.direction = Direction.from2DDataValue(p_31927_.getByte("Facing"));
-      super.readAdditionalSaveData(p_31927_);
-      this.setDirection(this.direction);
-   }
+    public void readAdditionalSaveData(CompoundTag pCompound)
+    {
+        this.motive = Registry.MOTIVE.get(ResourceLocation.tryParse(pCompound.getString("Motive")));
+        this.direction = Direction.from2DDataValue(pCompound.getByte("Facing"));
+        super.readAdditionalSaveData(pCompound);
+        this.setDirection(this.direction);
+    }
 
-   public int getWidth() {
-      return this.motive == null ? 1 : this.motive.getWidth();
-   }
+    public int getWidth()
+    {
+        return this.motive == null ? 1 : this.motive.getWidth();
+    }
 
-   public int getHeight() {
-      return this.motive == null ? 1 : this.motive.getHeight();
-   }
+    public int getHeight()
+    {
+        return this.motive == null ? 1 : this.motive.getHeight();
+    }
 
-   public void dropItem(@Nullable Entity p_31925_) {
-      if (this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
-         this.playSound(SoundEvents.PAINTING_BREAK, 1.0F, 1.0F);
-         if (p_31925_ instanceof Player) {
-            Player player = (Player)p_31925_;
-            if (player.getAbilities().instabuild) {
-               return;
+    public void dropItem(@Nullable Entity pBrokenEntity)
+    {
+        if (this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS))
+        {
+            this.playSound(SoundEvents.PAINTING_BREAK, 1.0F, 1.0F);
+
+            if (pBrokenEntity instanceof Player)
+            {
+                Player player = (Player)pBrokenEntity;
+
+                if (player.getAbilities().instabuild)
+                {
+                    return;
+                }
             }
-         }
 
-         this.spawnAtLocation(Items.PAINTING);
-      }
-   }
+            this.spawnAtLocation(Items.PAINTING);
+        }
+    }
 
-   public void playPlacementSound() {
-      this.playSound(SoundEvents.PAINTING_PLACE, 1.0F, 1.0F);
-   }
+    public void playPlacementSound()
+    {
+        this.playSound(SoundEvents.PAINTING_PLACE, 1.0F, 1.0F);
+    }
 
-   public void moveTo(double p_31929_, double p_31930_, double p_31931_, float p_31932_, float p_31933_) {
-      this.setPos(p_31929_, p_31930_, p_31931_);
-   }
+    public void moveTo(double pX, double p_31930_, double pY, float p_31932_, float pZ)
+    {
+        this.setPos(pX, p_31930_, pY);
+    }
 
-   public void lerpTo(double p_31917_, double p_31918_, double p_31919_, float p_31920_, float p_31921_, int p_31922_, boolean p_31923_) {
-      BlockPos blockpos = this.pos.offset(p_31917_ - this.getX(), p_31918_ - this.getY(), p_31919_ - this.getZ());
-      this.setPos((double)blockpos.getX(), (double)blockpos.getY(), (double)blockpos.getZ());
-   }
+    public void lerpTo(double pX, double p_31918_, double pY, float p_31920_, float pZ, int p_31922_, boolean pYaw)
+    {
+        BlockPos blockpos = this.pos.offset(pX - this.getX(), p_31918_ - this.getY(), pY - this.getZ());
+        this.setPos((double)blockpos.getX(), (double)blockpos.getY(), (double)blockpos.getZ());
+    }
 
-   public Packet<?> getAddEntityPacket() {
-      return new ClientboundAddPaintingPacket(this);
-   }
+    public Packet<?> getAddEntityPacket()
+    {
+        return new ClientboundAddPaintingPacket(this);
+    }
 
-   public ItemStack getPickResult() {
-      return new ItemStack(Items.PAINTING);
-   }
+    public ItemStack getPickResult()
+    {
+        return new ItemStack(Items.PAINTING);
+    }
 }

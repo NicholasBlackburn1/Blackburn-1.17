@@ -13,59 +13,73 @@ import net.minecraft.world.level.levelgen.feature.configurations.CountConfigurat
 import net.minecraft.world.level.levelgen.placement.DecorationContext;
 import net.minecraft.world.level.levelgen.placement.FeatureDecorator;
 
-public class CountMultiLayerDecorator extends FeatureDecorator<CountConfiguration> {
-   public CountMultiLayerDecorator(Codec<CountConfiguration> p_70892_) {
-      super(p_70892_);
-   }
+public class CountMultiLayerDecorator extends FeatureDecorator<CountConfiguration>
+{
+    public CountMultiLayerDecorator(Codec<CountConfiguration> p_70892_)
+    {
+        super(p_70892_);
+    }
 
-   public Stream<BlockPos> getPositions(DecorationContext p_70902_, Random p_70903_, CountConfiguration p_70904_, BlockPos p_70905_) {
-      List<BlockPos> list = Lists.newArrayList();
-      int i = 0;
+    public Stream<BlockPos> getPositions(DecorationContext pHelper, Random pRand, CountConfiguration pConfig, BlockPos pPos)
+    {
+        List<BlockPos> list = Lists.newArrayList();
+        int i = 0;
+        boolean flag;
 
-      boolean flag;
-      do {
-         flag = false;
+        do
+        {
+            flag = false;
 
-         for(int j = 0; j < p_70904_.count().sample(p_70903_); ++j) {
-            int k = p_70903_.nextInt(16) + p_70905_.getX();
-            int l = p_70903_.nextInt(16) + p_70905_.getZ();
-            int i1 = p_70902_.getHeight(Heightmap.Types.MOTION_BLOCKING, k, l);
-            int j1 = findOnGroundYPosition(p_70902_, k, i1, l, i);
-            if (j1 != Integer.MAX_VALUE) {
-               list.add(new BlockPos(k, j1, l));
-               flag = true;
-            }
-         }
+            for (int j = 0; j < pConfig.count().sample(pRand); ++j)
+            {
+                int k = pRand.nextInt(16) + pPos.getX();
+                int l = pRand.nextInt(16) + pPos.getZ();
+                int i1 = pHelper.getHeight(Heightmap.Types.MOTION_BLOCKING, k, l);
+                int j1 = findOnGroundYPosition(pHelper, k, i1, l, i);
 
-         ++i;
-      } while(flag);
-
-      return list.stream();
-   }
-
-   private static int findOnGroundYPosition(DecorationContext p_70896_, int p_70897_, int p_70898_, int p_70899_, int p_70900_) {
-      BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos(p_70897_, p_70898_, p_70899_);
-      int i = 0;
-      BlockState blockstate = p_70896_.getBlockState(blockpos$mutableblockpos);
-
-      for(int j = p_70898_; j >= p_70896_.getMinBuildHeight() + 1; --j) {
-         blockpos$mutableblockpos.setY(j - 1);
-         BlockState blockstate1 = p_70896_.getBlockState(blockpos$mutableblockpos);
-         if (!isEmpty(blockstate1) && isEmpty(blockstate) && !blockstate1.is(Blocks.BEDROCK)) {
-            if (i == p_70900_) {
-               return blockpos$mutableblockpos.getY() + 1;
+                if (j1 != Integer.MAX_VALUE)
+                {
+                    list.add(new BlockPos(k, j1, l));
+                    flag = true;
+                }
             }
 
             ++i;
-         }
+        }
+        while (flag);
 
-         blockstate = blockstate1;
-      }
+        return list.stream();
+    }
 
-      return Integer.MAX_VALUE;
-   }
+    private static int findOnGroundYPosition(DecorationContext p_70896_, int p_70897_, int p_70898_, int p_70899_, int p_70900_)
+    {
+        BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos(p_70897_, p_70898_, p_70899_);
+        int i = 0;
+        BlockState blockstate = p_70896_.getBlockState(blockpos$mutableblockpos);
 
-   private static boolean isEmpty(BlockState p_70894_) {
-      return p_70894_.isAir() || p_70894_.is(Blocks.WATER) || p_70894_.is(Blocks.LAVA);
-   }
+        for (int j = p_70898_; j >= p_70896_.getMinBuildHeight() + 1; --j)
+        {
+            blockpos$mutableblockpos.setY(j - 1);
+            BlockState blockstate1 = p_70896_.getBlockState(blockpos$mutableblockpos);
+
+            if (!isEmpty(blockstate1) && isEmpty(blockstate) && !blockstate1.is(Blocks.BEDROCK))
+            {
+                if (i == p_70900_)
+                {
+                    return blockpos$mutableblockpos.getY() + 1;
+                }
+
+                ++i;
+            }
+
+            blockstate = blockstate1;
+        }
+
+        return Integer.MAX_VALUE;
+    }
+
+    private static boolean isEmpty(BlockState p_70894_)
+    {
+        return p_70894_.isAir() || p_70894_.is(Blocks.WATER) || p_70894_.is(Blocks.LAVA);
+    }
 }

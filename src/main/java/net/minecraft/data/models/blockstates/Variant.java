@@ -8,46 +8,61 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class Variant implements Supplier<JsonElement> {
-   private final Map<VariantProperty<?>, VariantProperty<?>.Value> values = Maps.newLinkedHashMap();
+public class Variant implements Supplier<JsonElement>
+{
+    private final Map < VariantProperty<?>, VariantProperty<?>.Value > values = Maps.newLinkedHashMap();
 
-   public <T> Variant with(VariantProperty<T> p_125512_, T p_125513_) {
-      VariantProperty<?>.Value variantproperty = this.values.put(p_125512_, p_125512_.withValue(p_125513_));
-      if (variantproperty != null) {
-         throw new IllegalStateException("Replacing value of " + variantproperty + " with " + p_125513_);
-      } else {
-         return this;
-      }
-   }
+    public <T> Variant with(VariantProperty<T> pInfo, T pValue)
+    {
+        VariantProperty<?>.Value variantproperty = this.values.put(pInfo, pInfo.withValue(pValue));
 
-   public static Variant variant() {
-      return new Variant();
-   }
+        if (variantproperty != null)
+        {
+            throw new IllegalStateException("Replacing value of " + variantproperty + " with " + pValue);
+        }
+        else
+        {
+            return this;
+        }
+    }
 
-   public static Variant merge(Variant p_125509_, Variant p_125510_) {
-      Variant variant = new Variant();
-      variant.values.putAll(p_125509_.values);
-      variant.values.putAll(p_125510_.values);
-      return variant;
-   }
+    public static Variant variant()
+    {
+        return new Variant();
+    }
 
-   public JsonElement get() {
-      JsonObject jsonobject = new JsonObject();
-      this.values.values().forEach((p_125507_) -> {
-         p_125507_.addToVariant(jsonobject);
-      });
-      return jsonobject;
-   }
+    public static Variant merge(Variant pDefinition1, Variant pDefinition2)
+    {
+        Variant variant = new Variant();
+        variant.values.putAll(pDefinition1.values);
+        variant.values.putAll(pDefinition2.values);
+        return variant;
+    }
 
-   public static JsonElement convertList(List<Variant> p_125515_) {
-      if (p_125515_.size() == 1) {
-         return p_125515_.get(0).get();
-      } else {
-         JsonArray jsonarray = new JsonArray();
-         p_125515_.forEach((p_125504_) -> {
-            jsonarray.add(p_125504_.get());
-         });
-         return jsonarray;
-      }
-   }
+    public JsonElement get()
+    {
+        JsonObject jsonobject = new JsonObject();
+        this.values.values().forEach((p_125507_) ->
+        {
+            p_125507_.addToVariant(jsonobject);
+        });
+        return jsonobject;
+    }
+
+    public static JsonElement convertList(List<Variant> pDefinitions)
+    {
+        if (pDefinitions.size() == 1)
+        {
+            return pDefinitions.get(0).get();
+        }
+        else
+        {
+            JsonArray jsonarray = new JsonArray();
+            pDefinitions.forEach((p_125504_) ->
+            {
+                jsonarray.add(p_125504_.get());
+            });
+            return jsonarray;
+        }
+    }
 }

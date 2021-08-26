@@ -26,191 +26,245 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class BambooBlock extends Block implements BonemealableBlock {
-   protected static final float SMALL_LEAVES_AABB_OFFSET = 3.0F;
-   protected static final float LARGE_LEAVES_AABB_OFFSET = 5.0F;
-   protected static final float COLLISION_AABB_OFFSET = 1.5F;
-   protected static final VoxelShape SMALL_SHAPE = Block.box(5.0D, 0.0D, 5.0D, 11.0D, 16.0D, 11.0D);
-   protected static final VoxelShape LARGE_SHAPE = Block.box(3.0D, 0.0D, 3.0D, 13.0D, 16.0D, 13.0D);
-   protected static final VoxelShape COLLISION_SHAPE = Block.box(6.5D, 0.0D, 6.5D, 9.5D, 16.0D, 9.5D);
-   public static final IntegerProperty AGE = BlockStateProperties.AGE_1;
-   public static final EnumProperty<BambooLeaves> LEAVES = BlockStateProperties.BAMBOO_LEAVES;
-   public static final IntegerProperty STAGE = BlockStateProperties.STAGE;
-   public static final int MAX_HEIGHT = 16;
-   public static final int STAGE_GROWING = 0;
-   public static final int STAGE_DONE_GROWING = 1;
-   public static final int AGE_THIN_BAMBOO = 0;
-   public static final int AGE_THICK_BAMBOO = 1;
+public class BambooBlock extends Block implements BonemealableBlock
+{
+    protected static final float SMALL_LEAVES_AABB_OFFSET = 3.0F;
+    protected static final float LARGE_LEAVES_AABB_OFFSET = 5.0F;
+    protected static final float COLLISION_AABB_OFFSET = 1.5F;
+    protected static final VoxelShape SMALL_SHAPE = Block.box(5.0D, 0.0D, 5.0D, 11.0D, 16.0D, 11.0D);
+    protected static final VoxelShape LARGE_SHAPE = Block.box(3.0D, 0.0D, 3.0D, 13.0D, 16.0D, 13.0D);
+    protected static final VoxelShape COLLISION_SHAPE = Block.box(6.5D, 0.0D, 6.5D, 9.5D, 16.0D, 9.5D);
+    public static final IntegerProperty AGE = BlockStateProperties.AGE_1;
+    public static final EnumProperty<BambooLeaves> LEAVES = BlockStateProperties.BAMBOO_LEAVES;
+    public static final IntegerProperty STAGE = BlockStateProperties.STAGE;
+    public static final int MAX_HEIGHT = 16;
+    public static final int STAGE_GROWING = 0;
+    public static final int STAGE_DONE_GROWING = 1;
+    public static final int AGE_THIN_BAMBOO = 0;
+    public static final int AGE_THICK_BAMBOO = 1;
 
-   public BambooBlock(BlockBehaviour.Properties p_48874_) {
-      super(p_48874_);
-      this.registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)).setValue(LEAVES, BambooLeaves.NONE).setValue(STAGE, Integer.valueOf(0)));
-   }
+    public BambooBlock(BlockBehaviour.Properties p_48874_)
+    {
+        super(p_48874_);
+        this.registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)).setValue(LEAVES, BambooLeaves.NONE).setValue(STAGE, Integer.valueOf(0)));
+    }
 
-   protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> p_48928_) {
-      p_48928_.add(AGE, LEAVES, STAGE);
-   }
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder)
+    {
+        pBuilder.m_61104_(AGE, LEAVES, STAGE);
+    }
 
-   public BlockBehaviour.OffsetType getOffsetType() {
-      return BlockBehaviour.OffsetType.XZ;
-   }
+    public BlockBehaviour.OffsetType getOffsetType()
+    {
+        return BlockBehaviour.OffsetType.XZ;
+    }
 
-   public boolean propagatesSkylightDown(BlockState p_48941_, BlockGetter p_48942_, BlockPos p_48943_) {
-      return true;
-   }
+    public boolean propagatesSkylightDown(BlockState pState, BlockGetter pReader, BlockPos pPos)
+    {
+        return true;
+    }
 
-   public VoxelShape getShape(BlockState p_48945_, BlockGetter p_48946_, BlockPos p_48947_, CollisionContext p_48948_) {
-      VoxelShape voxelshape = p_48945_.getValue(LEAVES) == BambooLeaves.LARGE ? LARGE_SHAPE : SMALL_SHAPE;
-      Vec3 vec3 = p_48945_.getOffset(p_48946_, p_48947_);
-      return voxelshape.move(vec3.x, vec3.y, vec3.z);
-   }
+    public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext)
+    {
+        VoxelShape voxelshape = pState.getValue(LEAVES) == BambooLeaves.LARGE ? LARGE_SHAPE : SMALL_SHAPE;
+        Vec3 vec3 = pState.getOffset(pLevel, pPos);
+        return voxelshape.move(vec3.x, vec3.y, vec3.z);
+    }
 
-   public boolean isPathfindable(BlockState p_48906_, BlockGetter p_48907_, BlockPos p_48908_, PathComputationType p_48909_) {
-      return false;
-   }
+    public boolean isPathfindable(BlockState pState, BlockGetter pLevel, BlockPos pPos, PathComputationType pType)
+    {
+        return false;
+    }
 
-   public VoxelShape getCollisionShape(BlockState p_48950_, BlockGetter p_48951_, BlockPos p_48952_, CollisionContext p_48953_) {
-      Vec3 vec3 = p_48950_.getOffset(p_48951_, p_48952_);
-      return COLLISION_SHAPE.move(vec3.x, vec3.y, vec3.z);
-   }
+    public VoxelShape getCollisionShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext)
+    {
+        Vec3 vec3 = pState.getOffset(pLevel, pPos);
+        return COLLISION_SHAPE.move(vec3.x, vec3.y, vec3.z);
+    }
 
-   public boolean isCollisionShapeFullBlock(BlockState p_181159_, BlockGetter p_181160_, BlockPos p_181161_) {
-      return false;
-   }
+    public boolean isCollisionShapeFullBlock(BlockState p_181159_, BlockGetter p_181160_, BlockPos p_181161_)
+    {
+        return false;
+    }
 
-   @Nullable
-   public BlockState getStateForPlacement(BlockPlaceContext p_48881_) {
-      FluidState fluidstate = p_48881_.getLevel().getFluidState(p_48881_.getClickedPos());
-      if (!fluidstate.isEmpty()) {
-         return null;
-      } else {
-         BlockState blockstate = p_48881_.getLevel().getBlockState(p_48881_.getClickedPos().below());
-         if (blockstate.is(BlockTags.BAMBOO_PLANTABLE_ON)) {
-            if (blockstate.is(Blocks.BAMBOO_SAPLING)) {
-               return this.defaultBlockState().setValue(AGE, Integer.valueOf(0));
-            } else if (blockstate.is(Blocks.BAMBOO)) {
-               int i = blockstate.getValue(AGE) > 0 ? 1 : 0;
-               return this.defaultBlockState().setValue(AGE, Integer.valueOf(i));
-            } else {
-               BlockState blockstate1 = p_48881_.getLevel().getBlockState(p_48881_.getClickedPos().above());
-               return blockstate1.is(Blocks.BAMBOO) ? this.defaultBlockState().setValue(AGE, blockstate1.getValue(AGE)) : Blocks.BAMBOO_SAPLING.defaultBlockState();
-            }
-         } else {
+    @Nullable
+    public BlockState getStateForPlacement(BlockPlaceContext pContext)
+    {
+        FluidState fluidstate = pContext.getLevel().getFluidState(pContext.getClickedPos());
+
+        if (!fluidstate.isEmpty())
+        {
             return null;
-         }
-      }
-   }
+        }
+        else
+        {
+            BlockState blockstate = pContext.getLevel().getBlockState(pContext.getClickedPos().below());
 
-   public void tick(BlockState p_48896_, ServerLevel p_48897_, BlockPos p_48898_, Random p_48899_) {
-      if (!p_48896_.canSurvive(p_48897_, p_48898_)) {
-         p_48897_.destroyBlock(p_48898_, true);
-      }
-
-   }
-
-   public boolean isRandomlyTicking(BlockState p_48930_) {
-      return p_48930_.getValue(STAGE) == 0;
-   }
-
-   public void randomTick(BlockState p_48936_, ServerLevel p_48937_, BlockPos p_48938_, Random p_48939_) {
-      if (p_48936_.getValue(STAGE) == 0) {
-         if (p_48939_.nextInt(3) == 0 && p_48937_.isEmptyBlock(p_48938_.above()) && p_48937_.getRawBrightness(p_48938_.above(), 0) >= 9) {
-            int i = this.getHeightBelowUpToMax(p_48937_, p_48938_) + 1;
-            if (i < 16) {
-               this.growBamboo(p_48936_, p_48937_, p_48938_, p_48939_, i);
+            if (blockstate.is(BlockTags.BAMBOO_PLANTABLE_ON))
+            {
+                if (blockstate.is(Blocks.BAMBOO_SAPLING))
+                {
+                    return this.defaultBlockState().setValue(AGE, Integer.valueOf(0));
+                }
+                else if (blockstate.is(Blocks.BAMBOO))
+                {
+                    int i = blockstate.getValue(AGE) > 0 ? 1 : 0;
+                    return this.defaultBlockState().setValue(AGE, Integer.valueOf(i));
+                }
+                else
+                {
+                    BlockState blockstate1 = pContext.getLevel().getBlockState(pContext.getClickedPos().above());
+                    return blockstate1.is(Blocks.BAMBOO) ? this.defaultBlockState().setValue(AGE, blockstate1.getValue(AGE)) : Blocks.BAMBOO_SAPLING.defaultBlockState();
+                }
             }
-         }
-
-      }
-   }
-
-   public boolean canSurvive(BlockState p_48917_, LevelReader p_48918_, BlockPos p_48919_) {
-      return p_48918_.getBlockState(p_48919_.below()).is(BlockTags.BAMBOO_PLANTABLE_ON);
-   }
-
-   public BlockState updateShape(BlockState p_48921_, Direction p_48922_, BlockState p_48923_, LevelAccessor p_48924_, BlockPos p_48925_, BlockPos p_48926_) {
-      if (!p_48921_.canSurvive(p_48924_, p_48925_)) {
-         p_48924_.getBlockTicks().scheduleTick(p_48925_, this, 1);
-      }
-
-      if (p_48922_ == Direction.UP && p_48923_.is(Blocks.BAMBOO) && p_48923_.getValue(AGE) > p_48921_.getValue(AGE)) {
-         p_48924_.setBlock(p_48925_, p_48921_.cycle(AGE), 2);
-      }
-
-      return super.updateShape(p_48921_, p_48922_, p_48923_, p_48924_, p_48925_, p_48926_);
-   }
-
-   public boolean isValidBonemealTarget(BlockGetter p_48886_, BlockPos p_48887_, BlockState p_48888_, boolean p_48889_) {
-      int i = this.getHeightAboveUpToMax(p_48886_, p_48887_);
-      int j = this.getHeightBelowUpToMax(p_48886_, p_48887_);
-      return i + j + 1 < 16 && p_48886_.getBlockState(p_48887_.above(i)).getValue(STAGE) != 1;
-   }
-
-   public boolean isBonemealSuccess(Level p_48891_, Random p_48892_, BlockPos p_48893_, BlockState p_48894_) {
-      return true;
-   }
-
-   public void performBonemeal(ServerLevel p_48876_, Random p_48877_, BlockPos p_48878_, BlockState p_48879_) {
-      int i = this.getHeightAboveUpToMax(p_48876_, p_48878_);
-      int j = this.getHeightBelowUpToMax(p_48876_, p_48878_);
-      int k = i + j + 1;
-      int l = 1 + p_48877_.nextInt(2);
-
-      for(int i1 = 0; i1 < l; ++i1) {
-         BlockPos blockpos = p_48878_.above(i);
-         BlockState blockstate = p_48876_.getBlockState(blockpos);
-         if (k >= 16 || blockstate.getValue(STAGE) == 1 || !p_48876_.isEmptyBlock(blockpos.above())) {
-            return;
-         }
-
-         this.growBamboo(blockstate, p_48876_, blockpos, p_48877_, k);
-         ++i;
-         ++k;
-      }
-
-   }
-
-   public float getDestroyProgress(BlockState p_48901_, Player p_48902_, BlockGetter p_48903_, BlockPos p_48904_) {
-      return p_48902_.getMainHandItem().getItem() instanceof SwordItem ? 1.0F : super.getDestroyProgress(p_48901_, p_48902_, p_48903_, p_48904_);
-   }
-
-   protected void growBamboo(BlockState p_48911_, Level p_48912_, BlockPos p_48913_, Random p_48914_, int p_48915_) {
-      BlockState blockstate = p_48912_.getBlockState(p_48913_.below());
-      BlockPos blockpos = p_48913_.below(2);
-      BlockState blockstate1 = p_48912_.getBlockState(blockpos);
-      BambooLeaves bambooleaves = BambooLeaves.NONE;
-      if (p_48915_ >= 1) {
-         if (blockstate.is(Blocks.BAMBOO) && blockstate.getValue(LEAVES) != BambooLeaves.NONE) {
-            if (blockstate.is(Blocks.BAMBOO) && blockstate.getValue(LEAVES) != BambooLeaves.NONE) {
-               bambooleaves = BambooLeaves.LARGE;
-               if (blockstate1.is(Blocks.BAMBOO)) {
-                  p_48912_.setBlock(p_48913_.below(), blockstate.setValue(LEAVES, BambooLeaves.SMALL), 3);
-                  p_48912_.setBlock(blockpos, blockstate1.setValue(LEAVES, BambooLeaves.NONE), 3);
-               }
+            else
+            {
+                return null;
             }
-         } else {
-            bambooleaves = BambooLeaves.SMALL;
-         }
-      }
+        }
+    }
 
-      int i = p_48911_.getValue(AGE) != 1 && !blockstate1.is(Blocks.BAMBOO) ? 0 : 1;
-      int j = (p_48915_ < 11 || !(p_48914_.nextFloat() < 0.25F)) && p_48915_ != 15 ? 0 : 1;
-      p_48912_.setBlock(p_48913_.above(), this.defaultBlockState().setValue(AGE, Integer.valueOf(i)).setValue(LEAVES, bambooleaves).setValue(STAGE, Integer.valueOf(j)), 3);
-   }
+    public void tick(BlockState pState, ServerLevel pLevel, BlockPos pPos, Random pRand)
+    {
+        if (!pState.canSurvive(pLevel, pPos))
+        {
+            pLevel.destroyBlock(pPos, true);
+        }
+    }
 
-   protected int getHeightAboveUpToMax(BlockGetter p_48883_, BlockPos p_48884_) {
-      int i;
-      for(i = 0; i < 16 && p_48883_.getBlockState(p_48884_.above(i + 1)).is(Blocks.BAMBOO); ++i) {
-      }
+    public boolean isRandomlyTicking(BlockState pState)
+    {
+        return pState.getValue(STAGE) == 0;
+    }
 
-      return i;
-   }
+    public void randomTick(BlockState pState, ServerLevel pLevel, BlockPos pPos, Random pRandom)
+    {
+        if (pState.getValue(STAGE) == 0)
+        {
+            if (pRandom.nextInt(3) == 0 && pLevel.isEmptyBlock(pPos.above()) && pLevel.getRawBrightness(pPos.above(), 0) >= 9)
+            {
+                int i = this.getHeightBelowUpToMax(pLevel, pPos) + 1;
 
-   protected int getHeightBelowUpToMax(BlockGetter p_48933_, BlockPos p_48934_) {
-      int i;
-      for(i = 0; i < 16 && p_48933_.getBlockState(p_48934_.below(i + 1)).is(Blocks.BAMBOO); ++i) {
-      }
+                if (i < 16)
+                {
+                    this.growBamboo(pState, pLevel, pPos, pRandom, i);
+                }
+            }
+        }
+    }
 
-      return i;
-   }
+    public boolean canSurvive(BlockState pState, LevelReader pLevel, BlockPos pPos)
+    {
+        return pLevel.getBlockState(pPos.below()).is(BlockTags.BAMBOO_PLANTABLE_ON);
+    }
+
+    public BlockState updateShape(BlockState pState, Direction pFacing, BlockState pFacingState, LevelAccessor pLevel, BlockPos pCurrentPos, BlockPos pFacingPos)
+    {
+        if (!pState.canSurvive(pLevel, pCurrentPos))
+        {
+            pLevel.getBlockTicks().scheduleTick(pCurrentPos, this, 1);
+        }
+
+        if (pFacing == Direction.UP && pFacingState.is(Blocks.BAMBOO) && pFacingState.getValue(AGE) > pState.getValue(AGE))
+        {
+            pLevel.setBlock(pCurrentPos, pState.cycle(AGE), 2);
+        }
+
+        return super.updateShape(pState, pFacing, pFacingState, pLevel, pCurrentPos, pFacingPos);
+    }
+
+    public boolean isValidBonemealTarget(BlockGetter pLevel, BlockPos pPos, BlockState pState, boolean pIsClient)
+    {
+        int i = this.getHeightAboveUpToMax(pLevel, pPos);
+        int j = this.getHeightBelowUpToMax(pLevel, pPos);
+        return i + j + 1 < 16 && pLevel.getBlockState(pPos.above(i)).getValue(STAGE) != 1;
+    }
+
+    public boolean isBonemealSuccess(Level pLevel, Random pRand, BlockPos pPos, BlockState pState)
+    {
+        return true;
+    }
+
+    public void performBonemeal(ServerLevel pLevel, Random pRand, BlockPos pPos, BlockState pState)
+    {
+        int i = this.getHeightAboveUpToMax(pLevel, pPos);
+        int j = this.getHeightBelowUpToMax(pLevel, pPos);
+        int k = i + j + 1;
+        int l = 1 + pRand.nextInt(2);
+
+        for (int i1 = 0; i1 < l; ++i1)
+        {
+            BlockPos blockpos = pPos.above(i);
+            BlockState blockstate = pLevel.getBlockState(blockpos);
+
+            if (k >= 16 || blockstate.getValue(STAGE) == 1 || !pLevel.isEmptyBlock(blockpos.above()))
+            {
+                return;
+            }
+
+            this.growBamboo(blockstate, pLevel, blockpos, pRand, k);
+            ++i;
+            ++k;
+        }
+    }
+
+    public float getDestroyProgress(BlockState pState, Player pPlayer, BlockGetter pLevel, BlockPos pPos)
+    {
+        return pPlayer.getMainHandItem().getItem() instanceof SwordItem ? 1.0F : super.getDestroyProgress(pState, pPlayer, pLevel, pPos);
+    }
+
+    protected void growBamboo(BlockState pBlockState, Level pLevel, BlockPos pPos, Random pRand, int pMaxTotalSize)
+    {
+        BlockState blockstate = pLevel.getBlockState(pPos.below());
+        BlockPos blockpos = pPos.below(2);
+        BlockState blockstate1 = pLevel.getBlockState(blockpos);
+        BambooLeaves bambooleaves = BambooLeaves.NONE;
+
+        if (pMaxTotalSize >= 1)
+        {
+            if (blockstate.is(Blocks.BAMBOO) && blockstate.getValue(LEAVES) != BambooLeaves.NONE)
+            {
+                if (blockstate.is(Blocks.BAMBOO) && blockstate.getValue(LEAVES) != BambooLeaves.NONE)
+                {
+                    bambooleaves = BambooLeaves.LARGE;
+
+                    if (blockstate1.is(Blocks.BAMBOO))
+                    {
+                        pLevel.setBlock(pPos.below(), blockstate.setValue(LEAVES, BambooLeaves.SMALL), 3);
+                        pLevel.setBlock(blockpos, blockstate1.setValue(LEAVES, BambooLeaves.NONE), 3);
+                    }
+                }
+            }
+            else
+            {
+                bambooleaves = BambooLeaves.SMALL;
+            }
+        }
+
+        int i = pBlockState.getValue(AGE) != 1 && !blockstate1.is(Blocks.BAMBOO) ? 0 : 1;
+        int j = (pMaxTotalSize < 11 || !(pRand.nextFloat() < 0.25F)) && pMaxTotalSize != 15 ? 0 : 1;
+        pLevel.setBlock(pPos.above(), this.defaultBlockState().setValue(AGE, Integer.valueOf(i)).setValue(LEAVES, bambooleaves).setValue(STAGE, Integer.valueOf(j)), 3);
+    }
+
+    protected int getHeightAboveUpToMax(BlockGetter pLevel, BlockPos pPos)
+    {
+        int i;
+
+        for (i = 0; i < 16 && pLevel.getBlockState(pPos.above(i + 1)).is(Blocks.BAMBOO); ++i)
+        {
+        }
+
+        return i;
+    }
+
+    protected int getHeightBelowUpToMax(BlockGetter pLevel, BlockPos pPos)
+    {
+        int i;
+
+        for (i = 0; i < 16 && pLevel.getBlockState(pPos.below(i + 1)).is(Blocks.BAMBOO); ++i)
+        {
+        }
+
+        return i;
+    }
 }

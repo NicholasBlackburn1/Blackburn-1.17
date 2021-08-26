@@ -25,93 +25,113 @@ import net.minecraft.util.StringDecomposer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public abstract class Language {
-   private static final Logger LOGGER = LogManager.getLogger();
-   private static final Gson GSON = new Gson();
-   private static final Pattern UNSUPPORTED_FORMAT_PATTERN = Pattern.compile("%(\\d+\\$)?[\\d.]*[df]");
-   public static final String DEFAULT = "en_us";
-   private static volatile Language instance = loadDefault();
+public abstract class Language
+{
+    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Gson GSON = new Gson();
+    private static final Pattern UNSUPPORTED_FORMAT_PATTERN = Pattern.compile("%(\\d+\\$)?[\\d.]*[df]");
+    public static final String DEFAULT = "en_us";
+    private static volatile Language instance = loadDefault();
 
-   private static Language loadDefault() {
-      Builder<String, String> builder = ImmutableMap.builder();
-      BiConsumer<String, String> biconsumer = builder::put;
-      String s = "/assets/minecraft/lang/en_us.json";
+    private static Language loadDefault()
+    {
+        Builder<String, String> builder = ImmutableMap.builder();
+        BiConsumer<String, String> biconsumer = builder::put;
+        String s = "/assets/minecraft/lang/en_us.json";
 
-      try {
-         InputStream inputstream = Language.class.getResourceAsStream("/assets/minecraft/lang/en_us.json");
+        try
+        {
+            InputStream inputstream = Language.class.getResourceAsStream("/assets/minecraft/lang/en_us.json");
 
-         try {
-            loadFromJson(inputstream, biconsumer);
-         } catch (Throwable throwable1) {
-            if (inputstream != null) {
-               try {
-                  inputstream.close();
-               } catch (Throwable throwable) {
-                  throwable1.addSuppressed(throwable);
-               }
+            try
+            {
+                loadFromJson(inputstream, biconsumer);
+            }
+            catch (Throwable throwable1)
+            {
+                if (inputstream != null)
+                {
+                    try
+                    {
+                        inputstream.close();
+                    }
+                    catch (Throwable throwable)
+                    {
+                        throwable1.addSuppressed(throwable);
+                    }
+                }
+
+                throw throwable1;
             }
 
-            throw throwable1;
-         }
+            if (inputstream != null)
+            {
+                inputstream.close();
+            }
+        }
+        catch (JsonParseException | IOException ioexception)
+        {
+            LOGGER.error("Couldn't read strings from {}", "/assets/minecraft/lang/en_us.json", ioexception);
+        }
 
-         if (inputstream != null) {
-            inputstream.close();
-         }
-      } catch (JsonParseException | IOException ioexception) {
-         LOGGER.error("Couldn't read strings from {}", "/assets/minecraft/lang/en_us.json", ioexception);
-      }
+        final Map<String, String> map = builder.build();
+        return new Language()
+        {
+            public String getOrDefault(String p_128127_)
+            {
+                return map.getOrDefault(p_128127_, p_128127_);
+            }
+            public boolean has(String p_128135_)
+            {
+                return map.containsKey(p_128135_);
+            }
+            public boolean isDefaultRightToLeft()
+            {
+                return false;
+            }
+            public FormattedCharSequence getVisualOrder(FormattedText p_128129_)
+            {
+                return (p_128132_) ->
+                {
+                    return p_128129_.visit((p_177835_, p_177836_) -> {
+                        return StringDecomposer.iterateFormatted(p_177836_, p_177835_, p_128132_) ? Optional.empty() : FormattedText.STOP_ITERATION;
+                    }, Style.EMPTY).isPresent();
+                };
+            }
+        };
+    }
 
-      final Map<String, String> map = builder.build();
-      return new Language() {
-         public String getOrDefault(String p_128127_) {
-            return map.getOrDefault(p_128127_, p_128127_);
-         }
+    public static void loadFromJson(InputStream p_128109_, BiConsumer<String, String> p_128110_)
+    {
+        JsonObject jsonobject = GSON.fromJson(new InputStreamReader(p_128109_, StandardCharsets.UTF_8), JsonObject.class);
 
-         public boolean has(String p_128135_) {
-            return map.containsKey(p_128135_);
-         }
+        for (Entry<String, JsonElement> entry : jsonobject.entrySet())
+        {
+            String s = UNSUPPORTED_FORMAT_PATTERN.matcher(GsonHelper.convertToString(entry.getValue(), entry.getKey())).replaceAll("%$1s");
+            p_128110_.accept(entry.getKey(), s);
+        }
+    }
 
-         public boolean isDefaultRightToLeft() {
-            return false;
-         }
+    public static Language getInstance()
+    {
+        return instance;
+    }
 
-         public FormattedCharSequence getVisualOrder(FormattedText p_128129_) {
-            return (p_128132_) -> {
-               return p_128129_.visit((p_177835_, p_177836_) -> {
-                  return StringDecomposer.iterateFormatted(p_177836_, p_177835_, p_128132_) ? Optional.empty() : FormattedText.STOP_ITERATION;
-               }, Style.EMPTY).isPresent();
-            };
-         }
-      };
-   }
+    public static void inject(Language p_128115_)
+    {
+        instance = p_128115_;
+    }
 
-   public static void loadFromJson(InputStream p_128109_, BiConsumer<String, String> p_128110_) {
-      JsonObject jsonobject = GSON.fromJson(new InputStreamReader(p_128109_, StandardCharsets.UTF_8), JsonObject.class);
+    public abstract String getOrDefault(String p_128111_);
 
-      for(Entry<String, JsonElement> entry : jsonobject.entrySet()) {
-         String s = UNSUPPORTED_FORMAT_PATTERN.matcher(GsonHelper.convertToString(entry.getValue(), entry.getKey())).replaceAll("%$1s");
-         p_128110_.accept(entry.getKey(), s);
-      }
+    public abstract boolean has(String p_128117_);
 
-   }
+    public abstract boolean isDefaultRightToLeft();
 
-   public static Language getInstance() {
-      return instance;
-   }
+    public abstract FormattedCharSequence getVisualOrder(FormattedText p_128116_);
 
-   public static void inject(Language p_128115_) {
-      instance = p_128115_;
-   }
-
-   public abstract String getOrDefault(String p_128111_);
-
-   public abstract boolean has(String p_128117_);
-
-   public abstract boolean isDefaultRightToLeft();
-
-   public abstract FormattedCharSequence getVisualOrder(FormattedText p_128116_);
-
-   public List<FormattedCharSequence> getVisualOrder(List<FormattedText> p_128113_) {
-      return p_128113_.stream().map(this::getVisualOrder).collect(ImmutableList.toImmutableList());
-   }
+    public List<FormattedCharSequence> getVisualOrder(List<FormattedText> p_128113_)
+    {
+        return p_128113_.stream().map(this::getVisualOrder).collect(ImmutableList.toImmutableList());
+    }
 }

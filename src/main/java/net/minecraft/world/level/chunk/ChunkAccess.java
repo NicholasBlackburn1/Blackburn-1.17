@@ -24,138 +24,160 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.material.Fluid;
 import org.apache.logging.log4j.LogManager;
 
-public interface ChunkAccess extends BlockGetter, FeatureAccess {
-   default GameEventDispatcher getEventDispatcher(int p_156113_) {
-      return GameEventDispatcher.NOOP;
-   }
+public interface ChunkAccess extends BlockGetter, FeatureAccess
+{
+default GameEventDispatcher getEventDispatcher(int p_156113_)
+    {
+        return GameEventDispatcher.NOOP;
+    }
 
-   @Nullable
-   BlockState setBlockState(BlockPos p_62087_, BlockState p_62088_, boolean p_62089_);
+    @Nullable
+    BlockState setBlockState(BlockPos pPos, BlockState pState, boolean pIsMoving);
 
-   void setBlockEntity(BlockEntity p_156114_);
+    void setBlockEntity(BlockEntity p_156114_);
 
-   void addEntity(Entity p_62078_);
+    void addEntity(Entity pEntity);
 
-   @Nullable
-   default LevelChunkSection getHighestSection() {
-      LevelChunkSection[] alevelchunksection = this.getSections();
+    @Nullable
 
-      for(int i = alevelchunksection.length - 1; i >= 0; --i) {
-         LevelChunkSection levelchunksection = alevelchunksection[i];
-         if (!LevelChunkSection.isEmpty(levelchunksection)) {
-            return levelchunksection;
-         }
-      }
+default LevelChunkSection getHighestSection()
+    {
+        LevelChunkSection[] alevelchunksection = this.getSections();
 
-      return null;
-   }
+        for (int i = alevelchunksection.length - 1; i >= 0; --i)
+        {
+            LevelChunkSection levelchunksection = alevelchunksection[i];
 
-   default int getHighestSectionPosition() {
-      LevelChunkSection levelchunksection = this.getHighestSection();
-      return levelchunksection == null ? this.getMinBuildHeight() : levelchunksection.bottomBlockY();
-   }
+            if (!LevelChunkSection.isEmpty(levelchunksection))
+            {
+                return levelchunksection;
+            }
+        }
 
-   Set<BlockPos> getBlockEntitiesPos();
+        return null;
+    }
 
-   LevelChunkSection[] getSections();
+default int getHighestSectionPosition()
+    {
+        LevelChunkSection levelchunksection = this.getHighestSection();
+        return levelchunksection == null ? this.getMinBuildHeight() : levelchunksection.bottomBlockY();
+    }
 
-   default LevelChunkSection getOrCreateSection(int p_156116_) {
-      LevelChunkSection[] alevelchunksection = this.getSections();
-      if (alevelchunksection[p_156116_] == LevelChunk.EMPTY_SECTION) {
-         alevelchunksection[p_156116_] = new LevelChunkSection(this.getSectionYFromSectionIndex(p_156116_));
-      }
+    Set<BlockPos> getBlockEntitiesPos();
 
-      return alevelchunksection[p_156116_];
-   }
+    LevelChunkSection[] getSections();
 
-   Collection<Entry<Heightmap.Types, Heightmap>> getHeightmaps();
+default LevelChunkSection getOrCreateSection(int p_156116_)
+    {
+        LevelChunkSection[] alevelchunksection = this.getSections();
 
-   default void setHeightmap(Heightmap.Types p_62083_, long[] p_62084_) {
-      this.getOrCreateHeightmapUnprimed(p_62083_).setRawData(this, p_62083_, p_62084_);
-   }
+        if (alevelchunksection[p_156116_] == LevelChunk.EMPTY_SECTION)
+        {
+            alevelchunksection[p_156116_] = new LevelChunkSection(this.getSectionYFromSectionIndex(p_156116_));
+        }
 
-   Heightmap getOrCreateHeightmapUnprimed(Heightmap.Types p_62079_);
+        return alevelchunksection[p_156116_];
+    }
 
-   int getHeight(Heightmap.Types p_62080_, int p_62081_, int p_62082_);
+    Collection<Entry<Heightmap.Types, Heightmap>> getHeightmaps();
 
-   BlockPos getHeighestPosition(Heightmap.Types p_156117_);
+default void m_6511_(Heightmap.Types p_62083_, long[] p_62084_)
+    {
+        this.getOrCreateHeightmapUnprimed(p_62083_).m_158364_(this, p_62083_, p_62084_);
+    }
 
-   ChunkPos getPos();
+    Heightmap getOrCreateHeightmapUnprimed(Heightmap.Types pType);
 
-   Map<StructureFeature<?>, StructureStart<?>> getAllStarts();
+    int getHeight(Heightmap.Types pHeightmapType, int pX, int pZ);
 
-   void setAllStarts(Map<StructureFeature<?>, StructureStart<?>> p_62090_);
+    BlockPos getHeighestPosition(Heightmap.Types p_156117_);
 
-   default boolean isYSpaceEmpty(int p_62075_, int p_62076_) {
-      if (p_62075_ < this.getMinBuildHeight()) {
-         p_62075_ = this.getMinBuildHeight();
-      }
+    ChunkPos getPos();
 
-      if (p_62076_ >= this.getMaxBuildHeight()) {
-         p_62076_ = this.getMaxBuildHeight() - 1;
-      }
+    Map < StructureFeature<?>, StructureStart<? >> getAllStarts();
 
-      for(int i = p_62075_; i <= p_62076_; i += 16) {
-         if (!LevelChunkSection.isEmpty(this.getSections()[this.getSectionIndex(i)])) {
-            return false;
-         }
-      }
+    void setAllStarts(Map < StructureFeature<?>, StructureStart<? >> pStructureStarts);
 
-      return true;
-   }
+default boolean isYSpaceEmpty(int pStartY, int pEndY)
+    {
+        if (pStartY < this.getMinBuildHeight())
+        {
+            pStartY = this.getMinBuildHeight();
+        }
 
-   @Nullable
-   ChunkBiomeContainer getBiomes();
+        if (pEndY >= this.getMaxBuildHeight())
+        {
+            pEndY = this.getMaxBuildHeight() - 1;
+        }
 
-   void setUnsaved(boolean p_62094_);
+        for (int i = pStartY; i <= pEndY; i += 16)
+        {
+            if (!LevelChunkSection.isEmpty(this.getSections()[this.getSectionIndex(i)]))
+            {
+                return false;
+            }
+        }
 
-   boolean isUnsaved();
+        return true;
+    }
 
-   ChunkStatus getStatus();
+    @Nullable
+    ChunkBiomeContainer getBiomes();
 
-   void removeBlockEntity(BlockPos p_62101_);
+    void setUnsaved(boolean pModified);
 
-   default void markPosForPostprocessing(BlockPos p_62102_) {
-      LogManager.getLogger().warn("Trying to mark a block for PostProcessing @ {}, but this operation is not supported.", (Object)p_62102_);
-   }
+    boolean isUnsaved();
 
-   ShortList[] getPostProcessing();
+    ChunkStatus getStatus();
 
-   default void addPackedPostProcess(short p_62092_, int p_62093_) {
-      getOrCreateOffsetList(this.getPostProcessing(), p_62093_).add(p_62092_);
-   }
+    void removeBlockEntity(BlockPos pPos);
 
-   default void setBlockEntityNbt(CompoundTag p_62091_) {
-      LogManager.getLogger().warn("Trying to set a BlockEntity, but this operation is not supported.");
-   }
+default void markPosForPostprocessing(BlockPos pPos)
+    {
+        LogManager.getLogger().warn("Trying to mark a block for PostProcessing @ {}, but this operation is not supported.", (Object)pPos);
+    }
 
-   @Nullable
-   CompoundTag getBlockEntityNbt(BlockPos p_62103_);
+    ShortList[] getPostProcessing();
 
-   @Nullable
-   CompoundTag getBlockEntityNbtForSaving(BlockPos p_62104_);
+default void addPackedPostProcess(short pPackedPosition, int pIndex)
+    {
+        m_62095_(this.getPostProcessing(), pIndex).add(pPackedPosition);
+    }
 
-   Stream<BlockPos> getLights();
+default void setBlockEntityNbt(CompoundTag pNbt)
+    {
+        LogManager.getLogger().warn("Trying to set a BlockEntity, but this operation is not supported.");
+    }
 
-   TickList<Block> getBlockTicks();
+    @Nullable
+    CompoundTag getBlockEntityNbt(BlockPos pPos);
 
-   TickList<Fluid> getLiquidTicks();
+    @Nullable
+    CompoundTag getBlockEntityNbtForSaving(BlockPos pPos);
 
-   UpgradeData getUpgradeData();
+    Stream<BlockPos> getLights();
 
-   void setInhabitedTime(long p_62099_);
+    TickList<Block> getBlockTicks();
 
-   long getInhabitedTime();
+    TickList<Fluid> getLiquidTicks();
 
-   static ShortList getOrCreateOffsetList(ShortList[] p_62096_, int p_62097_) {
-      if (p_62096_[p_62097_] == null) {
-         p_62096_[p_62097_] = new ShortArrayList();
-      }
+    UpgradeData getUpgradeData();
 
-      return p_62096_[p_62097_];
-   }
+    void setInhabitedTime(long pNewInhabitedTime);
 
-   boolean isLightCorrect();
+    long getInhabitedTime();
 
-   void setLightCorrect(boolean p_62100_);
+    static ShortList m_62095_(ShortList[] p_62096_, int p_62097_)
+    {
+        if (p_62096_[p_62097_] == null)
+        {
+            p_62096_[p_62097_] = new ShortArrayList();
+        }
+
+        return p_62096_[p_62097_];
+    }
+
+    boolean isLightCorrect();
+
+    void setLightCorrect(boolean pLightCorrect);
 }

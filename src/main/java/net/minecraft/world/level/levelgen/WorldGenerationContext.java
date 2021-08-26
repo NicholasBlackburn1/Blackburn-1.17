@@ -3,20 +3,24 @@ package net.minecraft.world.level.levelgen;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 
-public class WorldGenerationContext {
-   private final int minY;
-   private final int height;
+public class WorldGenerationContext
+{
+    private final int f_182504_;
+    private final int f_182505_;
 
-   public WorldGenerationContext(ChunkGenerator p_182507_, LevelHeightAccessor p_182508_) {
-      this.minY = Math.max(p_182508_.getMinBuildHeight(), p_182507_.getMinY());
-      this.height = Math.min(p_182508_.getHeight(), p_182507_.getGenDepth());
-   }
+    public WorldGenerationContext(ChunkGenerator p_182507_, LevelHeightAccessor p_182508_)
+    {
+        this.f_182504_ = Math.max(p_182508_.getMinBuildHeight(), p_182507_.getMinY());
+        this.f_182505_ = Math.min(p_182508_.getHeight(), p_182507_.getGenDepth());
+    }
 
-   public int getMinGenY() {
-      return this.minY;
-   }
+    public int getMinGenY()
+    {
+        return this.f_182504_;
+    }
 
-   public int getGenDepth() {
-      return this.height;
-   }
+    public int getGenDepth()
+    {
+        return this.f_182505_;
+    }
 }

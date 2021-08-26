@@ -1,7 +1,8 @@
 package net.minecraft.world.level.storage.loot.predicates;
 
-public interface ConditionUserBuilder<T> {
-   T when(LootItemCondition.Builder p_81581_);
+public interface ConditionUserBuilder<T>
+{
+    T when(LootItemCondition.Builder pConditionBuilder);
 
-   T unwrap();
+    T unwrap();
 }

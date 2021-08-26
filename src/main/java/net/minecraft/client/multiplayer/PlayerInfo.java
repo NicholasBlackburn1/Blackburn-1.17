@@ -13,153 +13,182 @@ import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.scores.PlayerTeam;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
-public class PlayerInfo {
-   private final GameProfile profile;
-   private final Map<Type, ResourceLocation> textureLocations = Maps.newEnumMap(Type.class);
-   private GameType gameMode;
-   private int latency;
-   private boolean pendingTextures;
-   @Nullable
-   private String skinModel;
-   @Nullable
-   private Component tabListDisplayName;
-   private int lastHealth;
-   private int displayHealth;
-   private long lastHealthTime;
-   private long healthBlinkTime;
-   private long renderVisibilityId;
+public class PlayerInfo
+{
+    private final GameProfile profile;
+    private final Map<Type, ResourceLocation> textureLocations = Maps.newEnumMap(Type.class);
+    private GameType gameMode;
+    private int latency;
+    private boolean pendingTextures;
+    @Nullable
+    private String skinModel;
+    @Nullable
+    private Component tabListDisplayName;
+    private int lastHealth;
+    private int displayHealth;
+    private long lastHealthTime;
+    private long healthBlinkTime;
+    private long renderVisibilityId;
 
-   public PlayerInfo(ClientboundPlayerInfoPacket.PlayerUpdate p_105311_) {
-      this.profile = p_105311_.getProfile();
-      this.gameMode = p_105311_.getGameMode();
-      this.latency = p_105311_.getLatency();
-      this.tabListDisplayName = p_105311_.getDisplayName();
-   }
+    public PlayerInfo(ClientboundPlayerInfoPacket.PlayerUpdate p_105311_)
+    {
+        this.profile = p_105311_.getProfile();
+        this.gameMode = p_105311_.getGameMode();
+        this.latency = p_105311_.getLatency();
+        this.tabListDisplayName = p_105311_.getDisplayName();
+    }
 
-   public GameProfile getProfile() {
-      return this.profile;
-   }
+    public GameProfile getProfile()
+    {
+        return this.profile;
+    }
 
-   @Nullable
-   public GameType getGameMode() {
-      return this.gameMode;
-   }
+    @Nullable
+    public GameType getGameMode()
+    {
+        return this.gameMode;
+    }
 
-   protected void setGameMode(GameType p_105318_) {
-      this.gameMode = p_105318_;
-   }
+    protected void setGameMode(GameType pGameMode)
+    {
+        this.gameMode = pGameMode;
+    }
 
-   public int getLatency() {
-      return this.latency;
-   }
+    public int getLatency()
+    {
+        return this.latency;
+    }
 
-   protected void setLatency(int p_105314_) {
-      this.latency = p_105314_;
-   }
+    protected void setLatency(int pLatency)
+    {
+        this.latency = pLatency;
+    }
 
-   public boolean isCapeLoaded() {
-      return this.getCapeLocation() != null;
-   }
+    public boolean isCapeLoaded()
+    {
+        return this.getCapeLocation() != null;
+    }
 
-   public boolean isSkinLoaded() {
-      return this.getSkinLocation() != null;
-   }
+    public boolean isSkinLoaded()
+    {
+        return this.getSkinLocation() != null;
+    }
 
-   public String getModelName() {
-      return this.skinModel == null ? DefaultPlayerSkin.getSkinModelName(this.profile.getId()) : this.skinModel;
-   }
+    public String getModelName()
+    {
+        return this.skinModel == null ? DefaultPlayerSkin.getSkinModelName(this.profile.getId()) : this.skinModel;
+    }
 
-   public ResourceLocation getSkinLocation() {
-      this.registerTextures();
-      return MoreObjects.firstNonNull(this.textureLocations.get(Type.SKIN), DefaultPlayerSkin.getDefaultSkin(this.profile.getId()));
-   }
+    public ResourceLocation getSkinLocation()
+    {
+        this.registerTextures();
+        return MoreObjects.firstNonNull(this.textureLocations.get(Type.SKIN), DefaultPlayerSkin.getDefaultSkin(this.profile.getId()));
+    }
 
-   @Nullable
-   public ResourceLocation getCapeLocation() {
-      this.registerTextures();
-      return this.textureLocations.get(Type.CAPE);
-   }
+    @Nullable
+    public ResourceLocation getCapeLocation()
+    {
+        this.registerTextures();
+        return this.textureLocations.get(Type.CAPE);
+    }
 
-   @Nullable
-   public ResourceLocation getElytraLocation() {
-      this.registerTextures();
-      return this.textureLocations.get(Type.ELYTRA);
-   }
+    @Nullable
+    public ResourceLocation getElytraLocation()
+    {
+        this.registerTextures();
+        return this.textureLocations.get(Type.ELYTRA);
+    }
 
-   @Nullable
-   public PlayerTeam getTeam() {
-      return Minecraft.getInstance().level.getScoreboard().getPlayersTeam(this.getProfile().getName());
-   }
+    @Nullable
+    public PlayerTeam getTeam()
+    {
+        return Minecraft.getInstance().level.getScoreboard().getPlayersTeam(this.getProfile().getName());
+    }
 
-   protected void registerTextures() {
-      synchronized(this) {
-         if (!this.pendingTextures) {
-            this.pendingTextures = true;
-            Minecraft.getInstance().getSkinManager().registerSkins(this.profile, (p_105320_, p_105321_, p_105322_) -> {
-               this.textureLocations.put(p_105320_, p_105321_);
-               if (p_105320_ == Type.SKIN) {
-                  this.skinModel = p_105322_.getMetadata("model");
-                  if (this.skinModel == null) {
-                     this.skinModel = "default";
-                  }
-               }
+    protected void registerTextures()
+    {
+        synchronized (this)
+        {
+            if (!this.pendingTextures)
+            {
+                this.pendingTextures = true;
+                Minecraft.getInstance().getSkinManager().registerSkins(this.profile, (p_105320_, p_105321_, p_105322_) ->
+                {
+                    this.textureLocations.put(p_105320_, p_105321_);
 
-            }, true);
-         }
+                    if (p_105320_ == Type.SKIN)
+                    {
+                        this.skinModel = p_105322_.getMetadata("model");
 
-      }
-   }
+                        if (this.skinModel == null)
+                        {
+                            this.skinModel = "default";
+                        }
+                    }
+                }, true);
+            }
+        }
+    }
 
-   public void setTabListDisplayName(@Nullable Component p_105324_) {
-      this.tabListDisplayName = p_105324_;
-   }
+    public void setTabListDisplayName(@Nullable Component pDisplayName)
+    {
+        this.tabListDisplayName = pDisplayName;
+    }
 
-   @Nullable
-   public Component getTabListDisplayName() {
-      return this.tabListDisplayName;
-   }
+    @Nullable
+    public Component getTabListDisplayName()
+    {
+        return this.tabListDisplayName;
+    }
 
-   public int getLastHealth() {
-      return this.lastHealth;
-   }
+    public int getLastHealth()
+    {
+        return this.lastHealth;
+    }
 
-   public void setLastHealth(int p_105327_) {
-      this.lastHealth = p_105327_;
-   }
+    public void setLastHealth(int pLastHealth)
+    {
+        this.lastHealth = pLastHealth;
+    }
 
-   public int getDisplayHealth() {
-      return this.displayHealth;
-   }
+    public int getDisplayHealth()
+    {
+        return this.displayHealth;
+    }
 
-   public void setDisplayHealth(int p_105332_) {
-      this.displayHealth = p_105332_;
-   }
+    public void setDisplayHealth(int pDisplayHealth)
+    {
+        this.displayHealth = pDisplayHealth;
+    }
 
-   public long getLastHealthTime() {
-      return this.lastHealthTime;
-   }
+    public long getLastHealthTime()
+    {
+        return this.lastHealthTime;
+    }
 
-   public void setLastHealthTime(long p_105316_) {
-      this.lastHealthTime = p_105316_;
-   }
+    public void setLastHealthTime(long pLastHealthTime)
+    {
+        this.lastHealthTime = pLastHealthTime;
+    }
 
-   public long getHealthBlinkTime() {
-      return this.healthBlinkTime;
-   }
+    public long getHealthBlinkTime()
+    {
+        return this.healthBlinkTime;
+    }
 
-   public void setHealthBlinkTime(long p_105329_) {
-      this.healthBlinkTime = p_105329_;
-   }
+    public void setHealthBlinkTime(long pHealthBlinkTime)
+    {
+        this.healthBlinkTime = pHealthBlinkTime;
+    }
 
-   public long getRenderVisibilityId() {
-      return this.renderVisibilityId;
-   }
+    public long getRenderVisibilityId()
+    {
+        return this.renderVisibilityId;
+    }
 
-   public void setRenderVisibilityId(long p_105334_) {
-      this.renderVisibilityId = p_105334_;
-   }
+    public void setRenderVisibilityId(long p_105334_)
+    {
+        this.renderVisibilityId = p_105334_;
+    }
 }

@@ -15,45 +15,62 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class WritableBookItem extends Item {
-   public WritableBookItem(Item.Properties p_43445_) {
-      super(p_43445_);
-   }
+public class WritableBookItem extends Item
+{
+    public WritableBookItem(Item.Properties p_43445_)
+    {
+        super(p_43445_);
+    }
 
-   public InteractionResult useOn(UseOnContext p_43447_) {
-      Level level = p_43447_.getLevel();
-      BlockPos blockpos = p_43447_.getClickedPos();
-      BlockState blockstate = level.getBlockState(blockpos);
-      if (blockstate.is(Blocks.LECTERN)) {
-         return LecternBlock.tryPlaceBook(p_43447_.getPlayer(), level, blockpos, blockstate, p_43447_.getItemInHand()) ? InteractionResult.sidedSuccess(level.isClientSide) : InteractionResult.PASS;
-      } else {
-         return InteractionResult.PASS;
-      }
-   }
+    public InteractionResult useOn(UseOnContext pContext)
+    {
+        Level level = pContext.getLevel();
+        BlockPos blockpos = pContext.getClickedPos();
+        BlockState blockstate = level.getBlockState(blockpos);
 
-   public InteractionResultHolder<ItemStack> use(Level p_43449_, Player p_43450_, InteractionHand p_43451_) {
-      ItemStack itemstack = p_43450_.getItemInHand(p_43451_);
-      p_43450_.openItemGui(itemstack, p_43451_);
-      p_43450_.awardStat(Stats.ITEM_USED.get(this));
-      return InteractionResultHolder.sidedSuccess(itemstack, p_43449_.isClientSide());
-   }
+        if (blockstate.is(Blocks.LECTERN))
+        {
+            return LecternBlock.tryPlaceBook(pContext.getPlayer(), level, blockpos, blockstate, pContext.getItemInHand()) ? InteractionResult.sidedSuccess(level.isClientSide) : InteractionResult.PASS;
+        }
+        else
+        {
+            return InteractionResult.PASS;
+        }
+    }
 
-   public static boolean makeSureTagIsValid(@Nullable CompoundTag p_43453_) {
-      if (p_43453_ == null) {
-         return false;
-      } else if (!p_43453_.contains("pages", 9)) {
-         return false;
-      } else {
-         ListTag listtag = p_43453_.getList("pages", 8);
+    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand)
+    {
+        ItemStack itemstack = pPlayer.getItemInHand(pHand);
+        pPlayer.openItemGui(itemstack, pHand);
+        pPlayer.awardStat(Stats.ITEM_USED.get(this));
+        return InteractionResultHolder.sidedSuccess(itemstack, pLevel.isClientSide());
+    }
 
-         for(int i = 0; i < listtag.size(); ++i) {
-            String s = listtag.getString(i);
-            if (s.length() > 32767) {
-               return false;
+    public static boolean makeSureTagIsValid(@Nullable CompoundTag pNbt)
+    {
+        if (pNbt == null)
+        {
+            return false;
+        }
+        else if (!pNbt.contains("pages", 9))
+        {
+            return false;
+        }
+        else
+        {
+            ListTag listtag = pNbt.getList("pages", 8);
+
+            for (int i = 0; i < listtag.size(); ++i)
+            {
+                String s = listtag.getString(i);
+
+                if (s.length() > 32767)
+                {
+                    return false;
+                }
             }
-         }
 
-         return true;
-      }
-   }
+            return true;
+        }
+    }
 }

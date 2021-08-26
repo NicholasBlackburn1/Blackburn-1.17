@@ -9,12 +9,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
 
-public interface LevelSimulatedReader {
-   boolean isStateAtPosition(BlockPos p_46938_, Predicate<BlockState> p_46939_);
+public interface LevelSimulatedReader
+{
+    boolean isStateAtPosition(BlockPos pPos, Predicate<BlockState> pState);
 
-   boolean isFluidAtPosition(BlockPos p_151584_, Predicate<FluidState> p_151585_);
+    boolean isFluidAtPosition(BlockPos p_151584_, Predicate<FluidState> p_151585_);
 
-   <T extends BlockEntity> Optional<T> getBlockEntity(BlockPos p_151582_, BlockEntityType<T> p_151583_);
+    <T extends BlockEntity> Optional<T> getBlockEntity(BlockPos p_151582_, BlockEntityType<T> p_151583_);
 
-   BlockPos getHeightmapPos(Heightmap.Types p_46936_, BlockPos p_46937_);
+    BlockPos getHeightmapPos(Heightmap.Types pHeightmapType, BlockPos pPos);
 }

@@ -11,26 +11,32 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.item.ItemEntity;
 
-public class NearestItemSensor extends Sensor<Mob> {
-   private static final long XZ_RANGE = 8L;
-   private static final long Y_RANGE = 4L;
-   public static final int MAX_DISTANCE_TO_WANTED_ITEM = 9;
+public class NearestItemSensor extends Sensor<Mob>
+{
+    private static final long XZ_RANGE = 8L;
+    private static final long Y_RANGE = 4L;
+    public static final int MAX_DISTANCE_TO_WANTED_ITEM = 9;
 
-   public Set<MemoryModuleType<?>> requires() {
-      return ImmutableSet.of(MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM);
-   }
+    public Set < MemoryModuleType<? >> requires()
+    {
+        return ImmutableSet.of(MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM);
+    }
 
-   protected void doTick(ServerLevel p_26697_, Mob p_26698_) {
-      Brain<?> brain = p_26698_.getBrain();
-      List<ItemEntity> list = p_26697_.getEntitiesOfClass(ItemEntity.class, p_26698_.getBoundingBox().inflate(8.0D, 4.0D, 8.0D), (p_26703_) -> {
-         return true;
-      });
-      list.sort(Comparator.comparingDouble(p_26698_::distanceToSqr));
-      Optional<ItemEntity> optional = list.stream().filter((p_26706_) -> {
-         return p_26698_.wantsToPickUp(p_26706_.getItem());
-      }).filter((p_26701_) -> {
-         return p_26701_.closerThan(p_26698_, 9.0D);
-      }).filter(p_26698_::hasLineOfSight).findFirst();
-      brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM, optional);
-   }
+    protected void doTick(ServerLevel pLevel, Mob pEntity)
+    {
+        Brain<?> brain = pEntity.getBrain();
+        List<ItemEntity> list = pLevel.getEntitiesOfClass(ItemEntity.class, pEntity.getBoundingBox().inflate(8.0D, 4.0D, 8.0D), (p_26703_) ->
+        {
+            return true;
+        });
+        list.sort(Comparator.comparingDouble(pEntity::distanceToSqr));
+        Optional<ItemEntity> optional = list.stream().filter((p_26706_) ->
+        {
+            return pEntity.wantsToPickUp(p_26706_.getItem());
+        }).filter((p_26701_) ->
+        {
+            return p_26701_.closerThan(pEntity, 9.0D);
+        }).filter(pEntity::hasLineOfSight).findFirst();
+        brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM, optional);
+    }
 }

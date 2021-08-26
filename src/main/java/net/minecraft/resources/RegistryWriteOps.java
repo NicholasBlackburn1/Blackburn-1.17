@@ -8,29 +8,37 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.WritableRegistry;
 
-public class RegistryWriteOps<T> extends DelegatingOps<T> {
-   private final RegistryAccess registryAccess;
+public class RegistryWriteOps<T> extends DelegatingOps<T>
+{
+    private final RegistryAccess registryAccess;
 
-   public static <T> RegistryWriteOps<T> create(DynamicOps<T> p_135768_, RegistryAccess p_135769_) {
-      return new RegistryWriteOps<>(p_135768_, p_135769_);
-   }
+    public static <T> RegistryWriteOps<T> create(DynamicOps<T> pOps, RegistryAccess pDynamicRegistries)
+    {
+        return new RegistryWriteOps<>(pOps, pDynamicRegistries);
+    }
 
-   private RegistryWriteOps(DynamicOps<T> p_135765_, RegistryAccess p_135766_) {
-      super(p_135765_);
-      this.registryAccess = p_135766_;
-   }
+    private RegistryWriteOps(DynamicOps<T> p_135765_, RegistryAccess p_135766_)
+    {
+        super(p_135765_);
+        this.registryAccess = p_135766_;
+    }
 
-   protected <E> DataResult<T> encode(E p_135771_, T p_135772_, ResourceKey<? extends Registry<E>> p_135773_, Codec<E> p_135774_) {
-      Optional<WritableRegistry<E>> optional = this.registryAccess.ownedRegistry(p_135773_);
-      if (optional.isPresent()) {
-         WritableRegistry<E> writableregistry = optional.get();
-         Optional<ResourceKey<E>> optional1 = writableregistry.getResourceKey(p_135771_);
-         if (optional1.isPresent()) {
-            ResourceKey<E> resourcekey = optional1.get();
-            return ResourceLocation.CODEC.encode(resourcekey.location(), this.delegate, p_135772_);
-         }
-      }
+    protected <E> DataResult<T> encode(E pInstance, T pPrefix, ResourceKey <? extends Registry<E >> pRegistryKey, Codec<E> pMapCodec)
+    {
+        Optional<WritableRegistry<E>> optional = this.registryAccess.ownedRegistry(pRegistryKey);
 
-      return p_135774_.encode(p_135771_, this, p_135772_);
-   }
+        if (optional.isPresent())
+        {
+            WritableRegistry<E> writableregistry = optional.get();
+            Optional<ResourceKey<E>> optional1 = writableregistry.getResourceKey(pInstance);
+
+            if (optional1.isPresent())
+            {
+                ResourceKey<E> resourcekey = optional1.get();
+                return ResourceLocation.CODEC.encode(resourcekey.location(), this.delegate, pPrefix);
+            }
+        }
+
+        return pMapCodec.encode(pInstance, this, pPrefix);
+    }
 }

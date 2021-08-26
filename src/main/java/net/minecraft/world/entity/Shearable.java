@@ -2,8 +2,9 @@ package net.minecraft.world.entity;
 
 import net.minecraft.sounds.SoundSource;
 
-public interface Shearable {
-   void shear(SoundSource p_21749_);
+public interface Shearable
+{
+    void shear(SoundSource pCategory);
 
-   boolean readyForShearing();
+    boolean readyForShearing();
 }

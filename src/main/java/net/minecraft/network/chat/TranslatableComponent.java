@@ -12,179 +12,238 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.locale.Language;
 import net.minecraft.world.entity.Entity;
 
-public class TranslatableComponent extends BaseComponent implements ContextAwareComponent {
-   private static final Object[] NO_ARGS = new Object[0];
-   private static final FormattedText TEXT_PERCENT = FormattedText.of("%");
-   private static final FormattedText TEXT_NULL = FormattedText.of("null");
-   private final String key;
-   private final Object[] args;
-   @Nullable
-   private Language decomposedWith;
-   private final List<FormattedText> decomposedParts = Lists.newArrayList();
-   private static final Pattern FORMAT_PATTERN = Pattern.compile("%(?:(\\d+)\\$)?([A-Za-z%]|$)");
+public class TranslatableComponent extends BaseComponent implements ContextAwareComponent
+{
+    private static final Object[] NO_ARGS = new Object[0];
+    private static final FormattedText TEXT_PERCENT = FormattedText.of("%");
+    private static final FormattedText TEXT_NULL = FormattedText.of("null");
+    private final String key;
+    private final Object[] args;
+    @Nullable
+    private Language decomposedWith;
+    private final List<FormattedText> decomposedParts = Lists.newArrayList();
+    private static final Pattern FORMAT_PATTERN = Pattern.compile("%(?:(\\d+)\\$)?([A-Za-z%]|$)");
 
-   public TranslatableComponent(String p_131305_) {
-      this.key = p_131305_;
-      this.args = NO_ARGS;
-   }
+    public TranslatableComponent(String p_131305_)
+    {
+        this.key = p_131305_;
+        this.args = NO_ARGS;
+    }
 
-   public TranslatableComponent(String p_131307_, Object... p_131308_) {
-      this.key = p_131307_;
-      this.args = p_131308_;
-   }
+    public TranslatableComponent(String p_131307_, Object... p_131308_)
+    {
+        this.key = p_131307_;
+        this.args = p_131308_;
+    }
 
-   private void decompose() {
-      Language language = Language.getInstance();
-      if (language != this.decomposedWith) {
-         this.decomposedWith = language;
-         this.decomposedParts.clear();
-         String s = language.getOrDefault(this.key);
+    private void decompose()
+    {
+        Language language = Language.getInstance();
 
-         try {
-            this.decomposeTemplate(s);
-         } catch (TranslatableFormatException translatableformatexception) {
+        if (language != this.decomposedWith)
+        {
+            this.decomposedWith = language;
             this.decomposedParts.clear();
-            this.decomposedParts.add(FormattedText.of(s));
-         }
+            String s = language.getOrDefault(this.key);
 
-      }
-   }
+            try
+            {
+                this.decomposeTemplate(s);
+            }
+            catch (TranslatableFormatException translatableformatexception)
+            {
+                this.decomposedParts.clear();
+                this.decomposedParts.add(FormattedText.of(s));
+            }
+        }
+    }
 
-   private void decomposeTemplate(String p_131322_) {
-      Matcher matcher = FORMAT_PATTERN.matcher(p_131322_);
+    private void decomposeTemplate(String p_131322_)
+    {
+        Matcher matcher = FORMAT_PATTERN.matcher(p_131322_);
 
-      try {
-         int i = 0;
+        try
+        {
+            int i = 0;
+            int j;
+            int l;
 
-         int j;
-         int l;
-         for(j = 0; matcher.find(j); j = l) {
-            int k = matcher.start();
-            l = matcher.end();
-            if (k > j) {
-               String s = p_131322_.substring(j, k);
-               if (s.indexOf(37) != -1) {
-                  throw new IllegalArgumentException();
-               }
+            for (j = 0; matcher.find(j); j = l)
+            {
+                int k = matcher.start();
+                l = matcher.end();
 
-               this.decomposedParts.add(FormattedText.of(s));
+                if (k > j)
+                {
+                    String s = p_131322_.substring(j, k);
+
+                    if (s.indexOf(37) != -1)
+                    {
+                        throw new IllegalArgumentException();
+                    }
+
+                    this.decomposedParts.add(FormattedText.of(s));
+                }
+
+                String s4 = matcher.group(2);
+                String s1 = p_131322_.substring(k, l);
+
+                if ("%".equals(s4) && "%%".equals(s1))
+                {
+                    this.decomposedParts.add(TEXT_PERCENT);
+                }
+                else
+                {
+                    if (!"s".equals(s4))
+                    {
+                        throw new TranslatableFormatException(this, "Unsupported format: '" + s1 + "'");
+                    }
+
+                    String s2 = matcher.group(1);
+                    int i1 = s2 != null ? Integer.parseInt(s2) - 1 : i++;
+
+                    if (i1 < this.args.length)
+                    {
+                        this.decomposedParts.add(this.getArgument(i1));
+                    }
+                }
             }
 
-            String s4 = matcher.group(2);
-            String s1 = p_131322_.substring(k, l);
-            if ("%".equals(s4) && "%%".equals(s1)) {
-               this.decomposedParts.add(TEXT_PERCENT);
-            } else {
-               if (!"s".equals(s4)) {
-                  throw new TranslatableFormatException(this, "Unsupported format: '" + s1 + "'");
-               }
+            if (j < p_131322_.length())
+            {
+                String s3 = p_131322_.substring(j);
 
-               String s2 = matcher.group(1);
-               int i1 = s2 != null ? Integer.parseInt(s2) - 1 : i++;
-               if (i1 < this.args.length) {
-                  this.decomposedParts.add(this.getArgument(i1));
-               }
+                if (s3.indexOf(37) != -1)
+                {
+                    throw new IllegalArgumentException();
+                }
+
+                this.decomposedParts.add(FormattedText.of(s3));
             }
-         }
+        }
+        catch (IllegalArgumentException illegalargumentexception)
+        {
+            throw new TranslatableFormatException(this, illegalargumentexception);
+        }
+    }
 
-         if (j < p_131322_.length()) {
-            String s3 = p_131322_.substring(j);
-            if (s3.indexOf(37) != -1) {
-               throw new IllegalArgumentException();
+    private FormattedText getArgument(int p_131314_)
+    {
+        if (p_131314_ >= this.args.length)
+        {
+            throw new TranslatableFormatException(this, p_131314_);
+        }
+        else
+        {
+            Object object = this.args[p_131314_];
+
+            if (object instanceof Component)
+            {
+                return (Component)object;
             }
+            else
+            {
+                return object == null ? TEXT_NULL : FormattedText.of(object.toString());
+            }
+        }
+    }
 
-            this.decomposedParts.add(FormattedText.of(s3));
-         }
+    public TranslatableComponent plainCopy()
+    {
+        return new TranslatableComponent(this.key, this.args);
+    }
 
-      } catch (IllegalArgumentException illegalargumentexception) {
-         throw new TranslatableFormatException(this, illegalargumentexception);
-      }
-   }
+    public <T> Optional<T> visitSelf(FormattedText.StyledContentConsumer<T> p_131318_, Style p_131319_)
+    {
+        this.decompose();
 
-   private FormattedText getArgument(int p_131314_) {
-      if (p_131314_ >= this.args.length) {
-         throw new TranslatableFormatException(this, p_131314_);
-      } else {
-         Object object = this.args[p_131314_];
-         if (object instanceof Component) {
-            return (Component)object;
-         } else {
-            return object == null ? TEXT_NULL : FormattedText.of(object.toString());
-         }
-      }
-   }
+        for (FormattedText formattedtext : this.decomposedParts)
+        {
+            Optional<T> optional = formattedtext.visit(p_131318_, p_131319_);
 
-   public TranslatableComponent plainCopy() {
-      return new TranslatableComponent(this.key, this.args);
-   }
+            if (optional.isPresent())
+            {
+                return optional;
+            }
+        }
 
-   public <T> Optional<T> visitSelf(FormattedText.StyledContentConsumer<T> p_131318_, Style p_131319_) {
-      this.decompose();
+        return Optional.empty();
+    }
 
-      for(FormattedText formattedtext : this.decomposedParts) {
-         Optional<T> optional = formattedtext.visit(p_131318_, p_131319_);
-         if (optional.isPresent()) {
-            return optional;
-         }
-      }
+    public <T> Optional<T> visitSelf(FormattedText.ContentConsumer<T> p_131316_)
+    {
+        this.decompose();
 
-      return Optional.empty();
-   }
+        for (FormattedText formattedtext : this.decomposedParts)
+        {
+            Optional<T> optional = formattedtext.visit(p_131316_);
 
-   public <T> Optional<T> visitSelf(FormattedText.ContentConsumer<T> p_131316_) {
-      this.decompose();
+            if (optional.isPresent())
+            {
+                return optional;
+            }
+        }
 
-      for(FormattedText formattedtext : this.decomposedParts) {
-         Optional<T> optional = formattedtext.visit(p_131316_);
-         if (optional.isPresent()) {
-            return optional;
-         }
-      }
+        return Optional.empty();
+    }
 
-      return Optional.empty();
-   }
+    public MutableComponent resolve(@Nullable CommandSourceStack p_131310_, @Nullable Entity p_131311_, int p_131312_) throws CommandSyntaxException
+    {
+        Object[] aobject = new Object[this.args.length];
 
-   public MutableComponent resolve(@Nullable CommandSourceStack p_131310_, @Nullable Entity p_131311_, int p_131312_) throws CommandSyntaxException {
-      Object[] aobject = new Object[this.args.length];
+        for (int i = 0; i < aobject.length; ++i)
+        {
+            Object object = this.args[i];
 
-      for(int i = 0; i < aobject.length; ++i) {
-         Object object = this.args[i];
-         if (object instanceof Component) {
-            aobject[i] = ComponentUtils.updateForEntity(p_131310_, (Component)object, p_131311_, p_131312_);
-         } else {
-            aobject[i] = object;
-         }
-      }
+            if (object instanceof Component)
+            {
+                aobject[i] = ComponentUtils.updateForEntity(p_131310_, (Component)object, p_131311_, p_131312_);
+            }
+            else
+            {
+                aobject[i] = object;
+            }
+        }
 
-      return new TranslatableComponent(this.key, aobject);
-   }
+        return new TranslatableComponent(this.key, aobject);
+    }
 
-   public boolean equals(Object p_131324_) {
-      if (this == p_131324_) {
-         return true;
-      } else if (!(p_131324_ instanceof TranslatableComponent)) {
-         return false;
-      } else {
-         TranslatableComponent translatablecomponent = (TranslatableComponent)p_131324_;
-         return Arrays.equals(this.args, translatablecomponent.args) && this.key.equals(translatablecomponent.key) && super.equals(p_131324_);
-      }
-   }
+    public boolean equals(Object p_131324_)
+    {
+        if (this == p_131324_)
+        {
+            return true;
+        }
+        else if (!(p_131324_ instanceof TranslatableComponent))
+        {
+            return false;
+        }
+        else
+        {
+            TranslatableComponent translatablecomponent = (TranslatableComponent)p_131324_;
+            return Arrays.equals(this.args, translatablecomponent.args) && this.key.equals(translatablecomponent.key) && super.equals(p_131324_);
+        }
+    }
 
-   public int hashCode() {
-      int i = super.hashCode();
-      i = 31 * i + this.key.hashCode();
-      return 31 * i + Arrays.hashCode(this.args);
-   }
+    public int hashCode()
+    {
+        int i = super.hashCode();
+        i = 31 * i + this.key.hashCode();
+        return 31 * i + Arrays.hashCode(this.args);
+    }
 
-   public String toString() {
-      return "TranslatableComponent{key='" + this.key + "', args=" + Arrays.toString(this.args) + ", siblings=" + this.siblings + ", style=" + this.getStyle() + "}";
-   }
+    public String toString()
+    {
+        return "TranslatableComponent{key='" + this.key + "', args=" + Arrays.toString(this.args) + ", siblings=" + this.siblings + ", style=" + this.getStyle() + "}";
+    }
 
-   public String getKey() {
-      return this.key;
-   }
+    public String getKey()
+    {
+        return this.key;
+    }
 
-   public Object[] getArgs() {
-      return this.args;
-   }
+    public Object[] getArgs()
+    {
+        return this.args;
+    }
 }

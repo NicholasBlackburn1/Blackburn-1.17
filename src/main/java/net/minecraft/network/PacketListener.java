@@ -2,8 +2,9 @@ package net.minecraft.network;
 
 import net.minecraft.network.chat.Component;
 
-public interface PacketListener {
-   void onDisconnect(Component p_130552_);
+public interface PacketListener
+{
+    void onDisconnect(Component pReason);
 
-   Connection getConnection();
+    Connection getConnection();
 }

@@ -5,18 +5,20 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
-public interface Coordinates {
-   Vec3 getPosition(CommandSourceStack p_119566_);
+public interface Coordinates
+{
+    Vec3 getPosition(CommandSourceStack pSource);
 
-   Vec2 getRotation(CommandSourceStack p_119567_);
+    Vec2 getRotation(CommandSourceStack pSource);
 
-   default BlockPos getBlockPos(CommandSourceStack p_119569_) {
-      return new BlockPos(this.getPosition(p_119569_));
-   }
+default BlockPos getBlockPos(CommandSourceStack pSource)
+    {
+        return new BlockPos(this.getPosition(pSource));
+    }
 
-   boolean isXRelative();
+    boolean isXRelative();
 
-   boolean isYRelative();
+    boolean isYRelative();
 
-   boolean isZRelative();
+    boolean isZRelative();
 }

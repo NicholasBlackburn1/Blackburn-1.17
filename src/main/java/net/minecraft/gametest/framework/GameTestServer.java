@@ -41,149 +41,185 @@ import net.minecraft.world.level.storage.PrimaryLevelData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class GameTestServer extends MinecraftServer {
-   private static final Logger LOGGER = LogManager.getLogger();
-   private static final int PROGRESS_REPORT_INTERVAL = 20;
-   private final List<GameTestBatch> testBatches;
-   private final BlockPos spawnPos;
-   private static final GameRules TEST_GAME_RULES = Util.make(new GameRules(), (p_177615_) -> {
-      p_177615_.getRule(GameRules.RULE_DOMOBSPAWNING).set(false, (MinecraftServer)null);
-      p_177615_.getRule(GameRules.RULE_WEATHER_CYCLE).set(false, (MinecraftServer)null);
-   });
-   private static final LevelSettings TEST_SETTINGS = new LevelSettings("Test Level", GameType.CREATIVE, false, Difficulty.NORMAL, true, TEST_GAME_RULES, DataPackConfig.DEFAULT);
-   @Nullable
-   private MultipleTestTracker testTracker;
+public class GameTestServer extends MinecraftServer
+{
+    private static final Logger LOGGER = LogManager.getLogger();
+    private static final int PROGRESS_REPORT_INTERVAL = 20;
+    private final List<GameTestBatch> testBatches;
+    private final BlockPos spawnPos;
+    private static final GameRules TEST_GAME_RULES = Util.make(new GameRules(), (p_177615_) ->
+    {
+        p_177615_.getRule(GameRules.RULE_DOMOBSPAWNING).set(false, (MinecraftServer)null);
+        p_177615_.getRule(GameRules.RULE_WEATHER_CYCLE).set(false, (MinecraftServer)null);
+    });
+    private static final LevelSettings TEST_SETTINGS = new LevelSettings("Test Level", GameType.CREATIVE, false, Difficulty.NORMAL, true, TEST_GAME_RULES, DataPackConfig.DEFAULT);
+    @Nullable
+    private MultipleTestTracker testTracker;
 
-   public GameTestServer(Thread p_177594_, LevelStorageSource.LevelStorageAccess p_177595_, PackRepository p_177596_, ServerResources p_177597_, Collection<GameTestBatch> p_177598_, BlockPos p_177599_, RegistryAccess.RegistryHolder p_177600_) {
-      this(p_177594_, p_177595_, p_177596_, p_177597_, p_177598_, p_177599_, p_177600_, p_177600_.registryOrThrow(Registry.BIOME_REGISTRY), p_177600_.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY));
-   }
+    public GameTestServer(Thread p_177594_, LevelStorageSource.LevelStorageAccess p_177595_, PackRepository p_177596_, ServerResources p_177597_, Collection<GameTestBatch> p_177598_, BlockPos p_177599_, RegistryAccess.RegistryHolder p_177600_)
+    {
+        this(p_177594_, p_177595_, p_177596_, p_177597_, p_177598_, p_177599_, p_177600_, p_177600_.registryOrThrow(Registry.BIOME_REGISTRY), p_177600_.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY));
+    }
 
-   private GameTestServer(Thread p_177602_, LevelStorageSource.LevelStorageAccess p_177603_, PackRepository p_177604_, ServerResources p_177605_, Collection<GameTestBatch> p_177606_, BlockPos p_177607_, RegistryAccess.RegistryHolder p_177608_, Registry<Biome> p_177609_, Registry<DimensionType> p_177610_) {
-      super(p_177602_, p_177608_, p_177603_, new PrimaryLevelData(TEST_SETTINGS, new WorldGenSettings(0L, false, false, WorldGenSettings.withOverworld(p_177610_, DimensionType.defaultDimensions(p_177610_, p_177609_, p_177608_.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY), 0L), new FlatLevelSource(FlatLevelGeneratorSettings.getDefault(p_177609_)))), Lifecycle.stable()), p_177604_, Proxy.NO_PROXY, DataFixers.getDataFixer(), p_177605_, (MinecraftSessionService)null, (GameProfileRepository)null, (GameProfileCache)null, LoggerChunkProgressListener::new);
-      this.testBatches = Lists.newArrayList(p_177606_);
-      this.spawnPos = p_177607_;
-      if (p_177606_.isEmpty()) {
-         throw new IllegalArgumentException("No test batches were given!");
-      }
-   }
+    private GameTestServer(Thread p_177602_, LevelStorageSource.LevelStorageAccess p_177603_, PackRepository p_177604_, ServerResources p_177605_, Collection<GameTestBatch> p_177606_, BlockPos p_177607_, RegistryAccess.RegistryHolder p_177608_, Registry<Biome> p_177609_, Registry<DimensionType> p_177610_)
+    {
+        super(p_177602_, p_177608_, p_177603_, new PrimaryLevelData(TEST_SETTINGS, new WorldGenSettings(0L, false, false, WorldGenSettings.withOverworld(p_177610_, DimensionType.defaultDimensions(p_177610_, p_177609_, p_177608_.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY), 0L), new FlatLevelSource(FlatLevelGeneratorSettings.getDefault(p_177609_)))), Lifecycle.stable()), p_177604_, Proxy.NO_PROXY, DataFixers.getDataFixer(), p_177605_, (MinecraftSessionService)null, (GameProfileRepository)null, (GameProfileCache)null, LoggerChunkProgressListener::new);
+        this.testBatches = Lists.newArrayList(p_177606_);
+        this.spawnPos = p_177607_;
 
-   public boolean initServer() {
-      this.setPlayerList(new PlayerList(this, this.registryHolder, this.playerDataStorage, 1) {
-      });
-      this.loadLevel();
-      ServerLevel serverlevel = this.overworld();
-      serverlevel.setDefaultSpawnPos(this.spawnPos, 0.0F);
-      serverlevel.getLevelData().setRaining(false);
-      serverlevel.getLevelData().setRaining(false);
-      return true;
-   }
+        if (p_177606_.isEmpty())
+        {
+            throw new IllegalArgumentException("No test batches were given!");
+        }
+    }
 
-   public void tickServer(BooleanSupplier p_177619_) {
-      super.tickServer(p_177619_);
-      ServerLevel serverlevel = this.overworld();
-      if (!this.haveTestsStarted()) {
-         this.startTests(serverlevel);
-      }
+    public boolean initServer()
+    {
+        this.setPlayerList(new PlayerList(this, this.registryHolder, this.playerDataStorage, 1)
+        {
+        });
+        this.loadLevel();
+        ServerLevel serverlevel = this.overworld();
+        serverlevel.setDefaultSpawnPos(this.spawnPos, 0.0F);
+        serverlevel.getLevelData().setRaining(false);
+        serverlevel.getLevelData().setRaining(false);
+        return true;
+    }
 
-      if (serverlevel.getGameTime() % 20L == 0L) {
-         LOGGER.info(this.testTracker.getProgressBar());
-      }
+    public void tickServer(BooleanSupplier p_177619_)
+    {
+        super.tickServer(p_177619_);
+        ServerLevel serverlevel = this.overworld();
 
-      if (this.testTracker.isDone()) {
-         this.halt(false);
-         LOGGER.info(this.testTracker.getProgressBar());
-         GlobalTestReporter.finish();
-         LOGGER.info("========= {} GAME TESTS COMPLETE ======================", (int)this.testTracker.getTotalCount());
-         if (this.testTracker.hasFailedRequired()) {
-            LOGGER.info("{} required tests failed :(", (int)this.testTracker.getFailedRequiredCount());
-            this.testTracker.getFailedRequired().forEach((p_177627_) -> {
-               LOGGER.info("   - {}", (Object)p_177627_.getTestName());
-            });
-         } else {
-            LOGGER.info("All {} required tests passed :)", (int)this.testTracker.getTotalCount());
-         }
+        if (!this.haveTestsStarted())
+        {
+            this.startTests(serverlevel);
+        }
 
-         if (this.testTracker.hasFailedOptional()) {
-            LOGGER.info("{} optional tests failed", (int)this.testTracker.getFailedOptionalCount());
-            this.testTracker.getFailedOptional().forEach((p_177621_) -> {
-               LOGGER.info("   - {}", (Object)p_177621_.getTestName());
-            });
-         }
+        if (serverlevel.getGameTime() % 20L == 0L)
+        {
+            LOGGER.info(this.testTracker.getProgressBar());
+        }
 
-         LOGGER.info("====================================================");
-      }
+        if (this.testTracker.isDone())
+        {
+            this.halt(false);
+            LOGGER.info(this.testTracker.getProgressBar());
+            GlobalTestReporter.finish();
+            LOGGER.info("========= {} GAME TESTS COMPLETE ======================", (int)this.testTracker.getTotalCount());
 
-   }
+            if (this.testTracker.hasFailedRequired())
+            {
+                LOGGER.info("{} required tests failed :(", (int)this.testTracker.getFailedRequiredCount());
+                this.testTracker.getFailedRequired().forEach((p_177627_) ->
+                {
+                    LOGGER.info("   - {}", (Object)p_177627_.getTestName());
+                });
+            }
+            else
+            {
+                LOGGER.info("All {} required tests passed :)", (int)this.testTracker.getTotalCount());
+            }
 
-   public SystemReport fillServerSystemReport(SystemReport p_177613_) {
-      p_177613_.setDetail("Type", "Game test server");
-      return p_177613_;
-   }
+            if (this.testTracker.hasFailedOptional())
+            {
+                LOGGER.info("{} optional tests failed", (int)this.testTracker.getFailedOptionalCount());
+                this.testTracker.getFailedOptional().forEach((p_177621_) ->
+                {
+                    LOGGER.info("   - {}", (Object)p_177621_.getTestName());
+                });
+            }
 
-   public void onServerExit() {
-      super.onServerExit();
-      System.exit(this.testTracker.getFailedRequiredCount());
-   }
+            LOGGER.info("====================================================");
+        }
+    }
 
-   public void onServerCrash(CrashReport p_177623_) {
-      System.exit(1);
-   }
+    public SystemReport fillServerSystemReport(SystemReport p_177613_)
+    {
+        p_177613_.setDetail("Type", "Game test server");
+        return p_177613_;
+    }
 
-   private void startTests(ServerLevel p_177625_) {
-      Collection<GameTestInfo> collection = GameTestRunner.runTestBatches(this.testBatches, new BlockPos(0, 4, 0), Rotation.NONE, p_177625_, GameTestTicker.SINGLETON, 8);
-      this.testTracker = new MultipleTestTracker(collection);
-      LOGGER.info("{} tests are now running!", (int)this.testTracker.getTotalCount());
-   }
+    public void onServerExit()
+    {
+        super.onServerExit();
+        System.exit(this.testTracker.getFailedRequiredCount());
+    }
 
-   private boolean haveTestsStarted() {
-      return this.testTracker != null;
-   }
+    public void onServerCrash(CrashReport p_177623_)
+    {
+        System.exit(1);
+    }
 
-   public boolean isHardcore() {
-      return false;
-   }
+    private void startTests(ServerLevel p_177625_)
+    {
+        Collection<GameTestInfo> collection = GameTestRunner.runTestBatches(this.testBatches, new BlockPos(0, 4, 0), Rotation.NONE, p_177625_, GameTestTicker.SINGLETON, 8);
+        this.testTracker = new MultipleTestTracker(collection);
+        LOGGER.info("{} tests are now running!", (int)this.testTracker.getTotalCount());
+    }
 
-   public int getOperatorUserPermissionLevel() {
-      return 0;
-   }
+    private boolean haveTestsStarted()
+    {
+        return this.testTracker != null;
+    }
 
-   public int getFunctionCompilationLevel() {
-      return 4;
-   }
+    public boolean isHardcore()
+    {
+        return false;
+    }
 
-   public boolean shouldRconBroadcast() {
-      return false;
-   }
+    public int getOperatorUserPermissionLevel()
+    {
+        return 0;
+    }
 
-   public boolean isDedicatedServer() {
-      return false;
-   }
+    public int getFunctionCompilationLevel()
+    {
+        return 4;
+    }
 
-   public int getRateLimitPacketsPerSecond() {
-      return 0;
-   }
+    public boolean shouldRconBroadcast()
+    {
+        return false;
+    }
 
-   public boolean isEpollEnabled() {
-      return false;
-   }
+    public boolean isDedicatedServer()
+    {
+        return false;
+    }
 
-   public boolean isCommandBlockEnabled() {
-      return true;
-   }
+    public int getRateLimitPacketsPerSecond()
+    {
+        return 0;
+    }
 
-   public boolean isPublished() {
-      return false;
-   }
+    public boolean isEpollEnabled()
+    {
+        return false;
+    }
 
-   public boolean shouldInformAdmins() {
-      return false;
-   }
+    public boolean isCommandBlockEnabled()
+    {
+        return true;
+    }
 
-   public boolean isSingleplayerOwner(GameProfile p_177617_) {
-      return false;
-   }
+    public boolean isPublished()
+    {
+        return false;
+    }
 
-   public Optional<String> getModdedStatus() {
-      return Optional.empty();
-   }
+    public boolean shouldInformAdmins()
+    {
+        return false;
+    }
+
+    public boolean isSingleplayerOwner(GameProfile p_177617_)
+    {
+        return false;
+    }
+
+    public Optional<String> getModdedStatus()
+    {
+        return Optional.empty();
+    }
 }

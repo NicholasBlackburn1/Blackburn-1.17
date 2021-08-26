@@ -20,77 +20,94 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemConditions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class PredicateManager extends SimpleJsonResourceReloadListener {
-   private static final Logger LOGGER = LogManager.getLogger();
-   private static final Gson GSON = Deserializers.createConditionSerializer().create();
-   private Map<ResourceLocation, LootItemCondition> conditions = ImmutableMap.of();
+public class PredicateManager extends SimpleJsonResourceReloadListener
+{
+    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Gson GSON = Deserializers.createConditionSerializer().create();
+    private Map<ResourceLocation, LootItemCondition> conditions = ImmutableMap.of();
 
-   public PredicateManager() {
-      super(GSON, "predicates");
-   }
+    public PredicateManager()
+    {
+        super(GSON, "predicates");
+    }
 
-   @Nullable
-   public LootItemCondition get(ResourceLocation p_79253_) {
-      return this.conditions.get(p_79253_);
-   }
+    @Nullable
+    public LootItemCondition get(ResourceLocation pId)
+    {
+        return this.conditions.get(pId);
+    }
 
-   protected void apply(Map<ResourceLocation, JsonElement> p_79249_, ResourceManager p_79250_, ProfilerFiller p_79251_) {
-      Builder<ResourceLocation, LootItemCondition> builder = ImmutableMap.builder();
-      p_79249_.forEach((p_79235_, p_79236_) -> {
-         try {
-            if (p_79236_.isJsonArray()) {
-               LootItemCondition[] alootitemcondition = GSON.fromJson(p_79236_, LootItemCondition[].class);
-               builder.put(p_79235_, new PredicateManager.CompositePredicate(alootitemcondition));
-            } else {
-               LootItemCondition lootitemcondition = GSON.fromJson(p_79236_, LootItemCondition.class);
-               builder.put(p_79235_, lootitemcondition);
+    protected void apply(Map<ResourceLocation, JsonElement> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler)
+    {
+        Builder<ResourceLocation, LootItemCondition> builder = ImmutableMap.builder();
+        pObject.forEach((p_79235_, p_79236_) ->
+        {
+            try {
+                if (p_79236_.isJsonArray())
+                {
+                    LootItemCondition[] alootitemcondition = GSON.fromJson(p_79236_, LootItemCondition[].class);
+                    builder.put(p_79235_, new PredicateManager.CompositePredicate(alootitemcondition));
+                }
+                else {
+                    LootItemCondition lootitemcondition = GSON.fromJson(p_79236_, LootItemCondition.class);
+                    builder.put(p_79235_, lootitemcondition);
+                }
             }
-         } catch (Exception exception) {
-            LOGGER.error("Couldn't parse loot table {}", p_79235_, exception);
-         }
+            catch (Exception exception)
+            {
+                LOGGER.error("Couldn't parse loot table {}", p_79235_, exception);
+            }
+        });
+        Map<ResourceLocation, LootItemCondition> map = builder.build();
+        ValidationContext validationcontext = new ValidationContext(LootContextParamSets.ALL_PARAMS, map::get, (p_79255_) ->
+        {
+            return null;
+        });
+        map.forEach((p_79239_, p_79240_) ->
+        {
+            p_79240_.validate(validationcontext.enterCondition("{" + p_79239_ + "}", p_79239_));
+        });
+        validationcontext.getProblems().forEach((p_79246_, p_79247_) ->
+        {
+            LOGGER.warn("Found validation problem in {}: {}", p_79246_, p_79247_);
+        });
+        this.conditions = map;
+    }
 
-      });
-      Map<ResourceLocation, LootItemCondition> map = builder.build();
-      ValidationContext validationcontext = new ValidationContext(LootContextParamSets.ALL_PARAMS, map::get, (p_79255_) -> {
-         return null;
-      });
-      map.forEach((p_79239_, p_79240_) -> {
-         p_79240_.validate(validationcontext.enterCondition("{" + p_79239_ + "}", p_79239_));
-      });
-      validationcontext.getProblems().forEach((p_79246_, p_79247_) -> {
-         LOGGER.warn("Found validation problem in {}: {}", p_79246_, p_79247_);
-      });
-      this.conditions = map;
-   }
+    public Set<ResourceLocation> getKeys()
+    {
+        return Collections.unmodifiableSet(this.conditions.keySet());
+    }
 
-   public Set<ResourceLocation> getKeys() {
-      return Collections.unmodifiableSet(this.conditions.keySet());
-   }
+    static class CompositePredicate implements LootItemCondition
+    {
+        private final LootItemCondition[] terms;
+        private final Predicate<LootContext> composedPredicate;
 
-   static class CompositePredicate implements LootItemCondition {
-      private final LootItemCondition[] terms;
-      private final Predicate<LootContext> composedPredicate;
+        CompositePredicate(LootItemCondition[] p_79259_)
+        {
+            this.terms = p_79259_;
+            this.composedPredicate = LootItemConditions.m_81834_(p_79259_);
+        }
 
-      CompositePredicate(LootItemCondition[] p_79259_) {
-         this.terms = p_79259_;
-         this.composedPredicate = LootItemConditions.andConditions(p_79259_);
-      }
+        public final boolean test(LootContext p_79264_)
+        {
+            return this.composedPredicate.test(p_79264_);
+        }
 
-      public final boolean test(LootContext p_79264_) {
-         return this.composedPredicate.test(p_79264_);
-      }
+        public void validate(ValidationContext p_79266_)
+        {
+            LootItemCondition.super.validate(p_79266_);
 
-      public void validate(ValidationContext p_79266_) {
-         LootItemCondition.super.validate(p_79266_);
+            for (int i = 0; i < this.terms.length; ++i)
+            {
+                this.terms[i].validate(p_79266_.forChild(".term[" + i + "]"));
+            }
+        }
 
-         for(int i = 0; i < this.terms.length; ++i) {
-            this.terms[i].validate(p_79266_.forChild(".term[" + i + "]"));
-         }
-
-      }
-
-      public LootItemConditionType getType() {
-         throw new UnsupportedOperationException();
-      }
-   }
+        public LootItemConditionType getType()
+        {
+            throw new UnsupportedOperationException();
+        }
+    }
 }

@@ -18,65 +18,78 @@ import net.minecraft.world.item.FireworkRocketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-public class CelebrateVillagersSurvivedRaid extends Behavior<Villager> {
-   @Nullable
-   private Raid currentRaid;
+public class CelebrateVillagersSurvivedRaid extends Behavior<Villager>
+{
+    @Nullable
+    private Raid currentRaid;
 
-   public CelebrateVillagersSurvivedRaid(int p_22684_, int p_22685_) {
-      super(ImmutableMap.of(), p_22684_, p_22685_);
-   }
+    public CelebrateVillagersSurvivedRaid(int p_22684_, int p_22685_)
+    {
+        super(ImmutableMap.of(), p_22684_, p_22685_);
+    }
 
-   protected boolean checkExtraStartConditions(ServerLevel p_22690_, Villager p_22691_) {
-      BlockPos blockpos = p_22691_.blockPosition();
-      this.currentRaid = p_22690_.getRaidAt(blockpos);
-      return this.currentRaid != null && this.currentRaid.isVictory() && MoveToSkySeeingSpot.hasNoBlocksAbove(p_22690_, p_22691_, blockpos);
-   }
+    protected boolean checkExtraStartConditions(ServerLevel pLevel, Villager pOwner)
+    {
+        BlockPos blockpos = pOwner.blockPosition();
+        this.currentRaid = pLevel.getRaidAt(blockpos);
+        return this.currentRaid != null && this.currentRaid.isVictory() && MoveToSkySeeingSpot.hasNoBlocksAbove(pLevel, pOwner, blockpos);
+    }
 
-   protected boolean canStillUse(ServerLevel p_22693_, Villager p_22694_, long p_22695_) {
-      return this.currentRaid != null && !this.currentRaid.isStopped();
-   }
+    protected boolean canStillUse(ServerLevel pLevel, Villager pEntity, long pGameTime)
+    {
+        return this.currentRaid != null && !this.currentRaid.isStopped();
+    }
 
-   protected void stop(ServerLevel p_22704_, Villager p_22705_, long p_22706_) {
-      this.currentRaid = null;
-      p_22705_.getBrain().updateActivityFromSchedule(p_22704_.getDayTime(), p_22704_.getGameTime());
-   }
+    protected void stop(ServerLevel pLevel, Villager pEntity, long pGameTime)
+    {
+        this.currentRaid = null;
+        pEntity.getBrain().updateActivityFromSchedule(pLevel.getDayTime(), pLevel.getGameTime());
+    }
 
-   protected void tick(ServerLevel p_22712_, Villager p_22713_, long p_22714_) {
-      Random random = p_22713_.getRandom();
-      if (random.nextInt(100) == 0) {
-         p_22713_.playCelebrateSound();
-      }
+    protected void tick(ServerLevel pLevel, Villager pOwner, long pGameTime)
+    {
+        Random random = pOwner.getRandom();
 
-      if (random.nextInt(200) == 0 && MoveToSkySeeingSpot.hasNoBlocksAbove(p_22712_, p_22713_, p_22713_.blockPosition())) {
-         DyeColor dyecolor = Util.getRandom(DyeColor.values(), random);
-         int i = random.nextInt(3);
-         ItemStack itemstack = this.getFirework(dyecolor, i);
-         FireworkRocketEntity fireworkrocketentity = new FireworkRocketEntity(p_22713_.level, p_22713_, p_22713_.getX(), p_22713_.getEyeY(), p_22713_.getZ(), itemstack);
-         p_22713_.level.addFreshEntity(fireworkrocketentity);
-      }
+        if (random.nextInt(100) == 0)
+        {
+            pOwner.playCelebrateSound();
+        }
 
-   }
+        if (random.nextInt(200) == 0 && MoveToSkySeeingSpot.hasNoBlocksAbove(pLevel, pOwner, pOwner.blockPosition()))
+        {
+            DyeColor dyecolor = Util.m_137545_(DyeColor.values(), random);
+            int i = random.nextInt(3);
+            ItemStack itemstack = this.getFirework(dyecolor, i);
+            FireworkRocketEntity fireworkrocketentity = new FireworkRocketEntity(pOwner.level, pOwner, pOwner.getX(), pOwner.getEyeY(), pOwner.getZ(), itemstack);
+            pOwner.level.addFreshEntity(fireworkrocketentity);
+        }
+    }
 
-   private ItemStack getFirework(DyeColor p_22697_, int p_22698_) {
-      ItemStack itemstack = new ItemStack(Items.FIREWORK_ROCKET, 1);
-      ItemStack itemstack1 = new ItemStack(Items.FIREWORK_STAR);
-      CompoundTag compoundtag = itemstack1.getOrCreateTagElement("Explosion");
-      List<Integer> list = Lists.newArrayList();
-      list.add(p_22697_.getFireworkColor());
-      compoundtag.putIntArray("Colors", list);
-      compoundtag.putByte("Type", (byte)FireworkRocketItem.Shape.BURST.getId());
-      CompoundTag compoundtag1 = itemstack.getOrCreateTagElement("Fireworks");
-      ListTag listtag = new ListTag();
-      CompoundTag compoundtag2 = itemstack1.getTagElement("Explosion");
-      if (compoundtag2 != null) {
-         listtag.add(compoundtag2);
-      }
+    private ItemStack getFirework(DyeColor pColor, int pFlightTime)
+    {
+        ItemStack itemstack = new ItemStack(Items.FIREWORK_ROCKET, 1);
+        ItemStack itemstack1 = new ItemStack(Items.FIREWORK_STAR);
+        CompoundTag compoundtag = itemstack1.getOrCreateTagElement("Explosion");
+        List<Integer> list = Lists.newArrayList();
+        list.add(pColor.getFireworkColor());
+        compoundtag.putIntArray("Colors", list);
+        compoundtag.putByte("Type", (byte)FireworkRocketItem.Shape.BURST.getId());
+        CompoundTag compoundtag1 = itemstack.getOrCreateTagElement("Fireworks");
+        ListTag listtag = new ListTag();
+        CompoundTag compoundtag2 = itemstack1.getTagElement("Explosion");
 
-      compoundtag1.putByte("Flight", (byte)p_22698_);
-      if (!listtag.isEmpty()) {
-         compoundtag1.put("Explosions", listtag);
-      }
+        if (compoundtag2 != null)
+        {
+            listtag.add(compoundtag2);
+        }
 
-      return itemstack;
-   }
+        compoundtag1.putByte("Flight", (byte)pFlightTime);
+
+        if (!listtag.isEmpty())
+        {
+            compoundtag1.put("Explosions", listtag);
+        }
+
+        return itemstack;
+    }
 }

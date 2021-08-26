@@ -30,132 +30,177 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.block.state.properties.Property;
 
-public class BlockPredicateArgument implements ArgumentType<BlockPredicateArgument.Result> {
-   private static final Collection<String> EXAMPLES = Arrays.asList("stone", "minecraft:stone", "stone[foo=bar]", "#stone", "#stone[foo=bar]{baz=nbt}");
-   private static final DynamicCommandExceptionType ERROR_UNKNOWN_TAG = new DynamicCommandExceptionType((p_115580_) -> {
-      return new TranslatableComponent("arguments.block.tag.unknown", p_115580_);
-   });
+public class BlockPredicateArgument implements ArgumentType<BlockPredicateArgument.Result>
+{
+    private static final Collection<String> EXAMPLES = Arrays.asList("stone", "minecraft:stone", "stone[foo=bar]", "#stone", "#stone[foo=bar]{baz=nbt}");
+    private static final DynamicCommandExceptionType ERROR_UNKNOWN_TAG = new DynamicCommandExceptionType((p_115580_) ->
+    {
+        return new TranslatableComponent("arguments.block.tag.unknown", p_115580_);
+    });
 
-   public static BlockPredicateArgument blockPredicate() {
-      return new BlockPredicateArgument();
-   }
+    public static BlockPredicateArgument blockPredicate()
+    {
+        return new BlockPredicateArgument();
+    }
 
-   public BlockPredicateArgument.Result parse(StringReader p_115572_) throws CommandSyntaxException {
-      BlockStateParser blockstateparser = (new BlockStateParser(p_115572_, true)).parse(true);
-      if (blockstateparser.getState() != null) {
-         BlockPredicateArgument.BlockPredicate blockpredicateargument$blockpredicate = new BlockPredicateArgument.BlockPredicate(blockstateparser.getState(), blockstateparser.getProperties().keySet(), blockstateparser.getNbt());
-         return (p_115578_) -> {
-            return blockpredicateargument$blockpredicate;
-         };
-      } else {
-         ResourceLocation resourcelocation = blockstateparser.getTag();
-         return (p_173736_) -> {
-            Tag<Block> tag = p_173736_.getTagOrThrow(Registry.BLOCK_REGISTRY, resourcelocation, (p_173732_) -> {
-               return ERROR_UNKNOWN_TAG.create(p_173732_.toString());
-            });
-            return new BlockPredicateArgument.TagPredicate(tag, blockstateparser.getVagueProperties(), blockstateparser.getNbt());
-         };
-      }
-   }
+    public BlockPredicateArgument.Result parse(StringReader p_115572_) throws CommandSyntaxException
+    {
+        BlockStateParser blockstateparser = (new BlockStateParser(p_115572_, true)).parse(true);
 
-   public static Predicate<BlockInWorld> getBlockPredicate(CommandContext<CommandSourceStack> p_115574_, String p_115575_) throws CommandSyntaxException {
-      return p_115574_.getArgument(p_115575_, BlockPredicateArgument.Result.class).create(p_115574_.getSource().getServer().getTags());
-   }
+        if (blockstateparser.getState() != null)
+        {
+            BlockPredicateArgument.BlockPredicate blockpredicateargument$blockpredicate = new BlockPredicateArgument.BlockPredicate(blockstateparser.getState(), blockstateparser.getProperties().keySet(), blockstateparser.getNbt());
+            return (p_115578_) ->
+            {
+                return blockpredicateargument$blockpredicate;
+            };
+        }
+        else
+        {
+            ResourceLocation resourcelocation = blockstateparser.getTag();
+            return (p_173736_) ->
+            {
+                Tag<Block> tag = p_173736_.getTagOrThrow(Registry.BLOCK_REGISTRY, resourcelocation, (p_173732_) -> {
+                    return ERROR_UNKNOWN_TAG.create(p_173732_.toString());
+                });
+                return new BlockPredicateArgument.TagPredicate(tag, blockstateparser.getVagueProperties(), blockstateparser.getNbt());
+            };
+        }
+    }
 
-   public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> p_115587_, SuggestionsBuilder p_115588_) {
-      StringReader stringreader = new StringReader(p_115588_.getInput());
-      stringreader.setCursor(p_115588_.getStart());
-      BlockStateParser blockstateparser = new BlockStateParser(stringreader, true);
+    public static Predicate<BlockInWorld> getBlockPredicate(CommandContext<CommandSourceStack> pContext, String pName) throws CommandSyntaxException
+    {
+        return pContext.getArgument(pName, BlockPredicateArgument.Result.class).create(pContext.getSource().getServer().getTags());
+    }
 
-      try {
-         blockstateparser.parse(true);
-      } catch (CommandSyntaxException commandsyntaxexception) {
-      }
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> p_115587_, SuggestionsBuilder p_115588_)
+    {
+        StringReader stringreader = new StringReader(p_115588_.getInput());
+        stringreader.setCursor(p_115588_.getStart());
+        BlockStateParser blockstateparser = new BlockStateParser(stringreader, true);
 
-      return blockstateparser.fillSuggestions(p_115588_, BlockTags.getAllTags());
-   }
+        try
+        {
+            blockstateparser.parse(true);
+        }
+        catch (CommandSyntaxException commandsyntaxexception)
+        {
+        }
 
-   public Collection<String> getExamples() {
-      return EXAMPLES;
-   }
+        return blockstateparser.fillSuggestions(p_115588_, BlockTags.getAllTags());
+    }
 
-   static class BlockPredicate implements Predicate<BlockInWorld> {
-      private final BlockState state;
-      private final Set<Property<?>> properties;
-      @Nullable
-      private final CompoundTag nbt;
+    public Collection<String> getExamples()
+    {
+        return EXAMPLES;
+    }
 
-      public BlockPredicate(BlockState p_115595_, Set<Property<?>> p_115596_, @Nullable CompoundTag p_115597_) {
-         this.state = p_115595_;
-         this.properties = p_115596_;
-         this.nbt = p_115597_;
-      }
+    static class BlockPredicate implements Predicate<BlockInWorld>
+    {
+        private final BlockState state;
+        private final Set < Property<? >> properties;
+        @Nullable
+        private final CompoundTag nbt;
 
-      public boolean test(BlockInWorld p_115599_) {
-         BlockState blockstate = p_115599_.getState();
-         if (!blockstate.is(this.state.getBlock())) {
-            return false;
-         } else {
-            for(Property<?> property : this.properties) {
-               if (blockstate.getValue(property) != this.state.getValue(property)) {
-                  return false;
-               }
+        public BlockPredicate(BlockState p_115595_, Set < Property<? >> p_115596_, @Nullable CompoundTag p_115597_)
+        {
+            this.state = p_115595_;
+            this.properties = p_115596_;
+            this.nbt = p_115597_;
+        }
+
+        public boolean test(BlockInWorld p_115599_)
+        {
+            BlockState blockstate = p_115599_.getState();
+
+            if (!blockstate.is(this.state.getBlock()))
+            {
+                return false;
             }
+            else
+            {
+                for (Property<?> property : this.properties)
+                {
+                    if (blockstate.getValue(property) != this.state.getValue(property))
+                    {
+                        return false;
+                    }
+                }
 
-            if (this.nbt == null) {
-               return true;
-            } else {
-               BlockEntity blockentity = p_115599_.getEntity();
-               return blockentity != null && NbtUtils.compareNbt(this.nbt, blockentity.save(new CompoundTag()), true);
+                if (this.nbt == null)
+                {
+                    return true;
+                }
+                else
+                {
+                    BlockEntity blockentity = p_115599_.getEntity();
+                    return blockentity != null && NbtUtils.compareNbt(this.nbt, blockentity.save(new CompoundTag()), true);
+                }
             }
-         }
-      }
-   }
+        }
+    }
 
-   public interface Result {
-      Predicate<BlockInWorld> create(TagContainer p_115603_) throws CommandSyntaxException;
-   }
+    public interface Result
+    {
+        Predicate<BlockInWorld> create(TagContainer p_115603_) throws CommandSyntaxException;
+    }
 
-   static class TagPredicate implements Predicate<BlockInWorld> {
-      private final Tag<Block> tag;
-      @Nullable
-      private final CompoundTag nbt;
-      private final Map<String, String> vagueProperties;
+    static class TagPredicate implements Predicate<BlockInWorld>
+    {
+        private final Tag<Block> tag;
+        @Nullable
+        private final CompoundTag nbt;
+        private final Map<String, String> vagueProperties;
 
-      TagPredicate(Tag<Block> p_115608_, Map<String, String> p_115609_, @Nullable CompoundTag p_115610_) {
-         this.tag = p_115608_;
-         this.vagueProperties = p_115609_;
-         this.nbt = p_115610_;
-      }
+        TagPredicate(Tag<Block> p_115608_, Map<String, String> p_115609_, @Nullable CompoundTag p_115610_)
+        {
+            this.tag = p_115608_;
+            this.vagueProperties = p_115609_;
+            this.nbt = p_115610_;
+        }
 
-      public boolean test(BlockInWorld p_115617_) {
-         BlockState blockstate = p_115617_.getState();
-         if (!blockstate.is(this.tag)) {
-            return false;
-         } else {
-            for(Entry<String, String> entry : this.vagueProperties.entrySet()) {
-               Property<?> property = blockstate.getBlock().getStateDefinition().getProperty(entry.getKey());
-               if (property == null) {
-                  return false;
-               }
+        public boolean test(BlockInWorld p_115617_)
+        {
+            BlockState blockstate = p_115617_.getState();
 
-               Comparable<?> comparable = (Comparable)property.getValue(entry.getValue()).orElse(null);
-               if (comparable == null) {
-                  return false;
-               }
-
-               if (blockstate.getValue(property) != comparable) {
-                  return false;
-               }
+            if (!blockstate.is(this.tag))
+            {
+                return false;
             }
+            else
+            {
+                for (Entry<String, String> entry : this.vagueProperties.entrySet())
+                {
+                    Property<?> property = blockstate.getBlock().getStateDefinition().getProperty(entry.getKey());
 
-            if (this.nbt == null) {
-               return true;
-            } else {
-               BlockEntity blockentity = p_115617_.getEntity();
-               return blockentity != null && NbtUtils.compareNbt(this.nbt, blockentity.save(new CompoundTag()), true);
+                    if (property == null)
+                    {
+                        return false;
+                    }
+
+                    Comparable<?> comparable = (Comparable)property.getValue(entry.getValue()).orElse(null);
+
+                    if (comparable == null)
+                    {
+                        return false;
+                    }
+
+                    if (blockstate.getValue(property) != comparable)
+                    {
+                        return false;
+                    }
+                }
+
+                if (this.nbt == null)
+                {
+                    return true;
+                }
+                else
+                {
+                    BlockEntity blockentity = p_115617_.getEntity();
+                    return blockentity != null && NbtUtils.compareNbt(this.nbt, blockentity.save(new CompoundTag()), true);
+                }
             }
-         }
-      }
-   }
+        }
+    }
 }

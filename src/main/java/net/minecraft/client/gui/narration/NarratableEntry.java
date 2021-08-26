@@ -1,24 +1,23 @@
 package net.minecraft.client.gui.narration;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+public interface NarratableEntry extends NarrationSupplier
+{
+    NarratableEntry.NarrationPriority narrationPriority();
 
-@OnlyIn(Dist.CLIENT)
-public interface NarratableEntry extends NarrationSupplier {
-   NarratableEntry.NarrationPriority narrationPriority();
+default boolean isActive()
+    {
+        return true;
+    }
 
-   default boolean isActive() {
-      return true;
-   }
+    public static enum NarrationPriority
+    {
+        NONE,
+        HOVERED,
+        FOCUSED;
 
-   @OnlyIn(Dist.CLIENT)
-   public static enum NarrationPriority {
-      NONE,
-      HOVERED,
-      FOCUSED;
-
-      public boolean isTerminal() {
-         return this == FOCUSED;
-      }
-   }
+        public boolean isTerminal()
+        {
+            return this == FOCUSED;
+        }
+    }
 }

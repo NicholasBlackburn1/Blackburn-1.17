@@ -6,23 +6,25 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
-public interface FinishedRecipe {
-   void serializeRecipeData(JsonObject p_125967_);
+public interface FinishedRecipe
+{
+    void serializeRecipeData(JsonObject pJson);
 
-   default JsonObject serializeRecipe() {
-      JsonObject jsonobject = new JsonObject();
-      jsonobject.addProperty("type", Registry.RECIPE_SERIALIZER.getKey(this.getType()).toString());
-      this.serializeRecipeData(jsonobject);
-      return jsonobject;
-   }
+default JsonObject serializeRecipe()
+    {
+        JsonObject jsonobject = new JsonObject();
+        jsonobject.addProperty("type", Registry.RECIPE_SERIALIZER.getKey(this.getType()).toString());
+        this.serializeRecipeData(jsonobject);
+        return jsonobject;
+    }
 
-   ResourceLocation getId();
+    ResourceLocation getId();
 
-   RecipeSerializer<?> getType();
+    RecipeSerializer<?> getType();
 
-   @Nullable
-   JsonObject serializeAdvancement();
+    @Nullable
+    JsonObject serializeAdvancement();
 
-   @Nullable
-   ResourceLocation getAdvancementId();
+    @Nullable
+    ResourceLocation getAdvancementId();
 }

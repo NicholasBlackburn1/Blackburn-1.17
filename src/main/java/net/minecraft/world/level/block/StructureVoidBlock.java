@@ -8,27 +8,33 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class StructureVoidBlock extends Block {
-   private static final double SIZE = 5.0D;
-   private static final VoxelShape SHAPE = Block.box(5.0D, 5.0D, 5.0D, 11.0D, 11.0D, 11.0D);
+public class StructureVoidBlock extends Block
+{
+    private static final double SIZE = 5.0D;
+    private static final VoxelShape SHAPE = Block.box(5.0D, 5.0D, 5.0D, 11.0D, 11.0D, 11.0D);
 
-   protected StructureVoidBlock(BlockBehaviour.Properties p_57150_) {
-      super(p_57150_);
-   }
+    protected StructureVoidBlock(BlockBehaviour.Properties p_57150_)
+    {
+        super(p_57150_);
+    }
 
-   public RenderShape getRenderShape(BlockState p_57156_) {
-      return RenderShape.INVISIBLE;
-   }
+    public RenderShape getRenderShape(BlockState pState)
+    {
+        return RenderShape.INVISIBLE;
+    }
 
-   public VoxelShape getShape(BlockState p_57158_, BlockGetter p_57159_, BlockPos p_57160_, CollisionContext p_57161_) {
-      return SHAPE;
-   }
+    public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext)
+    {
+        return SHAPE;
+    }
 
-   public float getShadeBrightness(BlockState p_57152_, BlockGetter p_57153_, BlockPos p_57154_) {
-      return 1.0F;
-   }
+    public float getShadeBrightness(BlockState pState, BlockGetter pLevel, BlockPos pPos)
+    {
+        return 1.0F;
+    }
 
-   public PushReaction getPistonPushReaction(BlockState p_57163_) {
-      return PushReaction.DESTROY;
-   }
+    public PushReaction getPistonPushReaction(BlockState pState)
+    {
+        return PushReaction.DESTROY;
+    }
 }

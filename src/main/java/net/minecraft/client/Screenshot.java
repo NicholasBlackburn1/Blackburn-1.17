@@ -1,12 +1,16 @@
 package net.minecraft.client;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.platform.GLX;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -19,139 +23,232 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.optifine.Config;
+import net.optifine.reflect.Reflector;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@OnlyIn(Dist.CLIENT)
-public class Screenshot {
-   private static final Logger LOGGER = LogManager.getLogger();
-   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss");
-   private int rowHeight;
-   private final DataOutputStream outputStream;
-   private final byte[] bytes;
-   private final int width;
-   private final int height;
-   private File file;
+public class Screenshot
+{
+    private static final Logger LOGGER = LogManager.getLogger();
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss");
+    private int rowHeight;
+    private final DataOutputStream outputStream;
+    private final byte[] bytes;
+    private final int width;
+    private final int height;
+    private File file;
 
-   public static void grab(File p_92290_, RenderTarget p_92293_, Consumer<Component> p_92294_) {
-      grab(p_92290_, (String)null, p_92293_, p_92294_);
-   }
+    public static void grab(File pGameDirectory, RenderTarget pBuffer, Consumer<Component> pMessageConsumer)
+    {
+        grab(pGameDirectory, (String)null, pBuffer, pMessageConsumer);
+    }
 
-   public static void grab(File p_92296_, @Nullable String p_92297_, RenderTarget p_92300_, Consumer<Component> p_92301_) {
-      if (!RenderSystem.isOnRenderThread()) {
-         RenderSystem.recordRenderCall(() -> {
-            _grab(p_92296_, p_92297_, p_92300_, p_92301_);
-         });
-      } else {
-         _grab(p_92296_, p_92297_, p_92300_, p_92301_);
-      }
-
-   }
-
-   private static void _grab(File p_92306_, @Nullable String p_92307_, RenderTarget p_92310_, Consumer<Component> p_92311_) {
-      NativeImage nativeimage = takeScreenshot(p_92310_);
-      File file1 = new File(p_92306_, "screenshots");
-      file1.mkdir();
-      File file2;
-      if (p_92307_ == null) {
-         file2 = getFile(file1);
-      } else {
-         file2 = new File(file1, p_92307_);
-      }
-
-      Util.ioPool().execute(() -> {
-         try {
-            nativeimage.writeToFile(file2);
-            Component component = (new TextComponent(file2.getName())).withStyle(ChatFormatting.UNDERLINE).withStyle((p_168608_) -> {
-               return p_168608_.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, file2.getAbsolutePath()));
+    public static void grab(File pGameDirectory, @Nullable String pWidth, RenderTarget pMessageConsumer, Consumer<Component> p_92301_)
+    {
+        if (!RenderSystem.isOnRenderThread())
+        {
+            RenderSystem.recordRenderCall(() ->
+            {
+                _grab(pGameDirectory, pWidth, pMessageConsumer, p_92301_);
             });
-            p_92311_.accept(new TranslatableComponent("screenshot.success", component));
-         } catch (Exception exception) {
-            LOGGER.warn("Couldn't save screenshot", (Throwable)exception);
-            p_92311_.accept(new TranslatableComponent("screenshot.failure", exception.getMessage()));
-         } finally {
-            nativeimage.close();
-         }
+        }
+        else
+        {
+            _grab(pGameDirectory, pWidth, pMessageConsumer, p_92301_);
+        }
+    }
 
-      });
-   }
+    private static void _grab(File pGameDirectory, @Nullable String pScreenshotName, RenderTarget pBuffer, Consumer<Component> pMessageConsumer)
+    {
+        Minecraft minecraft = Config.getMinecraft();
+        Window window = minecraft.getWindow();
+        Options options = Config.getGameSettings();
+        int i = window.getWidth();
+        int j = window.getHeight();
+        int k = options.guiScale;
+        int l = window.calculateScale(minecraft.options.guiScale, minecraft.options.forceUnicodeFont);
+        int i1 = Config.getScreenshotSize();
+        boolean flag = GLX.isUsingFBOs() && i1 > 1;
 
-   public static NativeImage takeScreenshot(RenderTarget p_92282_) {
-      int i = p_92282_.width;
-      int j = p_92282_.height;
-      NativeImage nativeimage = new NativeImage(i, j, false);
-      RenderSystem.bindTexture(p_92282_.getColorTextureId());
-      nativeimage.downloadTexture(0, true);
-      nativeimage.flipY();
-      return nativeimage;
-   }
+        if (flag)
+        {
+            options.guiScale = l * i1;
+            window.resizeFramebuffer(i * i1, j * i1);
+            GlStateManager.clear(16640);
+            minecraft.getMainRenderTarget().bindWrite(true);
+            GlStateManager._enableTexture();
+            RenderSystem.getModelViewStack().pushPose();
+            minecraft.gameRenderer.render(minecraft.getFrameTime(), System.nanoTime(), true);
+            RenderSystem.getModelViewStack().popPose();
+            RenderSystem.applyModelViewMatrix();
+        }
 
-   private static File getFile(File p_92288_) {
-      String s = DATE_FORMAT.format(new Date());
-      int i = 1;
+        NativeImage nativeimage = takeScreenshot(pBuffer);
 
-      while(true) {
-         File file1 = new File(p_92288_, s + (i == 1 ? "" : "_" + i) + ".png");
-         if (!file1.exists()) {
-            return file1;
-         }
+        if (flag)
+        {
+            minecraft.getMainRenderTarget().unbindWrite();
+            Config.getGameSettings().guiScale = k;
+            window.resizeFramebuffer(i, j);
+        }
 
-         ++i;
-      }
-   }
+        File file1 = new File(pGameDirectory, "screenshots");
+        file1.mkdir();
+        File file2;
 
-   public Screenshot(File p_168601_, int p_168602_, int p_168603_, int p_168604_) throws IOException {
-      this.width = p_168602_;
-      this.height = p_168603_;
-      this.rowHeight = p_168604_;
-      File file1 = new File(p_168601_, "screenshots");
-      file1.mkdir();
-      String s = "huge_" + DATE_FORMAT.format(new Date());
+        if (pScreenshotName == null)
+        {
+            file2 = getFile(file1);
+        }
+        else
+        {
+            file2 = new File(file1, pScreenshotName);
+        }
 
-      for(int i = 1; (this.file = new File(file1, s + (i == 1 ? "" : "_" + i) + ".tga")).exists(); ++i) {
-      }
+        Object object = null;
 
-      byte[] abyte = new byte[18];
-      abyte[2] = 2;
-      abyte[12] = (byte)(p_168602_ % 256);
-      abyte[13] = (byte)(p_168602_ / 256);
-      abyte[14] = (byte)(p_168603_ % 256);
-      abyte[15] = (byte)(p_168603_ / 256);
-      abyte[16] = 24;
-      this.bytes = new byte[p_168602_ * p_168604_ * 3];
-      this.outputStream = new DataOutputStream(new FileOutputStream(this.file));
-      this.outputStream.write(abyte);
-   }
+        if (Reflector.ForgeHooksClient_onScreenshot.exists())
+        {
+            object = Reflector.call(Reflector.ForgeHooksClient_onScreenshot, nativeimage, file2);
 
-   public void addRegion(ByteBuffer p_168610_, int p_168611_, int p_168612_, int p_168613_, int p_168614_) {
-      int i = p_168613_;
-      int j = p_168614_;
-      if (p_168613_ > this.width - p_168611_) {
-         i = this.width - p_168611_;
-      }
+            if (Reflector.callBoolean(object, Reflector.Event_isCanceled))
+            {
+                Component component = (Component)Reflector.call(object, Reflector.ScreenshotEvent_getCancelMessage);
+                pMessageConsumer.accept(component);
+                return;
+            }
 
-      if (p_168614_ > this.height - p_168612_) {
-         j = this.height - p_168612_;
-      }
+            file2 = (File)Reflector.call(object, Reflector.ScreenshotEvent_getScreenshotFile);
+        }
 
-      this.rowHeight = j;
+        File file3 = file2;
+        Object object1 = object;
+        Util.ioPool().execute(() ->
+        {
+            try {
+                nativeimage.writeToFile(file3);
+                Component component1 = (new TextComponent(file3.getName())).withStyle(ChatFormatting.UNDERLINE).withStyle((p_313985_1_) -> {
+                    return p_313985_1_.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, file3.getAbsolutePath()));
+                });
 
-      for(int k = 0; k < j; ++k) {
-         p_168610_.position((p_168614_ - j) * p_168613_ * 3 + k * p_168613_ * 3);
-         int l = (p_168611_ + k * this.width) * 3;
-         p_168610_.get(this.bytes, l, i * 3);
-      }
+                if (object1 != null && Reflector.call(object1, Reflector.ScreenshotEvent_getResultMessage) != null)
+                {
+                    pMessageConsumer.accept((Component)Reflector.call(object1, Reflector.ScreenshotEvent_getResultMessage));
+                }
+                else {
+                    pMessageConsumer.accept(new TranslatableComponent("screenshot.success", component1));
+                }
+            }
+            catch (Exception exception1)
+            {
+                LOGGER.warn("Couldn't save screenshot", (Throwable)exception1);
+                pMessageConsumer.accept(new TranslatableComponent("screenshot.failure", exception1.getMessage()));
+            }
+            finally {
+                nativeimage.close();
+            }
+        });
+    }
 
-   }
+    public static NativeImage takeScreenshot(RenderTarget pFramebuffer)
+    {
+        if (!GLX.isUsingFBOs())
+        {
+            NativeImage nativeimage1 = new NativeImage(pFramebuffer.width, pFramebuffer.height, false);
+            nativeimage1.downloadFromFramebuffer(true);
+            nativeimage1.flipY();
+            return nativeimage1;
+        }
+        else
+        {
+            int i = pFramebuffer.width;
+            int j = pFramebuffer.height;
+            NativeImage nativeimage = new NativeImage(i, j, false);
+            RenderSystem.bindTexture(pFramebuffer.getColorTextureId());
+            nativeimage.downloadTexture(0, true);
+            nativeimage.flipY();
+            return nativeimage;
+        }
+    }
 
-   public void saveRow() throws IOException {
-      this.outputStream.write(this.bytes, 0, this.width * 3 * this.rowHeight);
-   }
+    private static File getFile(File pGameDirectory)
+    {
+        String s = DATE_FORMAT.format(new Date());
+        int i = 1;
 
-   public File close() throws IOException {
-      this.outputStream.close();
-      return this.file;
-   }
+        while (true)
+        {
+            File file1 = new File(pGameDirectory, s + (i == 1 ? "" : "_" + i) + ".png");
+
+            if (!file1.exists())
+            {
+                return file1;
+            }
+
+            ++i;
+        }
+    }
+
+    public Screenshot(File p_168601_, int p_168602_, int p_168603_, int p_168604_) throws IOException
+    {
+        this.width = p_168602_;
+        this.height = p_168603_;
+        this.rowHeight = p_168604_;
+        File file1 = new File(p_168601_, "screenshots");
+        file1.mkdir();
+        DateFormat dateformat = DATE_FORMAT;
+        String s = "huge_" + dateformat.format(new Date());
+
+        for (int i = 1; (this.file = new File(file1, s + (i == 1 ? "" : "_" + i) + ".tga")).exists(); ++i)
+        {
+        }
+
+        byte[] abyte = new byte[18];
+        abyte[2] = 2;
+        abyte[12] = (byte)(p_168602_ % 256);
+        abyte[13] = (byte)(p_168602_ / 256);
+        abyte[14] = (byte)(p_168603_ % 256);
+        abyte[15] = (byte)(p_168603_ / 256);
+        abyte[16] = 24;
+        this.bytes = new byte[p_168602_ * p_168604_ * 3];
+        this.outputStream = new DataOutputStream(new FileOutputStream(this.file));
+        this.outputStream.write(abyte);
+    }
+
+    public void addRegion(ByteBuffer p_168610_, int p_168611_, int p_168612_, int p_168613_, int p_168614_)
+    {
+        int i = p_168613_;
+        int j = p_168614_;
+
+        if (p_168613_ > this.width - p_168611_)
+        {
+            i = this.width - p_168611_;
+        }
+
+        if (p_168614_ > this.height - p_168612_)
+        {
+            j = this.height - p_168612_;
+        }
+
+        this.rowHeight = j;
+
+        for (int k = 0; k < j; ++k)
+        {
+            ((Buffer)p_168610_).position((p_168614_ - j) * p_168613_ * 3 + k * p_168613_ * 3);
+            int l = (p_168611_ + k * this.width) * 3;
+            p_168610_.get(this.bytes, l, i * 3);
+        }
+    }
+
+    public void saveRow() throws IOException
+    {
+        this.outputStream.write(this.bytes, 0, this.width * 3 * this.rowHeight);
+    }
+
+    public File close() throws IOException
+    {
+        this.outputStream.close();
+        return this.file;
+    }
 }

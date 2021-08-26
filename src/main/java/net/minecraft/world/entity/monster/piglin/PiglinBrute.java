@@ -28,100 +28,124 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class PiglinBrute extends AbstractPiglin {
-   private static final int MAX_HEALTH = 50;
-   private static final float MOVEMENT_SPEED_WHEN_FIGHTING = 0.35F;
-   private static final int ATTACK_DAMAGE = 7;
-   protected static final ImmutableList<SensorType<? extends Sensor<? super PiglinBrute>>> SENSOR_TYPES = ImmutableList.of(SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY, SensorType.PIGLIN_BRUTE_SPECIFIC_SENSOR);
-   protected static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(MemoryModuleType.LOOK_TARGET, MemoryModuleType.DOORS_TO_CLOSE, MemoryModuleType.NEAREST_LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS, MemoryModuleType.NEARBY_ADULT_PIGLINS, MemoryModuleType.HURT_BY, MemoryModuleType.HURT_BY_ENTITY, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.ATTACK_TARGET, MemoryModuleType.ATTACK_COOLING_DOWN, MemoryModuleType.INTERACTION_TARGET, MemoryModuleType.PATH, MemoryModuleType.ANGRY_AT, MemoryModuleType.NEAREST_VISIBLE_NEMESIS, MemoryModuleType.HOME);
+public class PiglinBrute extends AbstractPiglin
+{
+    private static final int MAX_HEALTH = 50;
+    private static final float MOVEMENT_SPEED_WHEN_FIGHTING = 0.35F;
+    private static final int ATTACK_DAMAGE = 7;
+    protected static final ImmutableList < SensorType <? extends Sensor <? super PiglinBrute >>> SENSOR_TYPES = ImmutableList.of(SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY, SensorType.PIGLIN_BRUTE_SPECIFIC_SENSOR);
+    protected static final ImmutableList < MemoryModuleType<? >> MEMORY_TYPES = ImmutableList.of(MemoryModuleType.LOOK_TARGET, MemoryModuleType.DOORS_TO_CLOSE, MemoryModuleType.NEAREST_LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS, MemoryModuleType.NEARBY_ADULT_PIGLINS, MemoryModuleType.HURT_BY, MemoryModuleType.HURT_BY_ENTITY, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.ATTACK_TARGET, MemoryModuleType.ATTACK_COOLING_DOWN, MemoryModuleType.INTERACTION_TARGET, MemoryModuleType.PATH, MemoryModuleType.ANGRY_AT, MemoryModuleType.NEAREST_VISIBLE_NEMESIS, MemoryModuleType.HOME);
 
-   public PiglinBrute(EntityType<? extends PiglinBrute> p_35048_, Level p_35049_) {
-      super(p_35048_, p_35049_);
-      this.xpReward = 20;
-   }
+    public PiglinBrute(EntityType <? extends PiglinBrute > p_35048_, Level p_35049_)
+    {
+        super(p_35048_, p_35049_);
+        this.xpReward = 20;
+    }
 
-   public static AttributeSupplier.Builder createAttributes() {
-      return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 50.0D).add(Attributes.MOVEMENT_SPEED, (double)0.35F).add(Attributes.ATTACK_DAMAGE, 7.0D);
-   }
+    public static AttributeSupplier.Builder createAttributes()
+    {
+        return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 50.0D).add(Attributes.MOVEMENT_SPEED, (double)0.35F).add(Attributes.ATTACK_DAMAGE, 7.0D);
+    }
 
-   @Nullable
-   public SpawnGroupData finalizeSpawn(ServerLevelAccessor p_35058_, DifficultyInstance p_35059_, MobSpawnType p_35060_, @Nullable SpawnGroupData p_35061_, @Nullable CompoundTag p_35062_) {
-      PiglinBruteAi.initMemories(this);
-      this.populateDefaultEquipmentSlots(p_35059_);
-      return super.finalizeSpawn(p_35058_, p_35059_, p_35060_, p_35061_, p_35062_);
-   }
+    @Nullable
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @Nullable CompoundTag pDataTag)
+    {
+        PiglinBruteAi.initMemories(this);
+        this.populateDefaultEquipmentSlots(pDifficulty);
+        return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pDataTag);
+    }
 
-   protected void populateDefaultEquipmentSlots(DifficultyInstance p_35053_) {
-      this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.GOLDEN_AXE));
-   }
+    protected void populateDefaultEquipmentSlots(DifficultyInstance pDifficulty)
+    {
+        this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.GOLDEN_AXE));
+    }
 
-   protected Brain.Provider<PiglinBrute> brainProvider() {
-      return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
-   }
+    protected Brain.Provider<PiglinBrute> brainProvider()
+    {
+        return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
+    }
 
-   protected Brain<?> makeBrain(Dynamic<?> p_35064_) {
-      return PiglinBruteAi.makeBrain(this, this.brainProvider().makeBrain(p_35064_));
-   }
+    protected Brain<?> makeBrain(Dynamic<?> pDynamic)
+    {
+        return PiglinBruteAi.makeBrain(this, this.brainProvider().makeBrain(pDynamic));
+    }
 
-   public Brain<PiglinBrute> getBrain() {
-      return (Brain<PiglinBrute>)super.getBrain();
-   }
+    public Brain<PiglinBrute> getBrain()
+    {
+        return (Brain<PiglinBrute>)super.getBrain();
+    }
 
-   public boolean canHunt() {
-      return false;
-   }
+    public boolean canHunt()
+    {
+        return false;
+    }
 
-   public boolean wantsToPickUp(ItemStack p_35078_) {
-      return p_35078_.is(Items.GOLDEN_AXE) ? super.wantsToPickUp(p_35078_) : false;
-   }
+    public boolean wantsToPickUp(ItemStack p_35078_)
+    {
+        return p_35078_.is(Items.GOLDEN_AXE) ? super.wantsToPickUp(p_35078_) : false;
+    }
 
-   protected void customServerAiStep() {
-      this.level.getProfiler().push("piglinBruteBrain");
-      this.getBrain().tick((ServerLevel)this.level, this);
-      this.level.getProfiler().pop();
-      PiglinBruteAi.updateActivity(this);
-      PiglinBruteAi.maybePlayActivitySound(this);
-      super.customServerAiStep();
-   }
+    protected void customServerAiStep()
+    {
+        this.level.getProfiler().push("piglinBruteBrain");
+        this.getBrain().tick((ServerLevel)this.level, this);
+        this.level.getProfiler().pop();
+        PiglinBruteAi.updateActivity(this);
+        PiglinBruteAi.maybePlayActivitySound(this);
+        super.customServerAiStep();
+    }
 
-   public PiglinArmPose getArmPose() {
-      return this.isAggressive() && this.isHoldingMeleeWeapon() ? PiglinArmPose.ATTACKING_WITH_MELEE_WEAPON : PiglinArmPose.DEFAULT;
-   }
+    public PiglinArmPose getArmPose()
+    {
+        return this.isAggressive() && this.isHoldingMeleeWeapon() ? PiglinArmPose.ATTACKING_WITH_MELEE_WEAPON : PiglinArmPose.DEFAULT;
+    }
 
-   public boolean hurt(DamageSource p_35055_, float p_35056_) {
-      boolean flag = super.hurt(p_35055_, p_35056_);
-      if (this.level.isClientSide) {
-         return false;
-      } else {
-         if (flag && p_35055_.getEntity() instanceof LivingEntity) {
-            PiglinBruteAi.wasHurtBy(this, (LivingEntity)p_35055_.getEntity());
-         }
+    public boolean hurt(DamageSource pSource, float pAmount)
+    {
+        boolean flag = super.hurt(pSource, pAmount);
 
-         return flag;
-      }
-   }
+        if (this.level.isClientSide)
+        {
+            return false;
+        }
+        else
+        {
+            if (flag && pSource.getEntity() instanceof LivingEntity)
+            {
+                PiglinBruteAi.wasHurtBy(this, (LivingEntity)pSource.getEntity());
+            }
 
-   protected SoundEvent getAmbientSound() {
-      return SoundEvents.PIGLIN_BRUTE_AMBIENT;
-   }
+            return flag;
+        }
+    }
 
-   protected SoundEvent getHurtSound(DamageSource p_35072_) {
-      return SoundEvents.PIGLIN_BRUTE_HURT;
-   }
+    protected SoundEvent getAmbientSound()
+    {
+        return SoundEvents.PIGLIN_BRUTE_AMBIENT;
+    }
 
-   protected SoundEvent getDeathSound() {
-      return SoundEvents.PIGLIN_BRUTE_DEATH;
-   }
+    protected SoundEvent getHurtSound(DamageSource pDamageSource)
+    {
+        return SoundEvents.PIGLIN_BRUTE_HURT;
+    }
 
-   protected void playStepSound(BlockPos p_35066_, BlockState p_35067_) {
-      this.playSound(SoundEvents.PIGLIN_BRUTE_STEP, 0.15F, 1.0F);
-   }
+    protected SoundEvent getDeathSound()
+    {
+        return SoundEvents.PIGLIN_BRUTE_DEATH;
+    }
 
-   protected void playAngrySound() {
-      this.playSound(SoundEvents.PIGLIN_BRUTE_ANGRY, 1.0F, this.getVoicePitch());
-   }
+    protected void playStepSound(BlockPos pPos, BlockState pBlock)
+    {
+        this.playSound(SoundEvents.PIGLIN_BRUTE_STEP, 0.15F, 1.0F);
+    }
 
-   protected void playConvertedSound() {
-      this.playSound(SoundEvents.PIGLIN_BRUTE_CONVERTED_TO_ZOMBIFIED, 1.0F, this.getVoicePitch());
-   }
+    protected void playAngrySound()
+    {
+        this.playSound(SoundEvents.PIGLIN_BRUTE_ANGRY, 1.0F, this.getVoicePitch());
+    }
+
+    protected void playConvertedSound()
+    {
+        this.playSound(SoundEvents.PIGLIN_BRUTE_CONVERTED_TO_ZOMBIFIED, 1.0F, this.getVoicePitch());
+    }
 }

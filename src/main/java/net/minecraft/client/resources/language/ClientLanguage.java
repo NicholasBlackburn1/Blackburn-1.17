@@ -13,86 +13,116 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.optifine.Lang;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@OnlyIn(Dist.CLIENT)
-public class ClientLanguage extends Language {
-   private static final Logger LOGGER = LogManager.getLogger();
-   private final Map<String, String> storage;
-   private final boolean defaultRightToLeft;
+public class ClientLanguage extends Language
+{
+    private static final Logger LOGGER = LogManager.getLogger();
+    private final Map<String, String> storage;
+    private final boolean defaultRightToLeft;
 
-   private ClientLanguage(Map<String, String> p_118914_, boolean p_118915_) {
-      this.storage = p_118914_;
-      this.defaultRightToLeft = p_118915_;
-   }
+    private ClientLanguage(Map<String, String> p_118914_, boolean p_118915_)
+    {
+        this.storage = p_118914_;
+        this.defaultRightToLeft = p_118915_;
+    }
 
-   public static ClientLanguage loadFrom(ResourceManager p_118917_, List<LanguageInfo> p_118918_) {
-      Map<String, String> map = Maps.newHashMap();
-      boolean flag = false;
+    public static ClientLanguage loadFrom(ResourceManager p_118917_, List<LanguageInfo> p_118918_)
+    {
+        Map<String, String> map = Maps.newHashMap();
+        boolean flag = false;
 
-      for(LanguageInfo languageinfo : p_118918_) {
-         flag |= languageinfo.isBidirectional();
-         String s = String.format("lang/%s.json", languageinfo.getCode());
+        for (LanguageInfo languageinfo : p_118918_)
+        {
+            flag |= languageinfo.isBidirectional();
+            String s = String.format("lang/%s.json", languageinfo.getCode());
 
-         for(String s1 : p_118917_.getNamespaces()) {
-            try {
-               ResourceLocation resourcelocation = new ResourceLocation(s1, s);
-               appendFrom(p_118917_.getResources(resourcelocation), map);
-            } catch (FileNotFoundException filenotfoundexception) {
-            } catch (Exception exception) {
-               LOGGER.warn("Skipped language file: {}:{} ({})", s1, s, exception.toString());
+            for (String s1 : p_118917_.getNamespaces())
+            {
+                try
+                {
+                    ResourceLocation resourcelocation = new ResourceLocation(s1, s);
+                    appendFrom(p_118917_.getResources(resourcelocation), map);
+                    Lang.loadResources(p_118917_, languageinfo.getCode(), map);
+                }
+                catch (FileNotFoundException filenotfoundexception)
+                {
+                }
+                catch (Exception exception1)
+                {
+                    LOGGER.warn("Skipped language file: {}:{} ({})", s1, s, exception1.toString());
+                }
             }
-         }
-      }
+        }
 
-      return new ClientLanguage(ImmutableMap.copyOf(map), flag);
-   }
+        return new ClientLanguage(ImmutableMap.copyOf(map), flag);
+    }
 
-   private static void appendFrom(List<Resource> p_118922_, Map<String, String> p_118923_) {
-      for(Resource resource : p_118922_) {
-         try {
-            InputStream inputstream = resource.getInputStream();
+    private static void appendFrom(List<Resource> p_118922_, Map<String, String> p_118923_)
+    {
+        for (Resource resource : p_118922_)
+        {
+            try
+            {
+                InputStream inputstream = resource.getInputStream();
 
-            try {
-               Language.loadFromJson(inputstream, p_118923_::put);
-            } catch (Throwable throwable1) {
-               if (inputstream != null) {
-                  try {
-                     inputstream.close();
-                  } catch (Throwable throwable) {
-                     throwable1.addSuppressed(throwable);
-                  }
-               }
+                try
+                {
+                    Language.loadFromJson(inputstream, p_118923_::put);
+                }
+                catch (Throwable throwable1)
+                {
+                    if (inputstream != null)
+                    {
+                        try
+                        {
+                            inputstream.close();
+                        }
+                        catch (Throwable throwable)
+                        {
+                            throwable1.addSuppressed(throwable);
+                        }
+                    }
 
-               throw throwable1;
+                    throw throwable1;
+                }
+
+                if (inputstream != null)
+                {
+                    inputstream.close();
+                }
             }
-
-            if (inputstream != null) {
-               inputstream.close();
+            catch (IOException ioexception1)
+            {
+                LOGGER.warn("Failed to load translations from {}", resource, ioexception1);
             }
-         } catch (IOException ioexception) {
-            LOGGER.warn("Failed to load translations from {}", resource, ioexception);
-         }
-      }
+        }
+    }
 
-   }
+    public String getOrDefault(String p_118920_)
+    {
+        return this.storage.getOrDefault(p_118920_, p_118920_);
+    }
 
-   public String getOrDefault(String p_118920_) {
-      return this.storage.getOrDefault(p_118920_, p_118920_);
-   }
+    public boolean has(String p_118928_)
+    {
+        return this.storage.containsKey(p_118928_);
+    }
 
-   public boolean has(String p_118928_) {
-      return this.storage.containsKey(p_118928_);
-   }
+    public boolean isDefaultRightToLeft()
+    {
+        return this.defaultRightToLeft;
+    }
 
-   public boolean isDefaultRightToLeft() {
-      return this.defaultRightToLeft;
-   }
+    public FormattedCharSequence getVisualOrder(FormattedText p_118925_)
+    {
+        return FormattedBidiReorder.reorder(p_118925_, this.defaultRightToLeft);
+    }
 
-   public FormattedCharSequence getVisualOrder(FormattedText p_118925_) {
-      return FormattedBidiReorder.reorder(p_118925_, this.defaultRightToLeft);
-   }
+    public Map<String, String> getLanguageData()
+    {
+        return this.storage;
+    }
 }

@@ -5,21 +5,22 @@ import javax.annotation.Nullable;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.FriendlyByteBuf;
 
-public interface Palette<T> {
-   int idFor(T p_63061_);
+public interface Palette<T>
+{
+    int idFor(T pState);
 
-   boolean maybeHas(Predicate<T> p_63062_);
+    boolean maybeHas(Predicate<T> p_63062_);
 
-   @Nullable
-   T valueFor(int p_63060_);
+    @Nullable
+    T valueFor(int pIndexKey);
 
-   void read(FriendlyByteBuf p_63064_);
+    void read(FriendlyByteBuf pNbt);
 
-   void write(FriendlyByteBuf p_63065_);
+    void write(FriendlyByteBuf pBuf);
 
-   int getSerializedSize();
+    int getSerializedSize();
 
-   int getSize();
+    int getSize();
 
-   void read(ListTag p_63063_);
+    void read(ListTag pNbt);
 }

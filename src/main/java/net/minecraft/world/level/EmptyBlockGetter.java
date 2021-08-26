@@ -8,27 +8,33 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 
-public enum EmptyBlockGetter implements BlockGetter {
-   INSTANCE;
+public enum EmptyBlockGetter implements BlockGetter
+{
+    INSTANCE;
 
-   @Nullable
-   public BlockEntity getBlockEntity(BlockPos p_45867_) {
-      return null;
-   }
+    @Nullable
+    public BlockEntity getBlockEntity(BlockPos pPos)
+    {
+        return null;
+    }
 
-   public BlockState getBlockState(BlockPos p_45869_) {
-      return Blocks.AIR.defaultBlockState();
-   }
+    public BlockState getBlockState(BlockPos pPos)
+    {
+        return Blocks.AIR.defaultBlockState();
+    }
 
-   public FluidState getFluidState(BlockPos p_45865_) {
-      return Fluids.EMPTY.defaultFluidState();
-   }
+    public FluidState getFluidState(BlockPos pPos)
+    {
+        return Fluids.EMPTY.defaultFluidState();
+    }
 
-   public int getMinBuildHeight() {
-      return 0;
-   }
+    public int getMinBuildHeight()
+    {
+        return 0;
+    }
 
-   public int getHeight() {
-      return 0;
-   }
+    public int getHeight()
+    {
+        return 0;
+    }
 }

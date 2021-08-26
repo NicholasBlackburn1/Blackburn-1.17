@@ -13,41 +13,52 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class CoralPlantBlock extends BaseCoralPlantTypeBlock {
-   private final Block deadBlock;
-   protected static final float AABB_OFFSET = 6.0F;
-   protected static final VoxelShape SHAPE = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 15.0D, 14.0D);
+public class CoralPlantBlock extends BaseCoralPlantTypeBlock
+{
+    private final Block deadBlock;
+    protected static final float AABB_OFFSET = 6.0F;
+    protected static final VoxelShape SHAPE = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 15.0D, 14.0D);
 
-   protected CoralPlantBlock(Block p_52175_, BlockBehaviour.Properties p_52176_) {
-      super(p_52176_);
-      this.deadBlock = p_52175_;
-   }
+    protected CoralPlantBlock(Block p_52175_, BlockBehaviour.Properties p_52176_)
+    {
+        super(p_52176_);
+        this.deadBlock = p_52175_;
+    }
 
-   public void onPlace(BlockState p_52195_, Level p_52196_, BlockPos p_52197_, BlockState p_52198_, boolean p_52199_) {
-      this.tryScheduleDieTick(p_52195_, p_52196_, p_52197_);
-   }
+    public void onPlace(BlockState pState, Level pLevel, BlockPos pPos, BlockState pOldState, boolean pIsMoving)
+    {
+        this.tryScheduleDieTick(pState, pLevel, pPos);
+    }
 
-   public void tick(BlockState p_52178_, ServerLevel p_52179_, BlockPos p_52180_, Random p_52181_) {
-      if (!scanForWater(p_52178_, p_52179_, p_52180_)) {
-         p_52179_.setBlock(p_52180_, this.deadBlock.defaultBlockState().setValue(WATERLOGGED, Boolean.valueOf(false)), 2);
-      }
+    public void tick(BlockState pState, ServerLevel pLevel, BlockPos pPos, Random pRand)
+    {
+        if (!scanForWater(pState, pLevel, pPos))
+        {
+            pLevel.setBlock(pPos, this.deadBlock.defaultBlockState().setValue(WATERLOGGED, Boolean.valueOf(false)), 2);
+        }
+    }
 
-   }
+    public BlockState updateShape(BlockState pState, Direction pFacing, BlockState pFacingState, LevelAccessor pLevel, BlockPos pCurrentPos, BlockPos pFacingPos)
+    {
+        if (pFacing == Direction.DOWN && !pState.canSurvive(pLevel, pCurrentPos))
+        {
+            return Blocks.AIR.defaultBlockState();
+        }
+        else
+        {
+            this.tryScheduleDieTick(pState, pLevel, pCurrentPos);
 
-   public BlockState updateShape(BlockState p_52183_, Direction p_52184_, BlockState p_52185_, LevelAccessor p_52186_, BlockPos p_52187_, BlockPos p_52188_) {
-      if (p_52184_ == Direction.DOWN && !p_52183_.canSurvive(p_52186_, p_52187_)) {
-         return Blocks.AIR.defaultBlockState();
-      } else {
-         this.tryScheduleDieTick(p_52183_, p_52186_, p_52187_);
-         if (p_52183_.getValue(WATERLOGGED)) {
-            p_52186_.getLiquidTicks().scheduleTick(p_52187_, Fluids.WATER, Fluids.WATER.getTickDelay(p_52186_));
-         }
+            if (pState.getValue(WATERLOGGED))
+            {
+                pLevel.getLiquidTicks().scheduleTick(pCurrentPos, Fluids.WATER, Fluids.WATER.getTickDelay(pLevel));
+            }
 
-         return super.updateShape(p_52183_, p_52184_, p_52185_, p_52186_, p_52187_, p_52188_);
-      }
-   }
+            return super.updateShape(pState, pFacing, pFacingState, pLevel, pCurrentPos, pFacingPos);
+        }
+    }
 
-   public VoxelShape getShape(BlockState p_52190_, BlockGetter p_52191_, BlockPos p_52192_, CollisionContext p_52193_) {
-      return SHAPE;
-   }
+    public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext)
+    {
+        return SHAPE;
+    }
 }

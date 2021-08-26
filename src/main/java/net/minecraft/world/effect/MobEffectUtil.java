@@ -4,35 +4,46 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.LivingEntity;
 
-public final class MobEffectUtil {
-   public static String formatDuration(MobEffectInstance p_19582_, float p_19583_) {
-      if (p_19582_.isNoCounter()) {
-         return "**:**";
-      } else {
-         int i = Mth.floor((float)p_19582_.getDuration() * p_19583_);
-         return StringUtil.formatTickDuration(i);
-      }
-   }
+public final class MobEffectUtil
+{
+    public static String formatDuration(MobEffectInstance pEffect, float pDurationFactor)
+    {
+        if (pEffect.isNoCounter())
+        {
+            return "**:**";
+        }
+        else
+        {
+            int i = Mth.floor((float)pEffect.getDuration() * pDurationFactor);
+            return StringUtil.formatTickDuration(i);
+        }
+    }
 
-   public static boolean hasDigSpeed(LivingEntity p_19585_) {
-      return p_19585_.hasEffect(MobEffects.DIG_SPEED) || p_19585_.hasEffect(MobEffects.CONDUIT_POWER);
-   }
+    public static boolean hasDigSpeed(LivingEntity pEntity)
+    {
+        return pEntity.hasEffect(MobEffects.DIG_SPEED) || pEntity.hasEffect(MobEffects.CONDUIT_POWER);
+    }
 
-   public static int getDigSpeedAmplification(LivingEntity p_19587_) {
-      int i = 0;
-      int j = 0;
-      if (p_19587_.hasEffect(MobEffects.DIG_SPEED)) {
-         i = p_19587_.getEffect(MobEffects.DIG_SPEED).getAmplifier();
-      }
+    public static int getDigSpeedAmplification(LivingEntity pEntity)
+    {
+        int i = 0;
+        int j = 0;
 
-      if (p_19587_.hasEffect(MobEffects.CONDUIT_POWER)) {
-         j = p_19587_.getEffect(MobEffects.CONDUIT_POWER).getAmplifier();
-      }
+        if (pEntity.hasEffect(MobEffects.DIG_SPEED))
+        {
+            i = pEntity.getEffect(MobEffects.DIG_SPEED).getAmplifier();
+        }
 
-      return Math.max(i, j);
-   }
+        if (pEntity.hasEffect(MobEffects.CONDUIT_POWER))
+        {
+            j = pEntity.getEffect(MobEffects.CONDUIT_POWER).getAmplifier();
+        }
 
-   public static boolean hasWaterBreathing(LivingEntity p_19589_) {
-      return p_19589_.hasEffect(MobEffects.WATER_BREATHING) || p_19589_.hasEffect(MobEffects.CONDUIT_POWER);
-   }
+        return Math.max(i, j);
+    }
+
+    public static boolean hasWaterBreathing(LivingEntity pEntity)
+    {
+        return pEntity.hasEffect(MobEffects.WATER_BREATHING) || pEntity.hasEffect(MobEffects.CONDUIT_POWER);
+    }
 }

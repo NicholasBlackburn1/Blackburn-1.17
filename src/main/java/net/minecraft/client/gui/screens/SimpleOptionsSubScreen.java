@@ -13,52 +13,57 @@ import net.minecraft.client.gui.components.OptionsList;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
-public abstract class SimpleOptionsSubScreen extends OptionsSubScreen {
-   private final Option[] smallOptions;
-   @Nullable
-   private AbstractWidget narratorButton;
-   private OptionsList list;
+public abstract class SimpleOptionsSubScreen extends OptionsSubScreen
+{
+    private final Option[] smallOptions;
+    @Nullable
+    private AbstractWidget narratorButton;
+    private OptionsList list;
 
-   public SimpleOptionsSubScreen(Screen p_96670_, Options p_96671_, Component p_96672_, Option[] p_96673_) {
-      super(p_96670_, p_96671_, p_96672_);
-      this.smallOptions = p_96673_;
-   }
+    public SimpleOptionsSubScreen(Screen p_96670_, Options p_96671_, Component p_96672_, Option[] p_96673_)
+    {
+        super(p_96670_, p_96671_, p_96672_);
+        this.smallOptions = p_96673_;
+    }
 
-   protected void init() {
-      this.list = new OptionsList(this.minecraft, this.width, this.height, 32, this.height - 32, 25);
-      this.list.addSmall(this.smallOptions);
-      this.addWidget(this.list);
-      this.createFooter();
-      this.narratorButton = this.list.findOption(Option.NARRATOR);
-      if (this.narratorButton != null) {
-         this.narratorButton.active = NarratorChatListener.INSTANCE.isActive();
-      }
+    protected void init()
+    {
+        this.list = new OptionsList(this.minecraft, this.width, this.height, 32, this.height - 32, 25);
+        this.list.m_94476_(this.smallOptions);
+        this.addWidget(this.list);
+        this.createFooter();
+        this.narratorButton = this.list.findOption(Option.NARRATOR);
 
-   }
+        if (this.narratorButton != null)
+        {
+            this.narratorButton.active = NarratorChatListener.INSTANCE.isActive();
+        }
+    }
 
-   protected void createFooter() {
-      this.addRenderableWidget(new Button(this.width / 2 - 100, this.height - 27, 200, 20, CommonComponents.GUI_DONE, (p_96680_) -> {
-         this.minecraft.setScreen(this.lastScreen);
-      }));
-   }
+    protected void createFooter()
+    {
+        this.addRenderableWidget(new Button(this.width / 2 - 100, this.height - 27, 200, 20, CommonComponents.GUI_DONE, (p_96680_) ->
+        {
+            this.minecraft.setScreen(this.lastScreen);
+        }));
+    }
 
-   public void render(PoseStack p_96675_, int p_96676_, int p_96677_, float p_96678_) {
-      this.renderBackground(p_96675_);
-      this.list.render(p_96675_, p_96676_, p_96677_, p_96678_);
-      drawCenteredString(p_96675_, this.font, this.title, this.width / 2, 20, 16777215);
-      super.render(p_96675_, p_96676_, p_96677_, p_96678_);
-      List<FormattedCharSequence> list = tooltipAt(this.list, p_96676_, p_96677_);
-      this.renderTooltip(p_96675_, list, p_96676_, p_96677_);
-   }
+    public void render(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks)
+    {
+        this.renderBackground(pMatrixStack);
+        this.list.render(pMatrixStack, pMouseX, pMouseY, pPartialTicks);
+        drawCenteredString(pMatrixStack, this.font, this.title, this.width / 2, 20, 16777215);
+        super.render(pMatrixStack, pMouseX, pMouseY, pPartialTicks);
+        List<FormattedCharSequence> list = tooltipAt(this.list, pMouseX, pMouseY);
+        this.renderTooltip(pMatrixStack, list, pMouseX, pMouseY);
+    }
 
-   public void updateNarratorButton() {
-      if (this.narratorButton instanceof CycleButton) {
-         ((CycleButton)this.narratorButton).setValue(this.options.narratorStatus);
-      }
-
-   }
+    public void updateNarratorButton()
+    {
+        if (this.narratorButton instanceof CycleButton)
+        {
+            ((CycleButton)this.narratorButton).setValue(this.options.narratorStatus);
+        }
+    }
 }

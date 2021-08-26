@@ -24,105 +24,128 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
-public class ClientSuggestionProvider implements SharedSuggestionProvider {
-   private final ClientPacketListener connection;
-   private final Minecraft minecraft;
-   private int pendingSuggestionsId = -1;
-   private CompletableFuture<Suggestions> pendingSuggestionsFuture;
+public class ClientSuggestionProvider implements SharedSuggestionProvider
+{
+    private final ClientPacketListener connection;
+    private final Minecraft minecraft;
+    private int pendingSuggestionsId = -1;
+    private CompletableFuture<Suggestions> pendingSuggestionsFuture;
 
-   public ClientSuggestionProvider(ClientPacketListener p_105165_, Minecraft p_105166_) {
-      this.connection = p_105165_;
-      this.minecraft = p_105166_;
-   }
+    public ClientSuggestionProvider(ClientPacketListener p_105165_, Minecraft p_105166_)
+    {
+        this.connection = p_105165_;
+        this.minecraft = p_105166_;
+    }
 
-   public Collection<String> getOnlinePlayerNames() {
-      List<String> list = Lists.newArrayList();
+    public Collection<String> getOnlinePlayerNames()
+    {
+        List<String> list = Lists.newArrayList();
 
-      for(PlayerInfo playerinfo : this.connection.getOnlinePlayers()) {
-         list.add(playerinfo.getProfile().getName());
-      }
+        for (PlayerInfo playerinfo : this.connection.getOnlinePlayers())
+        {
+            list.add(playerinfo.getProfile().getName());
+        }
 
-      return list;
-   }
+        return list;
+    }
 
-   public Collection<String> getSelectedEntities() {
-      return (Collection<String>)(this.minecraft.hitResult != null && this.minecraft.hitResult.getType() == HitResult.Type.ENTITY ? Collections.singleton(((EntityHitResult)this.minecraft.hitResult).getEntity().getStringUUID()) : Collections.emptyList());
-   }
+    public Collection<String> getSelectedEntities()
+    {
+        return (Collection<String>)(this.minecraft.hitResult != null && this.minecraft.hitResult.getType() == HitResult.Type.ENTITY ? Collections.singleton(((EntityHitResult)this.minecraft.hitResult).getEntity().getStringUUID()) : Collections.emptyList());
+    }
 
-   public Collection<String> getAllTeams() {
-      return this.connection.getLevel().getScoreboard().getTeamNames();
-   }
+    public Collection<String> getAllTeams()
+    {
+        return this.connection.getLevel().getScoreboard().getTeamNames();
+    }
 
-   public Collection<ResourceLocation> getAvailableSoundEvents() {
-      return this.minecraft.getSoundManager().getAvailableSounds();
-   }
+    public Collection<ResourceLocation> getAvailableSoundEvents()
+    {
+        return this.minecraft.getSoundManager().getAvailableSounds();
+    }
 
-   public Stream<ResourceLocation> getRecipeNames() {
-      return this.connection.getRecipeManager().getRecipeIds();
-   }
+    public Stream<ResourceLocation> getRecipeNames()
+    {
+        return this.connection.getRecipeManager().getRecipeIds();
+    }
 
-   public boolean hasPermission(int p_105178_) {
-      LocalPlayer localplayer = this.minecraft.player;
-      return localplayer != null ? localplayer.hasPermissions(p_105178_) : p_105178_ == 0;
-   }
+    public boolean hasPermission(int pLevel)
+    {
+        LocalPlayer localplayer = this.minecraft.player;
+        return localplayer != null ? localplayer.hasPermissions(pLevel) : pLevel == 0;
+    }
 
-   public CompletableFuture<Suggestions> customSuggestion(CommandContext<SharedSuggestionProvider> p_105175_, SuggestionsBuilder p_105176_) {
-      if (this.pendingSuggestionsFuture != null) {
-         this.pendingSuggestionsFuture.cancel(false);
-      }
+    public CompletableFuture<Suggestions> customSuggestion(CommandContext<SharedSuggestionProvider> pContext, SuggestionsBuilder pSuggestionsBuilder)
+    {
+        if (this.pendingSuggestionsFuture != null)
+        {
+            this.pendingSuggestionsFuture.cancel(false);
+        }
 
-      this.pendingSuggestionsFuture = new CompletableFuture<>();
-      int i = ++this.pendingSuggestionsId;
-      this.connection.send(new ServerboundCommandSuggestionPacket(i, p_105175_.getInput()));
-      return this.pendingSuggestionsFuture;
-   }
+        this.pendingSuggestionsFuture = new CompletableFuture<>();
+        int i = ++this.pendingSuggestionsId;
+        this.connection.send(new ServerboundCommandSuggestionPacket(i, pContext.getInput()));
+        return this.pendingSuggestionsFuture;
+    }
 
-   private static String prettyPrint(double p_105168_) {
-      return String.format(Locale.ROOT, "%.2f", p_105168_);
-   }
+    private static String prettyPrint(double pDoubleValue)
+    {
+        return String.format(Locale.ROOT, "%.2f", pDoubleValue);
+    }
 
-   private static String prettyPrint(int p_105170_) {
-      return Integer.toString(p_105170_);
-   }
+    private static String prettyPrint(int pDoubleValue)
+    {
+        return Integer.toString(pDoubleValue);
+    }
 
-   public Collection<SharedSuggestionProvider.TextCoordinates> getRelevantCoordinates() {
-      HitResult hitresult = this.minecraft.hitResult;
-      if (hitresult != null && hitresult.getType() == HitResult.Type.BLOCK) {
-         BlockPos blockpos = ((BlockHitResult)hitresult).getBlockPos();
-         return Collections.singleton(new SharedSuggestionProvider.TextCoordinates(prettyPrint(blockpos.getX()), prettyPrint(blockpos.getY()), prettyPrint(blockpos.getZ())));
-      } else {
-         return SharedSuggestionProvider.super.getRelevantCoordinates();
-      }
-   }
+    public Collection<SharedSuggestionProvider.TextCoordinates> getRelevantCoordinates()
+    {
+        HitResult hitresult = this.minecraft.hitResult;
 
-   public Collection<SharedSuggestionProvider.TextCoordinates> getAbsoluteCoordinates() {
-      HitResult hitresult = this.minecraft.hitResult;
-      if (hitresult != null && hitresult.getType() == HitResult.Type.BLOCK) {
-         Vec3 vec3 = hitresult.getLocation();
-         return Collections.singleton(new SharedSuggestionProvider.TextCoordinates(prettyPrint(vec3.x), prettyPrint(vec3.y), prettyPrint(vec3.z)));
-      } else {
-         return SharedSuggestionProvider.super.getAbsoluteCoordinates();
-      }
-   }
+        if (hitresult != null && hitresult.getType() == HitResult.Type.BLOCK)
+        {
+            BlockPos blockpos = ((BlockHitResult)hitresult).getBlockPos();
+            return Collections.singleton(new SharedSuggestionProvider.TextCoordinates(prettyPrint(blockpos.getX()), prettyPrint(blockpos.getY()), prettyPrint(blockpos.getZ())));
+        }
+        else
+        {
+            return SharedSuggestionProvider.super.getRelevantCoordinates();
+        }
+    }
 
-   public Set<ResourceKey<Level>> levels() {
-      return this.connection.levels();
-   }
+    public Collection<SharedSuggestionProvider.TextCoordinates> getAbsoluteCoordinates()
+    {
+        HitResult hitresult = this.minecraft.hitResult;
 
-   public RegistryAccess registryAccess() {
-      return this.connection.registryAccess();
-   }
+        if (hitresult != null && hitresult.getType() == HitResult.Type.BLOCK)
+        {
+            Vec3 vec3 = hitresult.getLocation();
+            return Collections.singleton(new SharedSuggestionProvider.TextCoordinates(prettyPrint(vec3.x), prettyPrint(vec3.y), prettyPrint(vec3.z)));
+        }
+        else
+        {
+            return SharedSuggestionProvider.super.getAbsoluteCoordinates();
+        }
+    }
 
-   public void completeCustomSuggestions(int p_105172_, Suggestions p_105173_) {
-      if (p_105172_ == this.pendingSuggestionsId) {
-         this.pendingSuggestionsFuture.complete(p_105173_);
-         this.pendingSuggestionsFuture = null;
-         this.pendingSuggestionsId = -1;
-      }
+    public Set<ResourceKey<Level>> levels()
+    {
+        return this.connection.levels();
+    }
 
-   }
+    public RegistryAccess registryAccess()
+    {
+        return this.connection.registryAccess();
+    }
+
+    public void completeCustomSuggestions(int pTransaction, Suggestions pResult)
+    {
+        if (pTransaction == this.pendingSuggestionsId)
+        {
+            this.pendingSuggestionsFuture.complete(pResult);
+            this.pendingSuggestionsFuture = null;
+            this.pendingSuggestionsId = -1;
+        }
+    }
 }

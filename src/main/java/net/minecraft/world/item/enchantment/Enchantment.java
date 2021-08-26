@@ -16,140 +16,175 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
 import net.minecraft.world.item.ItemStack;
 
-public abstract class Enchantment {
-   private final EquipmentSlot[] slots;
-   private final Enchantment.Rarity rarity;
-   public final EnchantmentCategory category;
-   @Nullable
-   protected String descriptionId;
+public abstract class Enchantment
+{
+    private final EquipmentSlot[] slots;
+    private final Enchantment.Rarity rarity;
+    public final EnchantmentCategory category;
+    @Nullable
+    protected String descriptionId;
 
-   @Nullable
-   public static Enchantment byId(int p_44698_) {
-      return Registry.ENCHANTMENT.byId(p_44698_);
-   }
+    @Nullable
+    public static Enchantment byId(int pId)
+    {
+        return Registry.ENCHANTMENT.byId(pId);
+    }
 
-   protected Enchantment(Enchantment.Rarity p_44676_, EnchantmentCategory p_44677_, EquipmentSlot[] p_44678_) {
-      this.rarity = p_44676_;
-      this.category = p_44677_;
-      this.slots = p_44678_;
-   }
+    protected Enchantment(Enchantment.Rarity p_44676_, EnchantmentCategory p_44677_, EquipmentSlot[] p_44678_)
+    {
+        this.rarity = p_44676_;
+        this.category = p_44677_;
+        this.slots = p_44678_;
+    }
 
-   public Map<EquipmentSlot, ItemStack> getSlotItems(LivingEntity p_44685_) {
-      Map<EquipmentSlot, ItemStack> map = Maps.newEnumMap(EquipmentSlot.class);
+    public Map<EquipmentSlot, ItemStack> getSlotItems(LivingEntity pLivingEntity)
+    {
+        Map<EquipmentSlot, ItemStack> map = Maps.newEnumMap(EquipmentSlot.class);
 
-      for(EquipmentSlot equipmentslot : this.slots) {
-         ItemStack itemstack = p_44685_.getItemBySlot(equipmentslot);
-         if (!itemstack.isEmpty()) {
-            map.put(equipmentslot, itemstack);
-         }
-      }
+        for (EquipmentSlot equipmentslot : this.slots)
+        {
+            ItemStack itemstack = pLivingEntity.getItemBySlot(equipmentslot);
 
-      return map;
-   }
+            if (!itemstack.isEmpty())
+            {
+                map.put(equipmentslot, itemstack);
+            }
+        }
 
-   public Enchantment.Rarity getRarity() {
-      return this.rarity;
-   }
+        return map;
+    }
 
-   public int getMinLevel() {
-      return 1;
-   }
+    public Enchantment.Rarity getRarity()
+    {
+        return this.rarity;
+    }
 
-   public int getMaxLevel() {
-      return 1;
-   }
+    public int getMinLevel()
+    {
+        return 1;
+    }
 
-   public int getMinCost(int p_44679_) {
-      return 1 + p_44679_ * 10;
-   }
+    public int getMaxLevel()
+    {
+        return 1;
+    }
 
-   public int getMaxCost(int p_44691_) {
-      return this.getMinCost(p_44691_) + 5;
-   }
+    public int getMinCost(int pEnchantmentLevel)
+    {
+        return 1 + pEnchantmentLevel * 10;
+    }
 
-   public int getDamageProtection(int p_44680_, DamageSource p_44681_) {
-      return 0;
-   }
+    public int getMaxCost(int pEnchantmentLevel)
+    {
+        return this.getMinCost(pEnchantmentLevel) + 5;
+    }
 
-   public float getDamageBonus(int p_44682_, MobType p_44683_) {
-      return 0.0F;
-   }
+    public int getDamageProtection(int pLevel, DamageSource pSource)
+    {
+        return 0;
+    }
 
-   public final boolean isCompatibleWith(Enchantment p_44696_) {
-      return this.checkCompatibility(p_44696_) && p_44696_.checkCompatibility(this);
-   }
+    public float getDamageBonus(int pLevel, MobType pCreatureType)
+    {
+        return 0.0F;
+    }
 
-   protected boolean checkCompatibility(Enchantment p_44690_) {
-      return this != p_44690_;
-   }
+    public final boolean isCompatibleWith(Enchantment pEnchantment)
+    {
+        return this.checkCompatibility(pEnchantment) && pEnchantment.checkCompatibility(this);
+    }
 
-   protected String getOrCreateDescriptionId() {
-      if (this.descriptionId == null) {
-         this.descriptionId = Util.makeDescriptionId("enchantment", Registry.ENCHANTMENT.getKey(this));
-      }
+    protected boolean checkCompatibility(Enchantment pEnch)
+    {
+        return this != pEnch;
+    }
 
-      return this.descriptionId;
-   }
+    protected String getOrCreateDescriptionId()
+    {
+        if (this.descriptionId == null)
+        {
+            this.descriptionId = Util.makeDescriptionId("enchantment", Registry.ENCHANTMENT.getKey(this));
+        }
 
-   public String getDescriptionId() {
-      return this.getOrCreateDescriptionId();
-   }
+        return this.descriptionId;
+    }
 
-   public Component getFullname(int p_44701_) {
-      MutableComponent mutablecomponent = new TranslatableComponent(this.getDescriptionId());
-      if (this.isCurse()) {
-         mutablecomponent.withStyle(ChatFormatting.RED);
-      } else {
-         mutablecomponent.withStyle(ChatFormatting.GRAY);
-      }
+    public String getDescriptionId()
+    {
+        return this.getOrCreateDescriptionId();
+    }
 
-      if (p_44701_ != 1 || this.getMaxLevel() != 1) {
-         mutablecomponent.append(" ").append(new TranslatableComponent("enchantment.level." + p_44701_));
-      }
+    public Component getFullname(int pLevel)
+    {
+        MutableComponent mutablecomponent = new TranslatableComponent(this.getDescriptionId());
 
-      return mutablecomponent;
-   }
+        if (this.isCurse())
+        {
+            mutablecomponent.withStyle(ChatFormatting.RED);
+        }
+        else
+        {
+            mutablecomponent.withStyle(ChatFormatting.GRAY);
+        }
 
-   public boolean canEnchant(ItemStack p_44689_) {
-      return this.category.canEnchant(p_44689_.getItem());
-   }
+        if (pLevel != 1 || this.getMaxLevel() != 1)
+        {
+            mutablecomponent.append(" ").append(new TranslatableComponent("enchantment.level." + pLevel));
+        }
 
-   public void doPostAttack(LivingEntity p_44686_, Entity p_44687_, int p_44688_) {
-   }
+        return mutablecomponent;
+    }
 
-   public void doPostHurt(LivingEntity p_44692_, Entity p_44693_, int p_44694_) {
-   }
+    public boolean canEnchant(ItemStack pStack)
+    {
+        return this.category.canEnchant(pStack.getItem());
+    }
 
-   public boolean isTreasureOnly() {
-      return false;
-   }
+    public void doPostAttack(LivingEntity pUser, Entity pTarget, int pLevel)
+    {
+    }
 
-   public boolean isCurse() {
-      return false;
-   }
+    public void doPostHurt(LivingEntity pUser, Entity pAttacker, int pLevel)
+    {
+    }
 
-   public boolean isTradeable() {
-      return true;
-   }
+    public boolean isTreasureOnly()
+    {
+        return false;
+    }
 
-   public boolean isDiscoverable() {
-      return true;
-   }
+    public boolean isCurse()
+    {
+        return false;
+    }
 
-   public static enum Rarity {
-      COMMON(10),
-      UNCOMMON(5),
-      RARE(2),
-      VERY_RARE(1);
+    public boolean isTradeable()
+    {
+        return true;
+    }
 
-      private final int weight;
+    public boolean isDiscoverable()
+    {
+        return true;
+    }
 
-      private Rarity(int p_44715_) {
-         this.weight = p_44715_;
-      }
+    public static enum Rarity
+    {
+        COMMON(10),
+        UNCOMMON(5),
+        RARE(2),
+        VERY_RARE(1);
 
-      public int getWeight() {
-         return this.weight;
-      }
-   }
+        private final int weight;
+
+        private Rarity(int p_44715_)
+        {
+            this.weight = p_44715_;
+        }
+
+        public int getWeight()
+        {
+            return this.weight;
+        }
+    }
 }

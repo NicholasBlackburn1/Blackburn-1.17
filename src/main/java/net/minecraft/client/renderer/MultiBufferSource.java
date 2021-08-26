@@ -6,99 +6,176 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.resources.ResourceLocation;
+import net.optifine.render.VertexBuilderDummy;
+import net.optifine.util.TextureUtils;
 
-@OnlyIn(Dist.CLIENT)
-public interface MultiBufferSource {
-   static MultiBufferSource.BufferSource immediate(BufferBuilder p_109899_) {
-      return immediateWithBuffers(ImmutableMap.of(), p_109899_);
-   }
+public interface MultiBufferSource
+{
+    static MultiBufferSource.BufferSource immediate(BufferBuilder pBuilder)
+    {
+        return immediateWithBuffers(ImmutableMap.of(), pBuilder);
+    }
 
-   static MultiBufferSource.BufferSource immediateWithBuffers(Map<RenderType, BufferBuilder> p_109901_, BufferBuilder p_109902_) {
-      return new MultiBufferSource.BufferSource(p_109902_, p_109901_);
-   }
+    static MultiBufferSource.BufferSource immediateWithBuffers(Map<RenderType, BufferBuilder> pMapBuilders, BufferBuilder pBuilder)
+    {
+        return new MultiBufferSource.BufferSource(pBuilder, pMapBuilders);
+    }
 
-   VertexConsumer getBuffer(RenderType p_109903_);
+    VertexConsumer getBuffer(RenderType p_109903_);
 
-   @OnlyIn(Dist.CLIENT)
-   public static class BufferSource implements MultiBufferSource {
-      protected final BufferBuilder builder;
-      protected final Map<RenderType, BufferBuilder> fixedBuffers;
-      protected Optional<RenderType> lastState = Optional.empty();
-      protected final Set<BufferBuilder> startedBuffers = Sets.newHashSet();
+default void flushRenderBuffers()
+    {
+    }
 
-      protected BufferSource(BufferBuilder p_109909_, Map<RenderType, BufferBuilder> p_109910_) {
-         this.builder = p_109909_;
-         this.fixedBuffers = p_109910_;
-      }
+    public static class BufferSource implements MultiBufferSource
+    {
+        protected final BufferBuilder builder;
+        protected final Map<RenderType, BufferBuilder> fixedBuffers;
+        protected RenderType lastState = null;
+        protected final Set<BufferBuilder> startedBuffers = Sets.newIdentityHashSet();
+        private final VertexConsumer DUMMY_BUFFER = new VertexBuilderDummy(this);
 
-      public VertexConsumer getBuffer(RenderType p_109919_) {
-         Optional<RenderType> optional = p_109919_.asOptional();
-         BufferBuilder bufferbuilder = this.getBuilderRaw(p_109919_);
-         if (!Objects.equals(this.lastState, optional)) {
-            if (this.lastState.isPresent()) {
-               RenderType rendertype = this.lastState.get();
-               if (!this.fixedBuffers.containsKey(rendertype)) {
-                  this.endBatch(rendertype);
-               }
+        protected BufferSource(BufferBuilder p_109909_, Map<RenderType, BufferBuilder> p_109910_)
+        {
+            this.builder = p_109909_;
+            this.fixedBuffers = p_109910_;
+            this.builder.setRenderTypeBuffer(this);
+
+            for (BufferBuilder bufferbuilder : p_109910_.values())
+            {
+                bufferbuilder.setRenderTypeBuffer(this);
+            }
+        }
+
+        public VertexConsumer getBuffer(RenderType p_109919_)
+        {
+            BufferBuilder bufferbuilder = this.getBuilderRaw(p_109919_);
+
+            if (!Objects.equals(this.lastState, p_109919_))
+            {
+                if (this.lastState != null)
+                {
+                    RenderType rendertype = this.lastState;
+
+                    if (!this.fixedBuffers.containsKey(rendertype))
+                    {
+                        this.endBatch(rendertype);
+                    }
+                }
+
+                if (this.startedBuffers.add(bufferbuilder))
+                {
+                    bufferbuilder.setRenderType(p_109919_);
+                    bufferbuilder.begin(p_109919_.mode(), p_109919_.format());
+                }
+
+                this.lastState = p_109919_;
             }
 
-            if (this.startedBuffers.add(bufferbuilder)) {
-               bufferbuilder.begin(p_109919_.mode(), p_109919_.format());
+            return (VertexConsumer)(p_109919_.getTextureLocation() == TextureUtils.LOCATION_TEXTURE_EMPTY ? this.DUMMY_BUFFER : bufferbuilder);
+        }
+
+        private BufferBuilder getBuilderRaw(RenderType pRenderType)
+        {
+            return this.fixedBuffers.getOrDefault(pRenderType, this.builder);
+        }
+
+        public void endLastBatch()
+        {
+            if (this.lastState != null)
+            {
+                RenderType rendertype = this.lastState;
+
+                if (!this.fixedBuffers.containsKey(rendertype))
+                {
+                    this.endBatch(rendertype);
+                }
+
+                this.lastState = null;
             }
+        }
 
-            this.lastState = optional;
-         }
+        public void endBatch()
+        {
+            if (!this.startedBuffers.isEmpty())
+            {
+                if (this.lastState != null)
+                {
+                    VertexConsumer vertexconsumer = this.getBuffer(this.lastState);
 
-         return bufferbuilder;
-      }
+                    if (vertexconsumer == this.builder)
+                    {
+                        this.endBatch(this.lastState);
+                    }
+                }
 
-      private BufferBuilder getBuilderRaw(RenderType p_109915_) {
-         return this.fixedBuffers.getOrDefault(p_109915_, this.builder);
-      }
+                if (!this.startedBuffers.isEmpty())
+                {
+                    for (RenderType rendertype : this.fixedBuffers.keySet())
+                    {
+                        this.endBatch(rendertype);
 
-      public void endLastBatch() {
-         if (this.lastState.isPresent()) {
-            RenderType rendertype = this.lastState.get();
-            if (!this.fixedBuffers.containsKey(rendertype)) {
-               this.endBatch(rendertype);
+                        if (this.startedBuffers.isEmpty())
+                        {
+                            break;
+                        }
+                    }
+                }
             }
+        }
 
-            this.lastState = Optional.empty();
-         }
+        public void endBatch(RenderType pRenderType)
+        {
+            BufferBuilder bufferbuilder = this.getBuilderRaw(pRenderType);
+            boolean flag = Objects.equals(this.lastState, pRenderType);
 
-      }
+            if ((flag || bufferbuilder != this.builder) && this.startedBuffers.remove(bufferbuilder))
+            {
+                pRenderType.end(bufferbuilder, 0, 0, 0);
 
-      public void endBatch() {
-         this.lastState.ifPresent((p_109917_) -> {
-            VertexConsumer vertexconsumer = this.getBuffer(p_109917_);
-            if (vertexconsumer == this.builder) {
-               this.endBatch(p_109917_);
+                if (flag)
+                {
+                    this.lastState = null;
+                }
             }
+        }
 
-         });
-
-         for(RenderType rendertype : this.fixedBuffers.keySet()) {
-            this.endBatch(rendertype);
-         }
-
-      }
-
-      public void endBatch(RenderType p_109913_) {
-         BufferBuilder bufferbuilder = this.getBuilderRaw(p_109913_);
-         boolean flag = Objects.equals(this.lastState, p_109913_.asOptional());
-         if (flag || bufferbuilder != this.builder) {
-            if (this.startedBuffers.remove(bufferbuilder)) {
-               p_109913_.end(bufferbuilder, 0, 0, 0);
-               if (flag) {
-                  this.lastState = Optional.empty();
-               }
-
+        public VertexConsumer getBuffer(ResourceLocation textureLocation, VertexConsumer def)
+        {
+            if (!(this.lastState instanceof RenderType.CompositeRenderType))
+            {
+                return def;
             }
-         }
-      }
-   }
+            else
+            {
+                textureLocation = RenderType.getCustomTexture(textureLocation);
+                RenderType.CompositeRenderType rendertype$compositerendertype = (RenderType.CompositeRenderType)this.lastState;
+                RenderType.CompositeRenderType rendertype$compositerendertype1 = rendertype$compositerendertype.getTextured(textureLocation);
+                return this.getBuffer(rendertype$compositerendertype1);
+            }
+        }
+
+        public RenderType getLastRenderType()
+        {
+            return this.lastState;
+        }
+
+        public void flushRenderBuffers()
+        {
+            RenderType rendertype = this.lastState;
+            this.endBatch();
+
+            if (rendertype != null)
+            {
+                this.getBuffer(rendertype);
+            }
+        }
+
+        public VertexConsumer getDummyBuffer()
+        {
+            return this.DUMMY_BUFFER;
+        }
+    }
 }

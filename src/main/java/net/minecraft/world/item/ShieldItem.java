@@ -10,43 +10,52 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
 
-public class ShieldItem extends Item {
-   public static final int EFFECTIVE_BLOCK_DELAY = 5;
-   public static final float MINIMUM_DURABILITY_DAMAGE = 3.0F;
-   public static final String TAG_BASE_COLOR = "Base";
+public class ShieldItem extends Item
+{
+    public static final int EFFECTIVE_BLOCK_DELAY = 5;
+    public static final float MINIMUM_DURABILITY_DAMAGE = 3.0F;
+    public static final String TAG_BASE_COLOR = "Base";
 
-   public ShieldItem(Item.Properties p_43089_) {
-      super(p_43089_);
-      DispenserBlock.registerBehavior(this, ArmorItem.DISPENSE_ITEM_BEHAVIOR);
-   }
+    public ShieldItem(Item.Properties p_43089_)
+    {
+        super(p_43089_);
+        DispenserBlock.registerBehavior(this, ArmorItem.DISPENSE_ITEM_BEHAVIOR);
+    }
 
-   public String getDescriptionId(ItemStack p_43109_) {
-      return p_43109_.getTagElement("BlockEntityTag") != null ? this.getDescriptionId() + "." + getColor(p_43109_).getName() : super.getDescriptionId(p_43109_);
-   }
+    public String getDescriptionId(ItemStack pStack)
+    {
+        return pStack.getTagElement("BlockEntityTag") != null ? this.getDescriptionId() + "." + getColor(pStack).getName() : super.getDescriptionId(pStack);
+    }
 
-   public void appendHoverText(ItemStack p_43094_, @Nullable Level p_43095_, List<Component> p_43096_, TooltipFlag p_43097_) {
-      BannerItem.appendHoverTextFromBannerBlockEntityTag(p_43094_, p_43096_);
-   }
+    public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltip, TooltipFlag pFlag)
+    {
+        BannerItem.appendHoverTextFromBannerBlockEntityTag(pStack, pTooltip);
+    }
 
-   public UseAnim getUseAnimation(ItemStack p_43105_) {
-      return UseAnim.BLOCK;
-   }
+    public UseAnim getUseAnimation(ItemStack pStack)
+    {
+        return UseAnim.BLOCK;
+    }
 
-   public int getUseDuration(ItemStack p_43107_) {
-      return 72000;
-   }
+    public int getUseDuration(ItemStack pStack)
+    {
+        return 72000;
+    }
 
-   public InteractionResultHolder<ItemStack> use(Level p_43099_, Player p_43100_, InteractionHand p_43101_) {
-      ItemStack itemstack = p_43100_.getItemInHand(p_43101_);
-      p_43100_.startUsingItem(p_43101_);
-      return InteractionResultHolder.consume(itemstack);
-   }
+    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand)
+    {
+        ItemStack itemstack = pPlayer.getItemInHand(pHand);
+        pPlayer.startUsingItem(pHand);
+        return InteractionResultHolder.consume(itemstack);
+    }
 
-   public boolean isValidRepairItem(ItemStack p_43091_, ItemStack p_43092_) {
-      return p_43092_.is(ItemTags.PLANKS) || super.isValidRepairItem(p_43091_, p_43092_);
-   }
+    public boolean isValidRepairItem(ItemStack pToRepair, ItemStack pRepair)
+    {
+        return pRepair.is(ItemTags.PLANKS) || super.isValidRepairItem(pToRepair, pRepair);
+    }
 
-   public static DyeColor getColor(ItemStack p_43103_) {
-      return DyeColor.byId(p_43103_.getOrCreateTagElement("BlockEntityTag").getInt("Base"));
-   }
+    public static DyeColor getColor(ItemStack pStack)
+    {
+        return DyeColor.byId(pStack.getOrCreateTagElement("BlockEntityTag").getInt("Base"));
+    }
 }

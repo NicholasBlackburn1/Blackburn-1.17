@@ -12,133 +12,174 @@ import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class AdvancementList {
-   private static final Logger LOGGER = LogManager.getLogger();
-   private final Map<ResourceLocation, Advancement> advancements = Maps.newHashMap();
-   private final Set<Advancement> roots = Sets.newLinkedHashSet();
-   private final Set<Advancement> tasks = Sets.newLinkedHashSet();
-   private AdvancementList.Listener listener;
+public class AdvancementList
+{
+    private static final Logger LOGGER = LogManager.getLogger();
+    private final Map<ResourceLocation, Advancement> advancements = Maps.newHashMap();
+    private final Set<Advancement> roots = Sets.newLinkedHashSet();
+    private final Set<Advancement> tasks = Sets.newLinkedHashSet();
+    private AdvancementList.Listener listener;
 
-   private void remove(Advancement p_139340_) {
-      for(Advancement advancement : p_139340_.getChildren()) {
-         this.remove(advancement);
-      }
-
-      LOGGER.info("Forgot about advancement {}", (Object)p_139340_.getId());
-      this.advancements.remove(p_139340_.getId());
-      if (p_139340_.getParent() == null) {
-         this.roots.remove(p_139340_);
-         if (this.listener != null) {
-            this.listener.onRemoveAdvancementRoot(p_139340_);
-         }
-      } else {
-         this.tasks.remove(p_139340_);
-         if (this.listener != null) {
-            this.listener.onRemoveAdvancementTask(p_139340_);
-         }
-      }
-
-   }
-
-   public void remove(Set<ResourceLocation> p_139336_) {
-      for(ResourceLocation resourcelocation : p_139336_) {
-         Advancement advancement = this.advancements.get(resourcelocation);
-         if (advancement == null) {
-            LOGGER.warn("Told to remove advancement {} but I don't know what that is", (Object)resourcelocation);
-         } else {
+    private void remove(Advancement pIds)
+    {
+        for (Advancement advancement : pIds.getChildren())
+        {
             this.remove(advancement);
-         }
-      }
+        }
 
-   }
+        LOGGER.info("Forgot about advancement {}", (Object)pIds.getId());
+        this.advancements.remove(pIds.getId());
 
-   public void add(Map<ResourceLocation, Advancement.Builder> p_139334_) {
-      Map<ResourceLocation, Advancement.Builder> map = Maps.newHashMap(p_139334_);
+        if (pIds.getParent() == null)
+        {
+            this.roots.remove(pIds);
 
-      while(!map.isEmpty()) {
-         boolean flag = false;
-         Iterator<Entry<ResourceLocation, Advancement.Builder>> iterator = map.entrySet().iterator();
-
-         while(iterator.hasNext()) {
-            Entry<ResourceLocation, Advancement.Builder> entry = iterator.next();
-            ResourceLocation resourcelocation = entry.getKey();
-            Advancement.Builder advancement$builder = entry.getValue();
-            if (advancement$builder.canBuild(this.advancements::get)) {
-               Advancement advancement = advancement$builder.build(resourcelocation);
-               this.advancements.put(resourcelocation, advancement);
-               flag = true;
-               iterator.remove();
-               if (advancement.getParent() == null) {
-                  this.roots.add(advancement);
-                  if (this.listener != null) {
-                     this.listener.onAddAdvancementRoot(advancement);
-                  }
-               } else {
-                  this.tasks.add(advancement);
-                  if (this.listener != null) {
-                     this.listener.onAddAdvancementTask(advancement);
-                  }
-               }
+            if (this.listener != null)
+            {
+                this.listener.onRemoveAdvancementRoot(pIds);
             }
-         }
+        }
+        else
+        {
+            this.tasks.remove(pIds);
 
-         if (!flag) {
-            for(Entry<ResourceLocation, Advancement.Builder> entry1 : map.entrySet()) {
-               LOGGER.error("Couldn't load advancement {}: {}", entry1.getKey(), entry1.getValue());
+            if (this.listener != null)
+            {
+                this.listener.onRemoveAdvancementTask(pIds);
             }
-            break;
-         }
-      }
+        }
+    }
 
-      LOGGER.info("Loaded {} advancements", (int)this.advancements.size());
-   }
+    public void remove(Set<ResourceLocation> pIds)
+    {
+        for (ResourceLocation resourcelocation : pIds)
+        {
+            Advancement advancement = this.advancements.get(resourcelocation);
 
-   public void clear() {
-      this.advancements.clear();
-      this.roots.clear();
-      this.tasks.clear();
-      if (this.listener != null) {
-         this.listener.onAdvancementsCleared();
-      }
+            if (advancement == null)
+            {
+                LOGGER.warn("Told to remove advancement {} but I don't know what that is", (Object)resourcelocation);
+            }
+            else
+            {
+                this.remove(advancement);
+            }
+        }
+    }
 
-   }
+    public void add(Map<ResourceLocation, Advancement.Builder> pAdvancements)
+    {
+        Map<ResourceLocation, Advancement.Builder> map = Maps.newHashMap(pAdvancements);
 
-   public Iterable<Advancement> getRoots() {
-      return this.roots;
-   }
+        while (!map.isEmpty())
+        {
+            boolean flag = false;
+            Iterator<Entry<ResourceLocation, Advancement.Builder>> iterator = map.entrySet().iterator();
 
-   public Collection<Advancement> getAllAdvancements() {
-      return this.advancements.values();
-   }
+            while (iterator.hasNext())
+            {
+                Entry<ResourceLocation, Advancement.Builder> entry = iterator.next();
+                ResourceLocation resourcelocation = entry.getKey();
+                Advancement.Builder advancement$builder = entry.getValue();
 
-   @Nullable
-   public Advancement get(ResourceLocation p_139338_) {
-      return this.advancements.get(p_139338_);
-   }
+                if (advancement$builder.canBuild(this.advancements::get))
+                {
+                    Advancement advancement = advancement$builder.build(resourcelocation);
+                    this.advancements.put(resourcelocation, advancement);
+                    flag = true;
+                    iterator.remove();
 
-   public void setListener(@Nullable AdvancementList.Listener p_139342_) {
-      this.listener = p_139342_;
-      if (p_139342_ != null) {
-         for(Advancement advancement : this.roots) {
-            p_139342_.onAddAdvancementRoot(advancement);
-         }
+                    if (advancement.getParent() == null)
+                    {
+                        this.roots.add(advancement);
 
-         for(Advancement advancement1 : this.tasks) {
-            p_139342_.onAddAdvancementTask(advancement1);
-         }
-      }
+                        if (this.listener != null)
+                        {
+                            this.listener.onAddAdvancementRoot(advancement);
+                        }
+                    }
+                    else
+                    {
+                        this.tasks.add(advancement);
 
-   }
+                        if (this.listener != null)
+                        {
+                            this.listener.onAddAdvancementTask(advancement);
+                        }
+                    }
+                }
+            }
 
-   public interface Listener {
-      void onAddAdvancementRoot(Advancement p_139345_);
+            if (!flag)
+            {
+                for (Entry<ResourceLocation, Advancement.Builder> entry1 : map.entrySet())
+                {
+                    LOGGER.error("Couldn't load advancement {}: {}", entry1.getKey(), entry1.getValue());
+                }
 
-      void onRemoveAdvancementRoot(Advancement p_139346_);
+                break;
+            }
+        }
 
-      void onAddAdvancementTask(Advancement p_139347_);
+        LOGGER.info("Loaded {} advancements", (int)this.advancements.size());
+    }
 
-      void onRemoveAdvancementTask(Advancement p_139348_);
+    public void clear()
+    {
+        this.advancements.clear();
+        this.roots.clear();
+        this.tasks.clear();
 
-      void onAdvancementsCleared();
-   }
+        if (this.listener != null)
+        {
+            this.listener.onAdvancementsCleared();
+        }
+    }
+
+    public Iterable<Advancement> getRoots()
+    {
+        return this.roots;
+    }
+
+    public Collection<Advancement> getAllAdvancements()
+    {
+        return this.advancements.values();
+    }
+
+    @Nullable
+    public Advancement get(ResourceLocation pId)
+    {
+        return this.advancements.get(pId);
+    }
+
+    public void setListener(@Nullable AdvancementList.Listener pListener)
+    {
+        this.listener = pListener;
+
+        if (pListener != null)
+        {
+            for (Advancement advancement : this.roots)
+            {
+                pListener.onAddAdvancementRoot(advancement);
+            }
+
+            for (Advancement advancement1 : this.tasks)
+            {
+                pListener.onAddAdvancementTask(advancement1);
+            }
+        }
+    }
+
+    public interface Listener
+    {
+        void onAddAdvancementRoot(Advancement pAdvancement);
+
+        void onRemoveAdvancementRoot(Advancement pAdvancement);
+
+        void onAddAdvancementTask(Advancement pAdvancement);
+
+        void onRemoveAdvancementTask(Advancement pAdvancement);
+
+        void onAdvancementsCleared();
+    }
 }

@@ -4,24 +4,30 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-public class DiggingEnchantment extends Enchantment {
-   protected DiggingEnchantment(Enchantment.Rarity p_44662_, EquipmentSlot... p_44663_) {
-      super(p_44662_, EnchantmentCategory.DIGGER, p_44663_);
-   }
+public class DiggingEnchantment extends Enchantment
+{
+    protected DiggingEnchantment(Enchantment.Rarity p_44662_, EquipmentSlot... p_44663_)
+    {
+        super(p_44662_, EnchantmentCategory.DIGGER, p_44663_);
+    }
 
-   public int getMinCost(int p_44666_) {
-      return 1 + 10 * (p_44666_ - 1);
-   }
+    public int getMinCost(int pEnchantmentLevel)
+    {
+        return 1 + 10 * (pEnchantmentLevel - 1);
+    }
 
-   public int getMaxCost(int p_44670_) {
-      return super.getMinCost(p_44670_) + 50;
-   }
+    public int getMaxCost(int pEnchantmentLevel)
+    {
+        return super.getMinCost(pEnchantmentLevel) + 50;
+    }
 
-   public int getMaxLevel() {
-      return 5;
-   }
+    public int getMaxLevel()
+    {
+        return 5;
+    }
 
-   public boolean canEnchant(ItemStack p_44668_) {
-      return p_44668_.is(Items.SHEARS) ? true : super.canEnchant(p_44668_);
-   }
+    public boolean canEnchant(ItemStack pStack)
+    {
+        return pStack.is(Items.SHEARS) ? true : super.canEnchant(pStack);
+    }
 }

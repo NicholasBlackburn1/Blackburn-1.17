@@ -20,67 +20,84 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class BambooSaplingBlock extends Block implements BonemealableBlock {
-   protected static final float SAPLING_AABB_OFFSET = 4.0F;
-   protected static final VoxelShape SAPLING_SHAPE = Block.box(4.0D, 0.0D, 4.0D, 12.0D, 12.0D, 12.0D);
+public class BambooSaplingBlock extends Block implements BonemealableBlock
+{
+    protected static final float SAPLING_AABB_OFFSET = 4.0F;
+    protected static final VoxelShape SAPLING_SHAPE = Block.box(4.0D, 0.0D, 4.0D, 12.0D, 12.0D, 12.0D);
 
-   public BambooSaplingBlock(BlockBehaviour.Properties p_48957_) {
-      super(p_48957_);
-   }
+    public BambooSaplingBlock(BlockBehaviour.Properties p_48957_)
+    {
+        super(p_48957_);
+    }
 
-   public BlockBehaviour.OffsetType getOffsetType() {
-      return BlockBehaviour.OffsetType.XZ;
-   }
+    public BlockBehaviour.OffsetType getOffsetType()
+    {
+        return BlockBehaviour.OffsetType.XZ;
+    }
 
-   public VoxelShape getShape(BlockState p_49003_, BlockGetter p_49004_, BlockPos p_49005_, CollisionContext p_49006_) {
-      Vec3 vec3 = p_49003_.getOffset(p_49004_, p_49005_);
-      return SAPLING_SHAPE.move(vec3.x, vec3.y, vec3.z);
-   }
+    public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext)
+    {
+        Vec3 vec3 = pState.getOffset(pLevel, pPos);
+        return SAPLING_SHAPE.move(vec3.x, vec3.y, vec3.z);
+    }
 
-   public void randomTick(BlockState p_48998_, ServerLevel p_48999_, BlockPos p_49000_, Random p_49001_) {
-      if (p_49001_.nextInt(3) == 0 && p_48999_.isEmptyBlock(p_49000_.above()) && p_48999_.getRawBrightness(p_49000_.above(), 0) >= 9) {
-         this.growBamboo(p_48999_, p_49000_);
-      }
+    public void randomTick(BlockState pState, ServerLevel pLevel, BlockPos pPos, Random pRandom)
+    {
+        if (pRandom.nextInt(3) == 0 && pLevel.isEmptyBlock(pPos.above()) && pLevel.getRawBrightness(pPos.above(), 0) >= 9)
+        {
+            this.growBamboo(pLevel, pPos);
+        }
+    }
 
-   }
+    public boolean canSurvive(BlockState pState, LevelReader pLevel, BlockPos pPos)
+    {
+        return pLevel.getBlockState(pPos.below()).is(BlockTags.BAMBOO_PLANTABLE_ON);
+    }
 
-   public boolean canSurvive(BlockState p_48986_, LevelReader p_48987_, BlockPos p_48988_) {
-      return p_48987_.getBlockState(p_48988_.below()).is(BlockTags.BAMBOO_PLANTABLE_ON);
-   }
+    public BlockState updateShape(BlockState pState, Direction pFacing, BlockState pFacingState, LevelAccessor pLevel, BlockPos pCurrentPos, BlockPos pFacingPos)
+    {
+        if (!pState.canSurvive(pLevel, pCurrentPos))
+        {
+            return Blocks.AIR.defaultBlockState();
+        }
+        else
+        {
+            if (pFacing == Direction.UP && pFacingState.is(Blocks.BAMBOO))
+            {
+                pLevel.setBlock(pCurrentPos, Blocks.BAMBOO.defaultBlockState(), 2);
+            }
 
-   public BlockState updateShape(BlockState p_48990_, Direction p_48991_, BlockState p_48992_, LevelAccessor p_48993_, BlockPos p_48994_, BlockPos p_48995_) {
-      if (!p_48990_.canSurvive(p_48993_, p_48994_)) {
-         return Blocks.AIR.defaultBlockState();
-      } else {
-         if (p_48991_ == Direction.UP && p_48992_.is(Blocks.BAMBOO)) {
-            p_48993_.setBlock(p_48994_, Blocks.BAMBOO.defaultBlockState(), 2);
-         }
+            return super.updateShape(pState, pFacing, pFacingState, pLevel, pCurrentPos, pFacingPos);
+        }
+    }
 
-         return super.updateShape(p_48990_, p_48991_, p_48992_, p_48993_, p_48994_, p_48995_);
-      }
-   }
+    public ItemStack getCloneItemStack(BlockGetter pLevel, BlockPos pPos, BlockState pState)
+    {
+        return new ItemStack(Items.BAMBOO);
+    }
 
-   public ItemStack getCloneItemStack(BlockGetter p_48964_, BlockPos p_48965_, BlockState p_48966_) {
-      return new ItemStack(Items.BAMBOO);
-   }
+    public boolean isValidBonemealTarget(BlockGetter pLevel, BlockPos pPos, BlockState pState, boolean pIsClient)
+    {
+        return pLevel.getBlockState(pPos.above()).isAir();
+    }
 
-   public boolean isValidBonemealTarget(BlockGetter p_48968_, BlockPos p_48969_, BlockState p_48970_, boolean p_48971_) {
-      return p_48968_.getBlockState(p_48969_.above()).isAir();
-   }
+    public boolean isBonemealSuccess(Level pLevel, Random pRand, BlockPos pPos, BlockState pState)
+    {
+        return true;
+    }
 
-   public boolean isBonemealSuccess(Level p_48976_, Random p_48977_, BlockPos p_48978_, BlockState p_48979_) {
-      return true;
-   }
+    public void performBonemeal(ServerLevel pLevel, Random pRand, BlockPos pPos, BlockState pState)
+    {
+        this.growBamboo(pLevel, pPos);
+    }
 
-   public void performBonemeal(ServerLevel p_48959_, Random p_48960_, BlockPos p_48961_, BlockState p_48962_) {
-      this.growBamboo(p_48959_, p_48961_);
-   }
+    public float getDestroyProgress(BlockState pState, Player pPlayer, BlockGetter pLevel, BlockPos pPos)
+    {
+        return pPlayer.getMainHandItem().getItem() instanceof SwordItem ? 1.0F : super.getDestroyProgress(pState, pPlayer, pLevel, pPos);
+    }
 
-   public float getDestroyProgress(BlockState p_48981_, Player p_48982_, BlockGetter p_48983_, BlockPos p_48984_) {
-      return p_48982_.getMainHandItem().getItem() instanceof SwordItem ? 1.0F : super.getDestroyProgress(p_48981_, p_48982_, p_48983_, p_48984_);
-   }
-
-   protected void growBamboo(Level p_48973_, BlockPos p_48974_) {
-      p_48973_.setBlock(p_48974_.above(), Blocks.BAMBOO.defaultBlockState().setValue(BambooBlock.LEAVES, BambooLeaves.SMALL), 3);
-   }
+    protected void growBamboo(Level pLevel, BlockPos pState)
+    {
+        pLevel.setBlock(pState.above(), Blocks.BAMBOO.defaultBlockState().setValue(BambooBlock.LEAVES, BambooLeaves.SMALL), 3);
+    }
 }

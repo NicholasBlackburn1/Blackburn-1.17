@@ -9,64 +9,81 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
-public class BegGoal extends Goal {
-   private final Wolf wolf;
-   private Player player;
-   private final Level level;
-   private final float lookDistance;
-   private int lookTime;
-   private final TargetingConditions begTargeting;
+public class BegGoal extends Goal
+{
+    private final Wolf wolf;
+    private Player player;
+    private final Level level;
+    private final float lookDistance;
+    private int lookTime;
+    private final TargetingConditions begTargeting;
 
-   public BegGoal(Wolf p_25063_, float p_25064_) {
-      this.wolf = p_25063_;
-      this.level = p_25063_.level;
-      this.lookDistance = p_25064_;
-      this.begTargeting = TargetingConditions.forNonCombat().range((double)p_25064_);
-      this.setFlags(EnumSet.of(Goal.Flag.LOOK));
-   }
+    public BegGoal(Wolf p_25063_, float p_25064_)
+    {
+        this.wolf = p_25063_;
+        this.level = p_25063_.level;
+        this.lookDistance = p_25064_;
+        this.begTargeting = TargetingConditions.forNonCombat().range((double)p_25064_);
+        this.setFlags(EnumSet.of(Goal.Flag.LOOK));
+    }
 
-   public boolean canUse() {
-      this.player = this.level.getNearestPlayer(this.begTargeting, this.wolf);
-      return this.player == null ? false : this.playerHoldingInteresting(this.player);
-   }
+    public boolean canUse()
+    {
+        this.player = this.level.getNearestPlayer(this.begTargeting, this.wolf);
+        return this.player == null ? false : this.playerHoldingInteresting(this.player);
+    }
 
-   public boolean canContinueToUse() {
-      if (!this.player.isAlive()) {
-         return false;
-      } else if (this.wolf.distanceToSqr(this.player) > (double)(this.lookDistance * this.lookDistance)) {
-         return false;
-      } else {
-         return this.lookTime > 0 && this.playerHoldingInteresting(this.player);
-      }
-   }
+    public boolean canContinueToUse()
+    {
+        if (!this.player.isAlive())
+        {
+            return false;
+        }
+        else if (this.wolf.distanceToSqr(this.player) > (double)(this.lookDistance * this.lookDistance))
+        {
+            return false;
+        }
+        else
+        {
+            return this.lookTime > 0 && this.playerHoldingInteresting(this.player);
+        }
+    }
 
-   public void start() {
-      this.wolf.setIsInterested(true);
-      this.lookTime = 40 + this.wolf.getRandom().nextInt(40);
-   }
+    public void start()
+    {
+        this.wolf.setIsInterested(true);
+        this.lookTime = 40 + this.wolf.getRandom().nextInt(40);
+    }
 
-   public void stop() {
-      this.wolf.setIsInterested(false);
-      this.player = null;
-   }
+    public void stop()
+    {
+        this.wolf.setIsInterested(false);
+        this.player = null;
+    }
 
-   public void tick() {
-      this.wolf.getLookControl().setLookAt(this.player.getX(), this.player.getEyeY(), this.player.getZ(), 10.0F, (float)this.wolf.getMaxHeadXRot());
-      --this.lookTime;
-   }
+    public void tick()
+    {
+        this.wolf.getLookControl().setLookAt(this.player.getX(), this.player.getEyeY(), this.player.getZ(), 10.0F, (float)this.wolf.getMaxHeadXRot());
+        --this.lookTime;
+    }
 
-   private boolean playerHoldingInteresting(Player p_25067_) {
-      for(InteractionHand interactionhand : InteractionHand.values()) {
-         ItemStack itemstack = p_25067_.getItemInHand(interactionhand);
-         if (this.wolf.isTame() && itemstack.is(Items.BONE)) {
-            return true;
-         }
+    private boolean playerHoldingInteresting(Player pPlayer)
+    {
+        for (InteractionHand interactionhand : InteractionHand.values())
+        {
+            ItemStack itemstack = pPlayer.getItemInHand(interactionhand);
 
-         if (this.wolf.isFood(itemstack)) {
-            return true;
-         }
-      }
+            if (this.wolf.isTame() && itemstack.is(Items.BONE))
+            {
+                return true;
+            }
 
-      return false;
-   }
+            if (this.wolf.isFood(itemstack))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

@@ -16,36 +16,47 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 
-public class TeamArgument implements ArgumentType<String> {
-   private static final Collection<String> EXAMPLES = Arrays.asList("foo", "123");
-   private static final DynamicCommandExceptionType ERROR_TEAM_NOT_FOUND = new DynamicCommandExceptionType((p_112095_) -> {
-      return new TranslatableComponent("team.notFound", p_112095_);
-   });
+public class TeamArgument implements ArgumentType<String>
+{
+    private static final Collection<String> EXAMPLES = Arrays.asList("foo", "123");
+    private static final DynamicCommandExceptionType ERROR_TEAM_NOT_FOUND = new DynamicCommandExceptionType((p_112095_) ->
+    {
+        return new TranslatableComponent("team.notFound", p_112095_);
+    });
 
-   public static TeamArgument team() {
-      return new TeamArgument();
-   }
+    public static TeamArgument team()
+    {
+        return new TeamArgument();
+    }
 
-   public static PlayerTeam getTeam(CommandContext<CommandSourceStack> p_112092_, String p_112093_) throws CommandSyntaxException {
-      String s = p_112092_.getArgument(p_112093_, String.class);
-      Scoreboard scoreboard = p_112092_.getSource().getServer().getScoreboard();
-      PlayerTeam playerteam = scoreboard.getPlayerTeam(s);
-      if (playerteam == null) {
-         throw ERROR_TEAM_NOT_FOUND.create(s);
-      } else {
-         return playerteam;
-      }
-   }
+    public static PlayerTeam getTeam(CommandContext<CommandSourceStack> pContext, String pName) throws CommandSyntaxException
+    {
+        String s = pContext.getArgument(pName, String.class);
+        Scoreboard scoreboard = pContext.getSource().getServer().getScoreboard();
+        PlayerTeam playerteam = scoreboard.getPlayerTeam(s);
 
-   public String parse(StringReader p_112090_) throws CommandSyntaxException {
-      return p_112090_.readUnquotedString();
-   }
+        if (playerteam == null)
+        {
+            throw ERROR_TEAM_NOT_FOUND.create(s);
+        }
+        else
+        {
+            return playerteam;
+        }
+    }
 
-   public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> p_112098_, SuggestionsBuilder p_112099_) {
-      return p_112098_.getSource() instanceof SharedSuggestionProvider ? SharedSuggestionProvider.suggest(((SharedSuggestionProvider)p_112098_.getSource()).getAllTeams(), p_112099_) : Suggestions.empty();
-   }
+    public String parse(StringReader p_112090_) throws CommandSyntaxException
+    {
+        return p_112090_.readUnquotedString();
+    }
 
-   public Collection<String> getExamples() {
-      return EXAMPLES;
-   }
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> p_112098_, SuggestionsBuilder p_112099_)
+    {
+        return p_112098_.getSource() instanceof SharedSuggestionProvider ? SharedSuggestionProvider.suggest(((SharedSuggestionProvider)p_112098_.getSource()).getAllTeams(), p_112099_) : Suggestions.empty();
+    }
+
+    public Collection<String> getExamples()
+    {
+        return EXAMPLES;
+    }
 }

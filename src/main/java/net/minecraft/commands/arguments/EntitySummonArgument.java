@@ -13,32 +13,40 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 
-public class EntitySummonArgument implements ArgumentType<ResourceLocation> {
-   private static final Collection<String> EXAMPLES = Arrays.asList("minecraft:pig", "cow");
-   public static final DynamicCommandExceptionType ERROR_UNKNOWN_ENTITY = new DynamicCommandExceptionType((p_93342_) -> {
-      return new TranslatableComponent("entity.notFound", p_93342_);
-   });
+public class EntitySummonArgument implements ArgumentType<ResourceLocation>
+{
+    private static final Collection<String> EXAMPLES = Arrays.asList("minecraft:pig", "cow");
+    public static final DynamicCommandExceptionType ERROR_UNKNOWN_ENTITY = new DynamicCommandExceptionType((p_93342_) ->
+    {
+        return new TranslatableComponent("entity.notFound", p_93342_);
+    });
 
-   public static EntitySummonArgument id() {
-      return new EntitySummonArgument();
-   }
+    public static EntitySummonArgument id()
+    {
+        return new EntitySummonArgument();
+    }
 
-   public static ResourceLocation getSummonableEntity(CommandContext<CommandSourceStack> p_93339_, String p_93340_) throws CommandSyntaxException {
-      return verifyCanSummon(p_93339_.getArgument(p_93340_, ResourceLocation.class));
-   }
+    public static ResourceLocation getSummonableEntity(CommandContext<CommandSourceStack> pContext, String pName) throws CommandSyntaxException
+    {
+        return verifyCanSummon(pContext.getArgument(pName, ResourceLocation.class));
+    }
 
-   private static ResourceLocation verifyCanSummon(ResourceLocation p_93344_) throws CommandSyntaxException {
-      Registry.ENTITY_TYPE.getOptional(p_93344_).filter(EntityType::canSummon).orElseThrow(() -> {
-         return ERROR_UNKNOWN_ENTITY.create(p_93344_);
-      });
-      return p_93344_;
-   }
+    private static ResourceLocation verifyCanSummon(ResourceLocation pId) throws CommandSyntaxException
+    {
+        Registry.ENTITY_TYPE.getOptional(pId).filter(EntityType::canSummon).orElseThrow(() ->
+        {
+            return ERROR_UNKNOWN_ENTITY.create(pId);
+        });
+        return pId;
+    }
 
-   public ResourceLocation parse(StringReader p_93337_) throws CommandSyntaxException {
-      return verifyCanSummon(ResourceLocation.read(p_93337_));
-   }
+    public ResourceLocation parse(StringReader p_93337_) throws CommandSyntaxException
+    {
+        return verifyCanSummon(ResourceLocation.read(p_93337_));
+    }
 
-   public Collection<String> getExamples() {
-      return EXAMPLES;
-   }
+    public Collection<String> getExamples()
+    {
+        return EXAMPLES;
+    }
 }

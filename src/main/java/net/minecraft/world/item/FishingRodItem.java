@@ -11,39 +11,51 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 
-public class FishingRodItem extends Item implements Vanishable {
-   public FishingRodItem(Item.Properties p_41285_) {
-      super(p_41285_);
-   }
+public class FishingRodItem extends Item implements Vanishable
+{
+    public FishingRodItem(Item.Properties p_41285_)
+    {
+        super(p_41285_);
+    }
 
-   public InteractionResultHolder<ItemStack> use(Level p_41290_, Player p_41291_, InteractionHand p_41292_) {
-      ItemStack itemstack = p_41291_.getItemInHand(p_41292_);
-      if (p_41291_.fishing != null) {
-         if (!p_41290_.isClientSide) {
-            int i = p_41291_.fishing.retrieve(itemstack);
-            itemstack.hurtAndBreak(i, p_41291_, (p_41288_) -> {
-               p_41288_.broadcastBreakEvent(p_41292_);
-            });
-         }
+    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand)
+    {
+        ItemStack itemstack = pPlayer.getItemInHand(pHand);
 
-         p_41290_.playSound((Player)null, p_41291_.getX(), p_41291_.getY(), p_41291_.getZ(), SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.NEUTRAL, 1.0F, 0.4F / (p_41290_.getRandom().nextFloat() * 0.4F + 0.8F));
-         p_41290_.gameEvent(p_41291_, GameEvent.FISHING_ROD_REEL_IN, p_41291_);
-      } else {
-         p_41290_.playSound((Player)null, p_41291_.getX(), p_41291_.getY(), p_41291_.getZ(), SoundEvents.FISHING_BOBBER_THROW, SoundSource.NEUTRAL, 0.5F, 0.4F / (p_41290_.getRandom().nextFloat() * 0.4F + 0.8F));
-         if (!p_41290_.isClientSide) {
-            int k = EnchantmentHelper.getFishingSpeedBonus(itemstack);
-            int j = EnchantmentHelper.getFishingLuckBonus(itemstack);
-            p_41290_.addFreshEntity(new FishingHook(p_41291_, p_41290_, j, k));
-         }
+        if (pPlayer.fishing != null)
+        {
+            if (!pLevel.isClientSide)
+            {
+                int i = pPlayer.fishing.retrieve(itemstack);
+                itemstack.hurtAndBreak(i, pPlayer, (p_41288_) ->
+                {
+                    p_41288_.broadcastBreakEvent(pHand);
+                });
+            }
 
-         p_41291_.awardStat(Stats.ITEM_USED.get(this));
-         p_41290_.gameEvent(p_41291_, GameEvent.FISHING_ROD_CAST, p_41291_);
-      }
+            pLevel.playSound((Player)null, pPlayer.getX(), pPlayer.getY(), pPlayer.getZ(), SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.NEUTRAL, 1.0F, 0.4F / (pLevel.getRandom().nextFloat() * 0.4F + 0.8F));
+            pLevel.gameEvent(pPlayer, GameEvent.FISHING_ROD_REEL_IN, pPlayer);
+        }
+        else
+        {
+            pLevel.playSound((Player)null, pPlayer.getX(), pPlayer.getY(), pPlayer.getZ(), SoundEvents.FISHING_BOBBER_THROW, SoundSource.NEUTRAL, 0.5F, 0.4F / (pLevel.getRandom().nextFloat() * 0.4F + 0.8F));
 
-      return InteractionResultHolder.sidedSuccess(itemstack, p_41290_.isClientSide());
-   }
+            if (!pLevel.isClientSide)
+            {
+                int k = EnchantmentHelper.getFishingSpeedBonus(itemstack);
+                int j = EnchantmentHelper.getFishingLuckBonus(itemstack);
+                pLevel.addFreshEntity(new FishingHook(pPlayer, pLevel, j, k));
+            }
 
-   public int getEnchantmentValue() {
-      return 1;
-   }
+            pPlayer.awardStat(Stats.ITEM_USED.get(this));
+            pLevel.gameEvent(pPlayer, GameEvent.FISHING_ROD_CAST, pPlayer);
+        }
+
+        return InteractionResultHolder.sidedSuccess(itemstack, pLevel.isClientSide());
+    }
+
+    public int getEnchantmentValue()
+    {
+        return 1;
+    }
 }

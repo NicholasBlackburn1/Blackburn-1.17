@@ -1,17 +1,14 @@
 package com.mojang.blaze3d.shaders;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+public interface Shader
+{
+    int getId();
 
-@OnlyIn(Dist.CLIENT)
-public interface Shader {
-   int getId();
+    void markDirty();
 
-   void markDirty();
+    Program getVertexProgram();
 
-   Program getVertexProgram();
+    Program getFragmentProgram();
 
-   Program getFragmentProgram();
-
-   void attachToProgram();
+    void attachToProgram();
 }

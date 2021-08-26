@@ -3,12 +3,13 @@ package net.minecraft.server.packs.resources;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.util.Unit;
 
-public interface ReloadInstance {
-   CompletableFuture<Unit> done();
+public interface ReloadInstance
+{
+    CompletableFuture<Unit> done();
 
-   float getActualProgress();
+    float getActualProgress();
 
-   boolean isDone();
+    boolean isDone();
 
-   void checkExceptions();
+    void checkExceptions();
 }

@@ -5,7 +5,10 @@ import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.realmsclient.RealmsMainScreen;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
@@ -23,181 +26,310 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.optifine.Config;
+import net.optifine.CustomGuis;
+import net.optifine.EmissiveTextures;
+import net.optifine.shaders.ShadersTex;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@OnlyIn(Dist.CLIENT)
-public class TextureManager implements PreparableReloadListener, Tickable, AutoCloseable {
-   private static final Logger LOGGER = LogManager.getLogger();
-   public static final ResourceLocation INTENTIONAL_MISSING_TEXTURE = new ResourceLocation("");
-   private final Map<ResourceLocation, AbstractTexture> byPath = Maps.newHashMap();
-   private final Set<Tickable> tickableTextures = Sets.newHashSet();
-   private final Map<String, Integer> prefixRegister = Maps.newHashMap();
-   private final ResourceManager resourceManager;
+public class TextureManager implements PreparableReloadListener, Tickable, AutoCloseable
+{
+    private static final Logger LOGGER = LogManager.getLogger();
+    public static final ResourceLocation INTENTIONAL_MISSING_TEXTURE = new ResourceLocation("");
+    private final Map<ResourceLocation, AbstractTexture> byPath = Maps.newHashMap();
+    private final Set<Tickable> tickableTextures = Sets.newHashSet();
+    private final Map<String, Integer> prefixRegister = Maps.newHashMap();
+    private final ResourceManager resourceManager;
+    private AbstractTexture boundTexture;
+    private ResourceLocation boundTextureLocation;
+    private Int2ObjectMap<AbstractTexture> mapTexturesById = new Int2ObjectOpenHashMap<>();
 
-   public TextureManager(ResourceManager p_118474_) {
-      this.resourceManager = p_118474_;
-   }
+    public TextureManager(ResourceManager p_118474_)
+    {
+        this.resourceManager = p_118474_;
+    }
 
-   public void bindForSetup(ResourceLocation p_174785_) {
-      if (!RenderSystem.isOnRenderThread()) {
-         RenderSystem.recordRenderCall(() -> {
+    public void bindForSetup(ResourceLocation p_174785_)
+    {
+        if (!RenderSystem.isOnRenderThread())
+        {
+            RenderSystem.recordRenderCall(() ->
+            {
+                this._bind(p_174785_);
+            });
+        }
+        else
+        {
             this._bind(p_174785_);
-         });
-      } else {
-         this._bind(p_174785_);
-      }
+        }
+    }
 
-   }
+    private void _bind(ResourceLocation pResource)
+    {
+        if (Config.isCustomGuis())
+        {
+            pResource = CustomGuis.getTextureLocation(pResource);
+        }
 
-   private void _bind(ResourceLocation p_118520_) {
-      AbstractTexture abstracttexture = this.byPath.get(p_118520_);
-      if (abstracttexture == null) {
-         abstracttexture = new SimpleTexture(p_118520_);
-         this.register(p_118520_, abstracttexture);
-      }
+        AbstractTexture abstracttexture = this.byPath.get(pResource);
 
-      abstracttexture.bind();
-   }
+        if (abstracttexture == null)
+        {
+            abstracttexture = new SimpleTexture(pResource);
+            this.register(pResource, abstracttexture);
+        }
 
-   public void register(ResourceLocation p_118496_, AbstractTexture p_118497_) {
-      p_118497_ = this.loadTexture(p_118496_, p_118497_);
-      AbstractTexture abstracttexture = this.byPath.put(p_118496_, p_118497_);
-      if (abstracttexture != p_118497_) {
-         if (abstracttexture != null && abstracttexture != MissingTextureAtlasSprite.getTexture()) {
-            this.tickableTextures.remove(abstracttexture);
-            this.safeClose(p_118496_, abstracttexture);
-         }
+        if (Config.isShaders())
+        {
+            ShadersTex.bindTexture(abstracttexture);
+        }
+        else
+        {
+            abstracttexture.bind();
+        }
 
-         if (p_118497_ instanceof Tickable) {
-            this.tickableTextures.add((Tickable)p_118497_);
-         }
-      }
+        this.boundTexture = abstracttexture;
+        this.boundTextureLocation = pResource;
+    }
 
-   }
+    public void register(ResourceLocation pName, AbstractTexture pTexture)
+    {
+        pTexture = this.loadTexture(pName, pTexture);
+        AbstractTexture abstracttexture = this.byPath.put(pName, pTexture);
 
-   private void safeClose(ResourceLocation p_118509_, AbstractTexture p_118510_) {
-      if (p_118510_ != MissingTextureAtlasSprite.getTexture()) {
-         try {
-            p_118510_.close();
-         } catch (Exception exception) {
-            LOGGER.warn("Failed to close texture {}", p_118509_, exception);
-         }
-      }
-
-      p_118510_.releaseId();
-   }
-
-   private AbstractTexture loadTexture(ResourceLocation p_118516_, AbstractTexture p_118517_) {
-      try {
-         p_118517_.load(this.resourceManager);
-         return p_118517_;
-      } catch (IOException ioexception) {
-         if (p_118516_ != INTENTIONAL_MISSING_TEXTURE) {
-            LOGGER.warn("Failed to load texture: {}", p_118516_, ioexception);
-         }
-
-         return MissingTextureAtlasSprite.getTexture();
-      } catch (Throwable throwable) {
-         CrashReport crashreport = CrashReport.forThrowable(throwable, "Registering texture");
-         CrashReportCategory crashreportcategory = crashreport.addCategory("Resource location being registered");
-         crashreportcategory.setDetail("Resource location", p_118516_);
-         crashreportcategory.setDetail("Texture object class", () -> {
-            return p_118517_.getClass().getName();
-         });
-         throw new ReportedException(crashreport);
-      }
-   }
-
-   public AbstractTexture getTexture(ResourceLocation p_118507_) {
-      AbstractTexture abstracttexture = this.byPath.get(p_118507_);
-      if (abstracttexture == null) {
-         abstracttexture = new SimpleTexture(p_118507_);
-         this.register(p_118507_, abstracttexture);
-      }
-
-      return abstracttexture;
-   }
-
-   public AbstractTexture getTexture(ResourceLocation p_174787_, AbstractTexture p_174788_) {
-      return this.byPath.getOrDefault(p_174787_, p_174788_);
-   }
-
-   public ResourceLocation register(String p_118491_, DynamicTexture p_118492_) {
-      Integer integer = this.prefixRegister.get(p_118491_);
-      if (integer == null) {
-         integer = 1;
-      } else {
-         integer = integer + 1;
-      }
-
-      this.prefixRegister.put(p_118491_, integer);
-      ResourceLocation resourcelocation = new ResourceLocation(String.format(Locale.ROOT, "dynamic/%s_%d", p_118491_, integer));
-      this.register(resourcelocation, p_118492_);
-      return resourcelocation;
-   }
-
-   public CompletableFuture<Void> preload(ResourceLocation p_118502_, Executor p_118503_) {
-      if (!this.byPath.containsKey(p_118502_)) {
-         PreloadedTexture preloadedtexture = new PreloadedTexture(this.resourceManager, p_118502_, p_118503_);
-         this.byPath.put(p_118502_, preloadedtexture);
-         return preloadedtexture.getFuture().thenRunAsync(() -> {
-            this.register(p_118502_, preloadedtexture);
-         }, TextureManager::execute);
-      } else {
-         return CompletableFuture.completedFuture((Void)null);
-      }
-   }
-
-   private static void execute(Runnable p_118489_) {
-      Minecraft.getInstance().execute(() -> {
-         RenderSystem.recordRenderCall(p_118489_::run);
-      });
-   }
-
-   public void tick() {
-      for(Tickable tickable : this.tickableTextures) {
-         tickable.tick();
-      }
-
-   }
-
-   public void release(ResourceLocation p_118514_) {
-      AbstractTexture abstracttexture = this.getTexture(p_118514_, MissingTextureAtlasSprite.getTexture());
-      if (abstracttexture != MissingTextureAtlasSprite.getTexture()) {
-         TextureUtil.releaseTextureId(abstracttexture.getId());
-      }
-
-   }
-
-   public void close() {
-      this.byPath.forEach(this::safeClose);
-      this.byPath.clear();
-      this.tickableTextures.clear();
-      this.prefixRegister.clear();
-   }
-
-   public CompletableFuture<Void> reload(PreparableReloadListener.PreparationBarrier p_118476_, ResourceManager p_118477_, ProfilerFiller p_118478_, ProfilerFiller p_118479_, Executor p_118480_, Executor p_118481_) {
-      return CompletableFuture.allOf(TitleScreen.preloadResources(this, p_118480_), this.preload(AbstractWidget.WIDGETS_LOCATION, p_118480_)).thenCompose(p_118476_::wait).thenAcceptAsync((p_118485_) -> {
-         MissingTextureAtlasSprite.getTexture();
-         RealmsMainScreen.updateTeaserImages(this.resourceManager);
-         Iterator<Entry<ResourceLocation, AbstractTexture>> iterator = this.byPath.entrySet().iterator();
-
-         while(iterator.hasNext()) {
-            Entry<ResourceLocation, AbstractTexture> entry = iterator.next();
-            ResourceLocation resourcelocation = entry.getKey();
-            AbstractTexture abstracttexture = entry.getValue();
-            if (abstracttexture == MissingTextureAtlasSprite.getTexture() && !resourcelocation.equals(MissingTextureAtlasSprite.getLocation())) {
-               iterator.remove();
-            } else {
-               abstracttexture.reset(this, p_118477_, resourcelocation, p_118481_);
+        if (abstracttexture != pTexture)
+        {
+            if (abstracttexture != null && abstracttexture != MissingTextureAtlasSprite.getTexture())
+            {
+                this.tickableTextures.remove(abstracttexture);
+                this.safeClose(pName, abstracttexture);
             }
-         }
 
-      }, (p_118505_) -> {
-         RenderSystem.recordRenderCall(p_118505_::run);
-      });
-   }
+            if (pTexture instanceof Tickable)
+            {
+                this.tickableTextures.add((Tickable)pTexture);
+            }
+        }
+
+        int i = pTexture.getId();
+
+        if (i > 0)
+        {
+            this.mapTexturesById.put(i, pTexture);
+        }
+    }
+
+    private void safeClose(ResourceLocation p_118509_, AbstractTexture p_118510_)
+    {
+        if (p_118510_ != MissingTextureAtlasSprite.getTexture())
+        {
+            try
+            {
+                p_118510_.close();
+            }
+            catch (Exception exception)
+            {
+                LOGGER.warn("Failed to close texture {}", p_118509_, exception);
+            }
+        }
+
+        p_118510_.releaseId();
+    }
+
+    private AbstractTexture loadTexture(ResourceLocation p_118516_, AbstractTexture p_118517_)
+    {
+        try
+        {
+            p_118517_.load(this.resourceManager);
+            return p_118517_;
+        }
+        catch (IOException ioexception)
+        {
+            if (p_118516_ != INTENTIONAL_MISSING_TEXTURE)
+            {
+                LOGGER.warn("Failed to load texture: {}", p_118516_, ioexception);
+            }
+
+            return MissingTextureAtlasSprite.getTexture();
+        }
+        catch (Throwable throwable)
+        {
+            CrashReport crashreport = CrashReport.forThrowable(throwable, "Registering texture");
+            CrashReportCategory crashreportcategory = crashreport.addCategory("Resource location being registered");
+            crashreportcategory.setDetail("Resource location", p_118516_);
+            crashreportcategory.setDetail("Texture object class", () ->
+            {
+                return p_118517_.getClass().getName();
+            });
+            throw new ReportedException(crashreport);
+        }
+    }
+
+    public AbstractTexture getTexture(ResourceLocation pTextureLocation)
+    {
+        AbstractTexture abstracttexture = this.byPath.get(pTextureLocation);
+
+        if (abstracttexture == null)
+        {
+            abstracttexture = new SimpleTexture(pTextureLocation);
+            this.register(pTextureLocation, abstracttexture);
+        }
+
+        return abstracttexture;
+    }
+
+    public AbstractTexture getTexture(ResourceLocation pTextureLocation, AbstractTexture p_174788_)
+    {
+        return this.byPath.getOrDefault(pTextureLocation, p_174788_);
+    }
+
+    public ResourceLocation register(String pName, DynamicTexture pTexture)
+    {
+        Integer integer = this.prefixRegister.get(pName);
+
+        if (integer == null)
+        {
+            integer = 1;
+        }
+        else
+        {
+            integer = integer + 1;
+        }
+
+        this.prefixRegister.put(pName, integer);
+        ResourceLocation resourcelocation = new ResourceLocation(String.format(Locale.ROOT, "dynamic/%s_%d", pName, integer));
+        this.register(resourcelocation, pTexture);
+        return resourcelocation;
+    }
+
+    public CompletableFuture<Void> preload(ResourceLocation pTextureLocation, Executor pExecutor)
+    {
+        if (!this.byPath.containsKey(pTextureLocation))
+        {
+            PreloadedTexture preloadedtexture = new PreloadedTexture(this.resourceManager, pTextureLocation, pExecutor);
+            this.byPath.put(pTextureLocation, preloadedtexture);
+            return preloadedtexture.getFuture().thenRunAsync(() ->
+            {
+                this.register(pTextureLocation, preloadedtexture);
+            }, TextureManager::execute);
+        }
+        else
+        {
+            return CompletableFuture.completedFuture((Void)null);
+        }
+    }
+
+    private static void execute(Runnable pRunnable)
+    {
+        Minecraft.getInstance().execute(() ->
+        {
+            RenderSystem.recordRenderCall(pRunnable::run);
+        });
+    }
+
+    public void tick()
+    {
+        for (Tickable tickable : this.tickableTextures)
+        {
+            tickable.tick();
+        }
+    }
+
+    public void release(ResourceLocation pTextureLocation)
+    {
+        AbstractTexture abstracttexture = this.getTexture(pTextureLocation, MissingTextureAtlasSprite.getTexture());
+
+        if (abstracttexture != MissingTextureAtlasSprite.getTexture())
+        {
+            this.byPath.remove(pTextureLocation);
+            TextureUtil.releaseTextureId(abstracttexture.getId());
+        }
+    }
+
+    public void close()
+    {
+        this.byPath.forEach(this::safeClose);
+        this.byPath.clear();
+        this.tickableTextures.clear();
+        this.prefixRegister.clear();
+        this.mapTexturesById.clear();
+    }
+
+    public CompletableFuture<Void> reload(PreparableReloadListener.PreparationBarrier pStage, ResourceManager pResourceManager, ProfilerFiller pPreparationsProfiler, ProfilerFiller pReloadProfiler, Executor pBackgroundExecutor, Executor pGameExecutor)
+    {
+        Config.dbg("*** Reloading textures ***");
+        Config.log("Resource packs: " + Config.getResourcePackNames());
+        Iterator iterator = this.byPath.keySet().iterator();
+
+        while (iterator.hasNext())
+        {
+            ResourceLocation resourcelocation = (ResourceLocation)iterator.next();
+            String s = resourcelocation.getPath();
+
+            if (s.startsWith("optifine/") || EmissiveTextures.isEmissive(resourcelocation))
+            {
+                AbstractTexture abstracttexture = this.byPath.get(resourcelocation);
+
+                if (abstracttexture instanceof AbstractTexture)
+                {
+                    abstracttexture.releaseId();
+                }
+
+                iterator.remove();
+            }
+        }
+
+        EmissiveTextures.update();
+        return CompletableFuture.allOf(TitleScreen.preloadResources(this, pBackgroundExecutor), this.preload(AbstractWidget.WIDGETS_LOCATION, pBackgroundExecutor)).thenCompose(pStage::wait).thenAcceptAsync((voidIn) ->
+        {
+            MissingTextureAtlasSprite.getTexture();
+            RealmsMainScreen.updateTeaserImages(this.resourceManager);
+            Set<Entry<ResourceLocation, AbstractTexture>> set = new HashSet<>(this.byPath.entrySet());
+            Iterator<Entry<ResourceLocation, AbstractTexture>> iterator1 = set.iterator();
+
+            while (iterator1.hasNext())
+            {
+                Entry<ResourceLocation, AbstractTexture> entry = iterator1.next();
+                ResourceLocation resourcelocation1 = entry.getKey();
+                AbstractTexture abstracttexture1 = entry.getValue();
+
+                if (abstracttexture1 == MissingTextureAtlasSprite.getTexture() && !resourcelocation1.equals(MissingTextureAtlasSprite.getLocation()))
+                {
+                    iterator1.remove();
+                }
+                else
+                {
+                    abstracttexture1.reset(this, pResourceManager, resourcelocation1, pGameExecutor);
+                }
+            }
+        }, (runnableIn) ->
+        {
+            RenderSystem.recordRenderCall(runnableIn::run);
+        });
+    }
+
+    public AbstractTexture getBoundTexture()
+    {
+        return this.boundTexture;
+    }
+
+    public ResourceLocation getBoundTextureLocation()
+    {
+        return this.boundTextureLocation;
+    }
+
+    public AbstractTexture getTextureById(int id)
+    {
+        AbstractTexture abstracttexture = this.mapTexturesById.get(id);
+
+        if (abstracttexture != null && abstracttexture.getId() != id)
+        {
+            this.mapTexturesById.remove(id);
+            this.mapTexturesById.put(abstracttexture.getId(), abstracttexture);
+            abstracttexture = null;
+        }
+
+        return abstracttexture;
+    }
 }

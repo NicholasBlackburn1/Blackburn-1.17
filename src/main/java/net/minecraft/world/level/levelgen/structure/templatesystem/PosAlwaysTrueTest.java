@@ -4,24 +4,30 @@ import com.mojang.serialization.Codec;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 
-public class PosAlwaysTrueTest extends PosRuleTest {
-   public static final Codec<PosAlwaysTrueTest> CODEC;
-   public static final PosAlwaysTrueTest INSTANCE = new PosAlwaysTrueTest();
+public class PosAlwaysTrueTest extends PosRuleTest
+{
+    public static final Codec<PosAlwaysTrueTest> CODEC;
+    public static final PosAlwaysTrueTest INSTANCE = new PosAlwaysTrueTest();
 
-   private PosAlwaysTrueTest() {
-   }
+    private PosAlwaysTrueTest()
+    {
+    }
 
-   public boolean test(BlockPos p_74193_, BlockPos p_74194_, BlockPos p_74195_, Random p_74196_) {
-      return true;
-   }
+    public boolean test(BlockPos p_74193_, BlockPos p_74194_, BlockPos p_74195_, Random pRand)
+    {
+        return true;
+    }
 
-   protected PosRuleTestType<?> getType() {
-      return PosRuleTestType.ALWAYS_TRUE_TEST;
-   }
+    protected PosRuleTestType<?> getType()
+    {
+        return PosRuleTestType.ALWAYS_TRUE_TEST;
+    }
 
-   static {
-      CODEC = Codec.unit(() -> {
-         return INSTANCE;
-      });
-   }
+    static
+    {
+        CODEC = Codec.unit(() ->
+        {
+            return INSTANCE;
+        });
+    }
 }

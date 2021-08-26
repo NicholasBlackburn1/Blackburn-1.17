@@ -1,9 +1,10 @@
 package net.minecraft.core;
 
-public interface Position {
-   double x();
+public interface Position
+{
+    double x();
 
-   double y();
+    double y();
 
-   double z();
+    double z();
 }

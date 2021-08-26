@@ -12,46 +12,61 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 
-public abstract class AbstractMegaTreeGrower extends AbstractTreeGrower {
-   public boolean growTree(ServerLevel p_59985_, ChunkGenerator p_59986_, BlockPos p_59987_, BlockState p_59988_, Random p_59989_) {
-      for(int i = 0; i >= -1; --i) {
-         for(int j = 0; j >= -1; --j) {
-            if (isTwoByTwoSapling(p_59988_, p_59985_, p_59987_, i, j)) {
-               return this.placeMega(p_59985_, p_59986_, p_59987_, p_59988_, p_59989_, i, j);
+public abstract class AbstractMegaTreeGrower extends AbstractTreeGrower
+{
+    public boolean growTree(ServerLevel pLevel, ChunkGenerator pChunkGenerator, BlockPos pPos, BlockState pState, Random pRand)
+    {
+        for (int i = 0; i >= -1; --i)
+        {
+            for (int j = 0; j >= -1; --j)
+            {
+                if (isTwoByTwoSapling(pState, pLevel, pPos, i, j))
+                {
+                    return this.placeMega(pLevel, pChunkGenerator, pPos, pState, pRand, i, j);
+                }
             }
-         }
-      }
+        }
 
-      return super.growTree(p_59985_, p_59986_, p_59987_, p_59988_, p_59989_);
-   }
+        return super.growTree(pLevel, pChunkGenerator, pPos, pState, pRand);
+    }
 
-   @Nullable
-   protected abstract ConfiguredFeature<TreeConfiguration, ?> getConfiguredMegaFeature(Random p_60004_);
+    @Nullable
+    protected abstract ConfiguredFeature < TreeConfiguration, ? > getConfiguredMegaFeature(Random pRand);
 
-   public boolean placeMega(ServerLevel p_59991_, ChunkGenerator p_59992_, BlockPos p_59993_, BlockState p_59994_, Random p_59995_, int p_59996_, int p_59997_) {
-      ConfiguredFeature<TreeConfiguration, ?> configuredfeature = this.getConfiguredMegaFeature(p_59995_);
-      if (configuredfeature == null) {
-         return false;
-      } else {
-         BlockState blockstate = Blocks.AIR.defaultBlockState();
-         p_59991_.setBlock(p_59993_.offset(p_59996_, 0, p_59997_), blockstate, 4);
-         p_59991_.setBlock(p_59993_.offset(p_59996_ + 1, 0, p_59997_), blockstate, 4);
-         p_59991_.setBlock(p_59993_.offset(p_59996_, 0, p_59997_ + 1), blockstate, 4);
-         p_59991_.setBlock(p_59993_.offset(p_59996_ + 1, 0, p_59997_ + 1), blockstate, 4);
-         if (configuredfeature.place(p_59991_, p_59992_, p_59995_, p_59993_.offset(p_59996_, 0, p_59997_))) {
-            return true;
-         } else {
-            p_59991_.setBlock(p_59993_.offset(p_59996_, 0, p_59997_), p_59994_, 4);
-            p_59991_.setBlock(p_59993_.offset(p_59996_ + 1, 0, p_59997_), p_59994_, 4);
-            p_59991_.setBlock(p_59993_.offset(p_59996_, 0, p_59997_ + 1), p_59994_, 4);
-            p_59991_.setBlock(p_59993_.offset(p_59996_ + 1, 0, p_59997_ + 1), p_59994_, 4);
+    public boolean placeMega(ServerLevel pLevel, ChunkGenerator pChunkGenerator, BlockPos pPos, BlockState pState, Random pRand, int pBranchX, int pBranchY)
+    {
+        ConfiguredFeature < TreeConfiguration, ? > configuredfeature = this.getConfiguredMegaFeature(pRand);
+
+        if (configuredfeature == null)
+        {
             return false;
-         }
-      }
-   }
+        }
+        else
+        {
+            BlockState blockstate = Blocks.AIR.defaultBlockState();
+            pLevel.setBlock(pPos.offset(pBranchX, 0, pBranchY), blockstate, 4);
+            pLevel.setBlock(pPos.offset(pBranchX + 1, 0, pBranchY), blockstate, 4);
+            pLevel.setBlock(pPos.offset(pBranchX, 0, pBranchY + 1), blockstate, 4);
+            pLevel.setBlock(pPos.offset(pBranchX + 1, 0, pBranchY + 1), blockstate, 4);
 
-   public static boolean isTwoByTwoSapling(BlockState p_59999_, BlockGetter p_60000_, BlockPos p_60001_, int p_60002_, int p_60003_) {
-      Block block = p_59999_.getBlock();
-      return p_60000_.getBlockState(p_60001_.offset(p_60002_, 0, p_60003_)).is(block) && p_60000_.getBlockState(p_60001_.offset(p_60002_ + 1, 0, p_60003_)).is(block) && p_60000_.getBlockState(p_60001_.offset(p_60002_, 0, p_60003_ + 1)).is(block) && p_60000_.getBlockState(p_60001_.offset(p_60002_ + 1, 0, p_60003_ + 1)).is(block);
-   }
+            if (configuredfeature.place(pLevel, pChunkGenerator, pRand, pPos.offset(pBranchX, 0, pBranchY)))
+            {
+                return true;
+            }
+            else
+            {
+                pLevel.setBlock(pPos.offset(pBranchX, 0, pBranchY), pState, 4);
+                pLevel.setBlock(pPos.offset(pBranchX + 1, 0, pBranchY), pState, 4);
+                pLevel.setBlock(pPos.offset(pBranchX, 0, pBranchY + 1), pState, 4);
+                pLevel.setBlock(pPos.offset(pBranchX + 1, 0, pBranchY + 1), pState, 4);
+                return false;
+            }
+        }
+    }
+
+    public static boolean isTwoByTwoSapling(BlockState pBlockUnder, BlockGetter pLevel, BlockPos pPos, int pXOffset, int pZOffset)
+    {
+        Block block = pBlockUnder.getBlock();
+        return pLevel.getBlockState(pPos.offset(pXOffset, 0, pZOffset)).is(block) && pLevel.getBlockState(pPos.offset(pXOffset + 1, 0, pZOffset)).is(block) && pLevel.getBlockState(pPos.offset(pXOffset, 0, pZOffset + 1)).is(block) && pLevel.getBlockState(pPos.offset(pXOffset + 1, 0, pZOffset + 1)).is(block);
+    }
 }

@@ -24,557 +24,677 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
-public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entry<E>> extends AbstractContainerEventHandler implements Widget, NarratableEntry {
-   protected final Minecraft minecraft;
-   protected final int itemHeight;
-   private final List<E> children = new AbstractSelectionList.TrackedList();
-   protected int width;
-   protected int height;
-   protected int y0;
-   protected int y1;
-   protected int x1;
-   protected int x0;
-   protected boolean centerListVertically = true;
-   private double scrollAmount;
-   private boolean renderSelection = true;
-   private boolean renderHeader;
-   protected int headerHeight;
-   private boolean scrolling;
-   @Nullable
-   private E selected;
-   private boolean renderBackground = true;
-   private boolean renderTopAndBottom = true;
-   @Nullable
-   private E hovered;
+public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entry<E>> extends AbstractContainerEventHandler implements Widget, NarratableEntry
+{
+    protected final Minecraft minecraft;
+    protected final int itemHeight;
+    private final List<E> children = new AbstractSelectionList.TrackedList();
+    protected int width;
+    protected int height;
+    protected int y0;
+    protected int y1;
+    protected int x1;
+    protected int x0;
+    protected boolean centerListVertically = true;
+    private double scrollAmount;
+    private boolean renderSelection = true;
+    private boolean renderHeader;
+    protected int headerHeight;
+    private boolean scrolling;
+    @Nullable
+    private E selected;
+    private boolean renderBackground = true;
+    private boolean renderTopAndBottom = true;
+    @Nullable
+    private E hovered;
 
-   public AbstractSelectionList(Minecraft p_93404_, int p_93405_, int p_93406_, int p_93407_, int p_93408_, int p_93409_) {
-      this.minecraft = p_93404_;
-      this.width = p_93405_;
-      this.height = p_93406_;
-      this.y0 = p_93407_;
-      this.y1 = p_93408_;
-      this.itemHeight = p_93409_;
-      this.x0 = 0;
-      this.x1 = p_93405_;
-   }
+    public AbstractSelectionList(Minecraft p_93404_, int p_93405_, int p_93406_, int p_93407_, int p_93408_, int p_93409_)
+    {
+        this.minecraft = p_93404_;
+        this.width = p_93405_;
+        this.height = p_93406_;
+        this.y0 = p_93407_;
+        this.y1 = p_93408_;
+        this.itemHeight = p_93409_;
+        this.x0 = 0;
+        this.x1 = p_93405_;
+    }
 
-   public void setRenderSelection(boolean p_93472_) {
-      this.renderSelection = p_93472_;
-   }
+    public void setRenderSelection(boolean pValue)
+    {
+        this.renderSelection = pValue;
+    }
 
-   protected void setRenderHeader(boolean p_93474_, int p_93475_) {
-      this.renderHeader = p_93474_;
-      this.headerHeight = p_93475_;
-      if (!p_93474_) {
-         this.headerHeight = 0;
-      }
+    protected void setRenderHeader(boolean pValue, int pHeight)
+    {
+        this.renderHeader = pValue;
+        this.headerHeight = pHeight;
 
-   }
+        if (!pValue)
+        {
+            this.headerHeight = 0;
+        }
+    }
 
-   public int getRowWidth() {
-      return 220;
-   }
+    public int getRowWidth()
+    {
+        return 220;
+    }
 
-   @Nullable
-   public E getSelected() {
-      return this.selected;
-   }
+    @Nullable
+    public E getSelected()
+    {
+        return this.selected;
+    }
 
-   public void setSelected(@Nullable E p_93462_) {
-      this.selected = p_93462_;
-   }
+    public void setSelected(@Nullable E pEntry)
+    {
+        this.selected = pEntry;
+    }
 
-   public void setRenderBackground(boolean p_93489_) {
-      this.renderBackground = p_93489_;
-   }
+    public void setRenderBackground(boolean p_93489_)
+    {
+        this.renderBackground = p_93489_;
+    }
 
-   public void setRenderTopAndBottom(boolean p_93497_) {
-      this.renderTopAndBottom = p_93497_;
-   }
+    public void setRenderTopAndBottom(boolean p_93497_)
+    {
+        this.renderTopAndBottom = p_93497_;
+    }
 
-   @Nullable
-   public E getFocused() {
-      return (E)(super.getFocused());
-   }
+    @Nullable
+    public E getFocused()
+    {
+        return (E)(super.getFocused());
+    }
 
-   public final List<E> children() {
-      return this.children;
-   }
+    public final List<E> children()
+    {
+        return this.children;
+    }
 
-   protected final void clearEntries() {
-      this.children.clear();
-   }
+    protected final void clearEntries()
+    {
+        this.children.clear();
+    }
 
-   protected void replaceEntries(Collection<E> p_93470_) {
-      this.children.clear();
-      this.children.addAll(p_93470_);
-   }
+    protected void replaceEntries(Collection<E> pEntries)
+    {
+        this.children.clear();
+        this.children.addAll(pEntries);
+    }
 
-   protected E getEntry(int p_93501_) {
-      return this.children().get(p_93501_);
-   }
+    protected E getEntry(int pIndex)
+    {
+        return this.children().get(pIndex);
+    }
 
-   protected int addEntry(E p_93487_) {
-      this.children.add(p_93487_);
-      return this.children.size() - 1;
-   }
+    protected int addEntry(E pEntry)
+    {
+        this.children.add(pEntry);
+        return this.children.size() - 1;
+    }
 
-   protected int getItemCount() {
-      return this.children().size();
-   }
+    protected int getItemCount()
+    {
+        return this.children().size();
+    }
 
-   protected boolean isSelectedItem(int p_93504_) {
-      return Objects.equals(this.getSelected(), this.children().get(p_93504_));
-   }
+    protected boolean isSelectedItem(int pIndex)
+    {
+        return Objects.equals(this.getSelected(), this.children().get(pIndex));
+    }
 
-   @Nullable
-   protected final E getEntryAtPosition(double p_93413_, double p_93414_) {
-      int i = this.getRowWidth() / 2;
-      int j = this.x0 + this.width / 2;
-      int k = j - i;
-      int l = j + i;
-      int i1 = Mth.floor(p_93414_ - (double)this.y0) - this.headerHeight + (int)this.getScrollAmount() - 4;
-      int j1 = i1 / this.itemHeight;
-      return (E)(p_93413_ < (double)this.getScrollbarPosition() && p_93413_ >= (double)k && p_93413_ <= (double)l && j1 >= 0 && i1 >= 0 && j1 < this.getItemCount() ? this.children().get(j1) : null);
-   }
+    @Nullable
+    protected final E getEntryAtPosition(double pMouseX, double p_93414_)
+    {
+        int i = this.getRowWidth() / 2;
+        int j = this.x0 + this.width / 2;
+        int k = j - i;
+        int l = j + i;
+        int i1 = Mth.floor(p_93414_ - (double)this.y0) - this.headerHeight + (int)this.getScrollAmount() - 4;
+        int j1 = i1 / this.itemHeight;
+        return (E)(pMouseX < (double)this.getScrollbarPosition() && pMouseX >= (double)k && pMouseX <= (double)l && j1 >= 0 && i1 >= 0 && j1 < this.getItemCount() ? this.children().get(j1) : null);
+    }
 
-   public void updateSize(int p_93438_, int p_93439_, int p_93440_, int p_93441_) {
-      this.width = p_93438_;
-      this.height = p_93439_;
-      this.y0 = p_93440_;
-      this.y1 = p_93441_;
-      this.x0 = 0;
-      this.x1 = p_93438_;
-   }
+    public void updateSize(int pWidth, int pHeight, int p_93440_, int p_93441_)
+    {
+        this.width = pWidth;
+        this.height = pHeight;
+        this.y0 = p_93440_;
+        this.y1 = p_93441_;
+        this.x0 = 0;
+        this.x1 = pWidth;
+    }
 
-   public void setLeftPos(int p_93508_) {
-      this.x0 = p_93508_;
-      this.x1 = p_93508_ + this.width;
-   }
+    public void setLeftPos(int pLeft)
+    {
+        this.x0 = pLeft;
+        this.x1 = pLeft + this.width;
+    }
 
-   protected int getMaxPosition() {
-      return this.getItemCount() * this.itemHeight + this.headerHeight;
-   }
+    protected int getMaxPosition()
+    {
+        return this.getItemCount() * this.itemHeight + this.headerHeight;
+    }
 
-   protected void clickedHeader(int p_93431_, int p_93432_) {
-   }
+    protected void clickedHeader(int p_93431_, int p_93432_)
+    {
+    }
 
-   protected void renderHeader(PoseStack p_93458_, int p_93459_, int p_93460_, Tesselator p_93461_) {
-   }
+    protected void renderHeader(PoseStack pMatrixStack, int pX, int pY, Tesselator pTessellator)
+    {
+    }
 
-   protected void renderBackground(PoseStack p_93442_) {
-   }
+    protected void renderBackground(PoseStack pMatrixStack)
+    {
+    }
 
-   protected void renderDecorations(PoseStack p_93443_, int p_93444_, int p_93445_) {
-   }
+    protected void renderDecorations(PoseStack pMatrixStack, int pMouseX, int pMouseY)
+    {
+    }
 
-   public void render(PoseStack p_93447_, int p_93448_, int p_93449_, float p_93450_) {
-      this.renderBackground(p_93447_);
-      int i = this.getScrollbarPosition();
-      int j = i + 6;
-      Tesselator tesselator = Tesselator.getInstance();
-      BufferBuilder bufferbuilder = tesselator.getBuilder();
-      RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-      this.hovered = this.isMouseOver((double)p_93448_, (double)p_93449_) ? this.getEntryAtPosition((double)p_93448_, (double)p_93449_) : null;
-      if (this.renderBackground) {
-         RenderSystem.setShaderTexture(0, GuiComponent.BACKGROUND_LOCATION);
-         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-         float f = 32.0F;
-         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-         bufferbuilder.vertex((double)this.x0, (double)this.y1, 0.0D).uv((float)this.x0 / 32.0F, (float)(this.y1 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
-         bufferbuilder.vertex((double)this.x1, (double)this.y1, 0.0D).uv((float)this.x1 / 32.0F, (float)(this.y1 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
-         bufferbuilder.vertex((double)this.x1, (double)this.y0, 0.0D).uv((float)this.x1 / 32.0F, (float)(this.y0 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
-         bufferbuilder.vertex((double)this.x0, (double)this.y0, 0.0D).uv((float)this.x0 / 32.0F, (float)(this.y0 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
-         tesselator.end();
-      }
+    public void render(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks)
+    {
+        this.renderBackground(pMatrixStack);
+        int i = this.getScrollbarPosition();
+        int j = i + 6;
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder bufferbuilder = tesselator.getBuilder();
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        this.hovered = this.isMouseOver((double)pMouseX, (double)pMouseY) ? this.getEntryAtPosition((double)pMouseX, (double)pMouseY) : null;
 
-      int j1 = this.getRowLeft();
-      int k = this.y0 + 4 - (int)this.getScrollAmount();
-      if (this.renderHeader) {
-         this.renderHeader(p_93447_, j1, k, tesselator);
-      }
+        if (this.renderBackground)
+        {
+            RenderSystem.setShaderTexture(0, GuiComponent.BACKGROUND_LOCATION);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            float f = 32.0F;
+            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+            bufferbuilder.vertex((double)this.x0, (double)this.y1, 0.0D).uv((float)this.x0 / 32.0F, (float)(this.y1 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            bufferbuilder.vertex((double)this.x1, (double)this.y1, 0.0D).uv((float)this.x1 / 32.0F, (float)(this.y1 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            bufferbuilder.vertex((double)this.x1, (double)this.y0, 0.0D).uv((float)this.x1 / 32.0F, (float)(this.y0 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            bufferbuilder.vertex((double)this.x0, (double)this.y0, 0.0D).uv((float)this.x0 / 32.0F, (float)(this.y0 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
+            tesselator.end();
+        }
 
-      this.renderList(p_93447_, j1, k, p_93448_, p_93449_, p_93450_);
-      if (this.renderTopAndBottom) {
-         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-         RenderSystem.setShaderTexture(0, GuiComponent.BACKGROUND_LOCATION);
-         RenderSystem.enableDepthTest();
-         RenderSystem.depthFunc(519);
-         float f1 = 32.0F;
-         int l = -100;
-         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-         bufferbuilder.vertex((double)this.x0, (double)this.y0, -100.0D).uv(0.0F, (float)this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
-         bufferbuilder.vertex((double)(this.x0 + this.width), (double)this.y0, -100.0D).uv((float)this.width / 32.0F, (float)this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
-         bufferbuilder.vertex((double)(this.x0 + this.width), 0.0D, -100.0D).uv((float)this.width / 32.0F, 0.0F).color(64, 64, 64, 255).endVertex();
-         bufferbuilder.vertex((double)this.x0, 0.0D, -100.0D).uv(0.0F, 0.0F).color(64, 64, 64, 255).endVertex();
-         bufferbuilder.vertex((double)this.x0, (double)this.height, -100.0D).uv(0.0F, (float)this.height / 32.0F).color(64, 64, 64, 255).endVertex();
-         bufferbuilder.vertex((double)(this.x0 + this.width), (double)this.height, -100.0D).uv((float)this.width / 32.0F, (float)this.height / 32.0F).color(64, 64, 64, 255).endVertex();
-         bufferbuilder.vertex((double)(this.x0 + this.width), (double)this.y1, -100.0D).uv((float)this.width / 32.0F, (float)this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
-         bufferbuilder.vertex((double)this.x0, (double)this.y1, -100.0D).uv(0.0F, (float)this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
-         tesselator.end();
-         RenderSystem.depthFunc(515);
-         RenderSystem.disableDepthTest();
-         RenderSystem.enableBlend();
-         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
-         RenderSystem.disableTexture();
-         RenderSystem.setShader(GameRenderer::getPositionColorShader);
-         int i1 = 4;
-         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-         bufferbuilder.vertex((double)this.x0, (double)(this.y0 + 4), 0.0D).color(0, 0, 0, 0).endVertex();
-         bufferbuilder.vertex((double)this.x1, (double)(this.y0 + 4), 0.0D).color(0, 0, 0, 0).endVertex();
-         bufferbuilder.vertex((double)this.x1, (double)this.y0, 0.0D).color(0, 0, 0, 255).endVertex();
-         bufferbuilder.vertex((double)this.x0, (double)this.y0, 0.0D).color(0, 0, 0, 255).endVertex();
-         bufferbuilder.vertex((double)this.x0, (double)this.y1, 0.0D).color(0, 0, 0, 255).endVertex();
-         bufferbuilder.vertex((double)this.x1, (double)this.y1, 0.0D).color(0, 0, 0, 255).endVertex();
-         bufferbuilder.vertex((double)this.x1, (double)(this.y1 - 4), 0.0D).color(0, 0, 0, 0).endVertex();
-         bufferbuilder.vertex((double)this.x0, (double)(this.y1 - 4), 0.0D).color(0, 0, 0, 0).endVertex();
-         tesselator.end();
-      }
+        int j1 = this.getRowLeft();
+        int k = this.y0 + 4 - (int)this.getScrollAmount();
 
-      int k1 = this.getMaxScroll();
-      if (k1 > 0) {
-         RenderSystem.disableTexture();
-         RenderSystem.setShader(GameRenderer::getPositionColorShader);
-         int l1 = (int)((float)((this.y1 - this.y0) * (this.y1 - this.y0)) / (float)this.getMaxPosition());
-         l1 = Mth.clamp(l1, 32, this.y1 - this.y0 - 8);
-         int i2 = (int)this.getScrollAmount() * (this.y1 - this.y0 - l1) / k1 + this.y0;
-         if (i2 < this.y0) {
-            i2 = this.y0;
-         }
+        if (this.renderHeader)
+        {
+            this.renderHeader(pMatrixStack, j1, k, tesselator);
+        }
 
-         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-         bufferbuilder.vertex((double)i, (double)this.y1, 0.0D).color(0, 0, 0, 255).endVertex();
-         bufferbuilder.vertex((double)j, (double)this.y1, 0.0D).color(0, 0, 0, 255).endVertex();
-         bufferbuilder.vertex((double)j, (double)this.y0, 0.0D).color(0, 0, 0, 255).endVertex();
-         bufferbuilder.vertex((double)i, (double)this.y0, 0.0D).color(0, 0, 0, 255).endVertex();
-         bufferbuilder.vertex((double)i, (double)(i2 + l1), 0.0D).color(128, 128, 128, 255).endVertex();
-         bufferbuilder.vertex((double)j, (double)(i2 + l1), 0.0D).color(128, 128, 128, 255).endVertex();
-         bufferbuilder.vertex((double)j, (double)i2, 0.0D).color(128, 128, 128, 255).endVertex();
-         bufferbuilder.vertex((double)i, (double)i2, 0.0D).color(128, 128, 128, 255).endVertex();
-         bufferbuilder.vertex((double)i, (double)(i2 + l1 - 1), 0.0D).color(192, 192, 192, 255).endVertex();
-         bufferbuilder.vertex((double)(j - 1), (double)(i2 + l1 - 1), 0.0D).color(192, 192, 192, 255).endVertex();
-         bufferbuilder.vertex((double)(j - 1), (double)i2, 0.0D).color(192, 192, 192, 255).endVertex();
-         bufferbuilder.vertex((double)i, (double)i2, 0.0D).color(192, 192, 192, 255).endVertex();
-         tesselator.end();
-      }
+        this.renderList(pMatrixStack, j1, k, pMouseX, pMouseY, pPartialTicks);
 
-      this.renderDecorations(p_93447_, p_93448_, p_93449_);
-      RenderSystem.enableTexture();
-      RenderSystem.disableBlend();
-   }
+        if (this.renderTopAndBottom)
+        {
+            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+            RenderSystem.setShaderTexture(0, GuiComponent.BACKGROUND_LOCATION);
+            RenderSystem.enableDepthTest();
+            RenderSystem.depthFunc(519);
+            float f1 = 32.0F;
+            int l = -100;
+            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+            bufferbuilder.vertex((double)this.x0, (double)this.y0, -100.0D).uv(0.0F, (float)this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double)(this.x0 + this.width), (double)this.y0, -100.0D).uv((float)this.width / 32.0F, (float)this.y0 / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double)(this.x0 + this.width), 0.0D, -100.0D).uv((float)this.width / 32.0F, 0.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double)this.x0, 0.0D, -100.0D).uv(0.0F, 0.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double)this.x0, (double)this.height, -100.0D).uv(0.0F, (float)this.height / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double)(this.x0 + this.width), (double)this.height, -100.0D).uv((float)this.width / 32.0F, (float)this.height / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double)(this.x0 + this.width), (double)this.y1, -100.0D).uv((float)this.width / 32.0F, (float)this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
+            bufferbuilder.vertex((double)this.x0, (double)this.y1, -100.0D).uv(0.0F, (float)this.y1 / 32.0F).color(64, 64, 64, 255).endVertex();
+            tesselator.end();
+            RenderSystem.depthFunc(515);
+            RenderSystem.disableDepthTest();
+            RenderSystem.enableBlend();
+            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
+            RenderSystem.disableTexture();
+            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+            int i1 = 4;
+            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            bufferbuilder.vertex((double)this.x0, (double)(this.y0 + 4), 0.0D).color(0, 0, 0, 0).endVertex();
+            bufferbuilder.vertex((double)this.x1, (double)(this.y0 + 4), 0.0D).color(0, 0, 0, 0).endVertex();
+            bufferbuilder.vertex((double)this.x1, (double)this.y0, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex((double)this.x0, (double)this.y0, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex((double)this.x0, (double)this.y1, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex((double)this.x1, (double)this.y1, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex((double)this.x1, (double)(this.y1 - 4), 0.0D).color(0, 0, 0, 0).endVertex();
+            bufferbuilder.vertex((double)this.x0, (double)(this.y1 - 4), 0.0D).color(0, 0, 0, 0).endVertex();
+            tesselator.end();
+        }
 
-   protected void centerScrollOn(E p_93495_) {
-      this.setScrollAmount((double)(this.children().indexOf(p_93495_) * this.itemHeight + this.itemHeight / 2 - (this.y1 - this.y0) / 2));
-   }
+        int k1 = this.getMaxScroll();
 
-   protected void ensureVisible(E p_93499_) {
-      int i = this.getRowTop(this.children().indexOf(p_93499_));
-      int j = i - this.y0 - 4 - this.itemHeight;
-      if (j < 0) {
-         this.scroll(j);
-      }
+        if (k1 > 0)
+        {
+            RenderSystem.disableTexture();
+            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+            int l1 = (int)((float)((this.y1 - this.y0) * (this.y1 - this.y0)) / (float)this.getMaxPosition());
+            l1 = Mth.clamp(l1, 32, this.y1 - this.y0 - 8);
+            int i2 = (int)this.getScrollAmount() * (this.y1 - this.y0 - l1) / k1 + this.y0;
 
-      int k = this.y1 - i - this.itemHeight - this.itemHeight;
-      if (k < 0) {
-         this.scroll(-k);
-      }
-
-   }
-
-   private void scroll(int p_93430_) {
-      this.setScrollAmount(this.getScrollAmount() + (double)p_93430_);
-   }
-
-   public double getScrollAmount() {
-      return this.scrollAmount;
-   }
-
-   public void setScrollAmount(double p_93411_) {
-      this.scrollAmount = Mth.clamp(p_93411_, 0.0D, (double)this.getMaxScroll());
-   }
-
-   public int getMaxScroll() {
-      return Math.max(0, this.getMaxPosition() - (this.y1 - this.y0 - 4));
-   }
-
-   public int getScrollBottom() {
-      return (int)this.getScrollAmount() - this.height - this.headerHeight;
-   }
-
-   protected void updateScrollingState(double p_93482_, double p_93483_, int p_93484_) {
-      this.scrolling = p_93484_ == 0 && p_93482_ >= (double)this.getScrollbarPosition() && p_93482_ < (double)(this.getScrollbarPosition() + 6);
-   }
-
-   protected int getScrollbarPosition() {
-      return this.width / 2 + 124;
-   }
-
-   public boolean mouseClicked(double p_93420_, double p_93421_, int p_93422_) {
-      this.updateScrollingState(p_93420_, p_93421_, p_93422_);
-      if (!this.isMouseOver(p_93420_, p_93421_)) {
-         return false;
-      } else {
-         E e = this.getEntryAtPosition(p_93420_, p_93421_);
-         if (e != null) {
-            if (e.mouseClicked(p_93420_, p_93421_, p_93422_)) {
-               this.setFocused(e);
-               this.setDragging(true);
-               return true;
+            if (i2 < this.y0)
+            {
+                i2 = this.y0;
             }
-         } else if (p_93422_ == 0) {
-            this.clickedHeader((int)(p_93420_ - (double)(this.x0 + this.width / 2 - this.getRowWidth() / 2)), (int)(p_93421_ - (double)this.y0) + (int)this.getScrollAmount() - 4);
+
+            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            bufferbuilder.vertex((double)i, (double)this.y1, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex((double)j, (double)this.y1, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex((double)j, (double)this.y0, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex((double)i, (double)this.y0, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex((double)i, (double)(i2 + l1), 0.0D).color(128, 128, 128, 255).endVertex();
+            bufferbuilder.vertex((double)j, (double)(i2 + l1), 0.0D).color(128, 128, 128, 255).endVertex();
+            bufferbuilder.vertex((double)j, (double)i2, 0.0D).color(128, 128, 128, 255).endVertex();
+            bufferbuilder.vertex((double)i, (double)i2, 0.0D).color(128, 128, 128, 255).endVertex();
+            bufferbuilder.vertex((double)i, (double)(i2 + l1 - 1), 0.0D).color(192, 192, 192, 255).endVertex();
+            bufferbuilder.vertex((double)(j - 1), (double)(i2 + l1 - 1), 0.0D).color(192, 192, 192, 255).endVertex();
+            bufferbuilder.vertex((double)(j - 1), (double)i2, 0.0D).color(192, 192, 192, 255).endVertex();
+            bufferbuilder.vertex((double)i, (double)i2, 0.0D).color(192, 192, 192, 255).endVertex();
+            tesselator.end();
+        }
+
+        this.renderDecorations(pMatrixStack, pMouseX, pMouseY);
+        RenderSystem.enableTexture();
+        RenderSystem.disableBlend();
+    }
+
+    protected void centerScrollOn(E pEntry)
+    {
+        this.setScrollAmount((double)(this.children().indexOf(pEntry) * this.itemHeight + this.itemHeight / 2 - (this.y1 - this.y0) / 2));
+    }
+
+    protected void ensureVisible(E pEntry)
+    {
+        int i = this.getRowTop(this.children().indexOf(pEntry));
+        int j = i - this.y0 - 4 - this.itemHeight;
+
+        if (j < 0)
+        {
+            this.scroll(j);
+        }
+
+        int k = this.y1 - i - this.itemHeight - this.itemHeight;
+
+        if (k < 0)
+        {
+            this.scroll(-k);
+        }
+    }
+
+    private void scroll(int pScroll)
+    {
+        this.setScrollAmount(this.getScrollAmount() + (double)pScroll);
+    }
+
+    public double getScrollAmount()
+    {
+        return this.scrollAmount;
+    }
+
+    public void setScrollAmount(double pScroll)
+    {
+        this.scrollAmount = Mth.clamp(pScroll, 0.0D, (double)this.getMaxScroll());
+    }
+
+    public int getMaxScroll()
+    {
+        return Math.max(0, this.getMaxPosition() - (this.y1 - this.y0 - 4));
+    }
+
+    public int getScrollBottom()
+    {
+        return (int)this.getScrollAmount() - this.height - this.headerHeight;
+    }
+
+    protected void updateScrollingState(double pMouseX, double p_93483_, int pMouseY)
+    {
+        this.scrolling = pMouseY == 0 && pMouseX >= (double)this.getScrollbarPosition() && pMouseX < (double)(this.getScrollbarPosition() + 6);
+    }
+
+    protected int getScrollbarPosition()
+    {
+        return this.width / 2 + 124;
+    }
+
+    public boolean mouseClicked(double pMouseX, double p_93421_, int pMouseY)
+    {
+        this.updateScrollingState(pMouseX, p_93421_, pMouseY);
+
+        if (!this.isMouseOver(pMouseX, p_93421_))
+        {
+            return false;
+        }
+        else
+        {
+            E e = this.getEntryAtPosition(pMouseX, p_93421_);
+
+            if (e != null)
+            {
+                if (e.mouseClicked(pMouseX, p_93421_, pMouseY))
+                {
+                    this.setFocused(e);
+                    this.setDragging(true);
+                    return true;
+                }
+            }
+            else if (pMouseY == 0)
+            {
+                this.clickedHeader((int)(pMouseX - (double)(this.x0 + this.width / 2 - this.getRowWidth() / 2)), (int)(p_93421_ - (double)this.y0) + (int)this.getScrollAmount() - 4);
+                return true;
+            }
+
+            return this.scrolling;
+        }
+    }
+
+    public boolean mouseReleased(double pMouseX, double p_93492_, int pMouseY)
+    {
+        if (this.getFocused() != null)
+        {
+            this.getFocused().mouseReleased(pMouseX, p_93492_, pMouseY);
+        }
+
+        return false;
+    }
+
+    public boolean mouseDragged(double pMouseX, double p_93425_, int pMouseY, double p_93427_, double pButton)
+    {
+        if (super.mouseDragged(pMouseX, p_93425_, pMouseY, p_93427_, pButton))
+        {
             return true;
-         }
-
-         return this.scrolling;
-      }
-   }
-
-   public boolean mouseReleased(double p_93491_, double p_93492_, int p_93493_) {
-      if (this.getFocused() != null) {
-         this.getFocused().mouseReleased(p_93491_, p_93492_, p_93493_);
-      }
-
-      return false;
-   }
-
-   public boolean mouseDragged(double p_93424_, double p_93425_, int p_93426_, double p_93427_, double p_93428_) {
-      if (super.mouseDragged(p_93424_, p_93425_, p_93426_, p_93427_, p_93428_)) {
-         return true;
-      } else if (p_93426_ == 0 && this.scrolling) {
-         if (p_93425_ < (double)this.y0) {
-            this.setScrollAmount(0.0D);
-         } else if (p_93425_ > (double)this.y1) {
-            this.setScrollAmount((double)this.getMaxScroll());
-         } else {
-            double d0 = (double)Math.max(1, this.getMaxScroll());
-            int i = this.y1 - this.y0;
-            int j = Mth.clamp((int)((float)(i * i) / (float)this.getMaxPosition()), 32, i - 8);
-            double d1 = Math.max(1.0D, d0 / (double)(i - j));
-            this.setScrollAmount(this.getScrollAmount() + p_93428_ * d1);
-         }
-
-         return true;
-      } else {
-         return false;
-      }
-   }
-
-   public boolean mouseScrolled(double p_93416_, double p_93417_, double p_93418_) {
-      this.setScrollAmount(this.getScrollAmount() - p_93418_ * (double)this.itemHeight / 2.0D);
-      return true;
-   }
-
-   public boolean keyPressed(int p_93434_, int p_93435_, int p_93436_) {
-      if (super.keyPressed(p_93434_, p_93435_, p_93436_)) {
-         return true;
-      } else if (p_93434_ == 264) {
-         this.moveSelection(AbstractSelectionList.SelectionDirection.DOWN);
-         return true;
-      } else if (p_93434_ == 265) {
-         this.moveSelection(AbstractSelectionList.SelectionDirection.UP);
-         return true;
-      } else {
-         return false;
-      }
-   }
-
-   protected void moveSelection(AbstractSelectionList.SelectionDirection p_93463_) {
-      this.moveSelection(p_93463_, (p_93510_) -> {
-         return true;
-      });
-   }
-
-   protected void refreshSelection() {
-      E e = this.getSelected();
-      if (e != null) {
-         this.setSelected(e);
-         this.ensureVisible(e);
-      }
-
-   }
-
-   protected void moveSelection(AbstractSelectionList.SelectionDirection p_93465_, Predicate<E> p_93466_) {
-      int i = p_93465_ == AbstractSelectionList.SelectionDirection.UP ? -1 : 1;
-      if (!this.children().isEmpty()) {
-         int j = this.children().indexOf(this.getSelected());
-
-         while(true) {
-            int k = Mth.clamp(j + i, 0, this.getItemCount() - 1);
-            if (j == k) {
-               break;
+        }
+        else if (pMouseY == 0 && this.scrolling)
+        {
+            if (p_93425_ < (double)this.y0)
+            {
+                this.setScrollAmount(0.0D);
+            }
+            else if (p_93425_ > (double)this.y1)
+            {
+                this.setScrollAmount((double)this.getMaxScroll());
+            }
+            else
+            {
+                double d0 = (double)Math.max(1, this.getMaxScroll());
+                int i = this.y1 - this.y0;
+                int j = Mth.clamp((int)((float)(i * i) / (float)this.getMaxPosition()), 32, i - 8);
+                double d1 = Math.max(1.0D, d0 / (double)(i - j));
+                this.setScrollAmount(this.getScrollAmount() + pButton * d1);
             }
 
-            E e = this.children().get(k);
-            if (p_93466_.test(e)) {
-               this.setSelected(e);
-               this.ensureVisible(e);
-               break;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public boolean mouseScrolled(double pMouseX, double p_93417_, double pMouseY)
+    {
+        this.setScrollAmount(this.getScrollAmount() - pMouseY * (double)this.itemHeight / 2.0D);
+        return true;
+    }
+
+    public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers)
+    {
+        if (super.keyPressed(pKeyCode, pScanCode, pModifiers))
+        {
+            return true;
+        }
+        else if (pKeyCode == 264)
+        {
+            this.moveSelection(AbstractSelectionList.SelectionDirection.DOWN);
+            return true;
+        }
+        else if (pKeyCode == 265)
+        {
+            this.moveSelection(AbstractSelectionList.SelectionDirection.UP);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    protected void moveSelection(AbstractSelectionList.SelectionDirection pOrdering)
+    {
+        this.moveSelection(pOrdering, (p_93510_) ->
+        {
+            return true;
+        });
+    }
+
+    protected void refreshSelection()
+    {
+        E e = this.getSelected();
+
+        if (e != null)
+        {
+            this.setSelected(e);
+            this.ensureVisible(e);
+        }
+    }
+
+    protected void moveSelection(AbstractSelectionList.SelectionDirection pOrdering, Predicate<E> p_93466_)
+    {
+        int i = pOrdering == AbstractSelectionList.SelectionDirection.UP ? -1 : 1;
+
+        if (!this.children().isEmpty())
+        {
+            int j = this.children().indexOf(this.getSelected());
+
+            while (true)
+            {
+                int k = Mth.clamp(j + i, 0, this.getItemCount() - 1);
+
+                if (j == k)
+                {
+                    break;
+                }
+
+                E e = this.children().get(k);
+
+                if (p_93466_.test(e))
+                {
+                    this.setSelected(e);
+                    this.ensureVisible(e);
+                    break;
+                }
+
+                j = k;
             }
+        }
+    }
 
-            j = k;
-         }
-      }
+    public boolean isMouseOver(double pMouseX, double p_93480_)
+    {
+        return p_93480_ >= (double)this.y0 && p_93480_ <= (double)this.y1 && pMouseX >= (double)this.x0 && pMouseX <= (double)this.x1;
+    }
 
-   }
+    protected void renderList(PoseStack pMatrixStack, int pX, int pY, int pMouseX, int pMouseY, float pPartialTicks)
+    {
+        int i = this.getItemCount();
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder bufferbuilder = tesselator.getBuilder();
 
-   public boolean isMouseOver(double p_93479_, double p_93480_) {
-      return p_93480_ >= (double)this.y0 && p_93480_ <= (double)this.y1 && p_93479_ >= (double)this.x0 && p_93479_ <= (double)this.x1;
-   }
+        for (int j = 0; j < i; ++j)
+        {
+            int k = this.getRowTop(j);
+            int l = this.getRowBottom(j);
 
-   protected void renderList(PoseStack p_93452_, int p_93453_, int p_93454_, int p_93455_, int p_93456_, float p_93457_) {
-      int i = this.getItemCount();
-      Tesselator tesselator = Tesselator.getInstance();
-      BufferBuilder bufferbuilder = tesselator.getBuilder();
+            if (l >= this.y0 && k <= this.y1)
+            {
+                int i1 = pY + j * this.itemHeight + this.headerHeight;
+                int j1 = this.itemHeight - 4;
+                E e = this.getEntry(j);
+                int k1 = this.getRowWidth();
 
-      for(int j = 0; j < i; ++j) {
-         int k = this.getRowTop(j);
-         int l = this.getRowBottom(j);
-         if (l >= this.y0 && k <= this.y1) {
-            int i1 = p_93454_ + j * this.itemHeight + this.headerHeight;
-            int j1 = this.itemHeight - 4;
-            E e = this.getEntry(j);
-            int k1 = this.getRowWidth();
-            if (this.renderSelection && this.isSelectedItem(j)) {
-               int l1 = this.x0 + this.width / 2 - k1 / 2;
-               int i2 = this.x0 + this.width / 2 + k1 / 2;
-               RenderSystem.disableTexture();
-               RenderSystem.setShader(GameRenderer::getPositionShader);
-               float f = this.isFocused() ? 1.0F : 0.5F;
-               RenderSystem.setShaderColor(f, f, f, 1.0F);
-               bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-               bufferbuilder.vertex((double)l1, (double)(i1 + j1 + 2), 0.0D).endVertex();
-               bufferbuilder.vertex((double)i2, (double)(i1 + j1 + 2), 0.0D).endVertex();
-               bufferbuilder.vertex((double)i2, (double)(i1 - 2), 0.0D).endVertex();
-               bufferbuilder.vertex((double)l1, (double)(i1 - 2), 0.0D).endVertex();
-               tesselator.end();
-               RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
-               bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-               bufferbuilder.vertex((double)(l1 + 1), (double)(i1 + j1 + 1), 0.0D).endVertex();
-               bufferbuilder.vertex((double)(i2 - 1), (double)(i1 + j1 + 1), 0.0D).endVertex();
-               bufferbuilder.vertex((double)(i2 - 1), (double)(i1 - 1), 0.0D).endVertex();
-               bufferbuilder.vertex((double)(l1 + 1), (double)(i1 - 1), 0.0D).endVertex();
-               tesselator.end();
-               RenderSystem.enableTexture();
+                if (this.renderSelection && this.isSelectedItem(j))
+                {
+                    int l1 = this.x0 + this.width / 2 - k1 / 2;
+                    int i2 = this.x0 + this.width / 2 + k1 / 2;
+                    RenderSystem.disableTexture();
+                    RenderSystem.setShader(GameRenderer::getPositionShader);
+                    float f = this.isFocused() ? 1.0F : 0.5F;
+                    RenderSystem.setShaderColor(f, f, f, 1.0F);
+                    bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+                    bufferbuilder.vertex((double)l1, (double)(i1 + j1 + 2), 0.0D).endVertex();
+                    bufferbuilder.vertex((double)i2, (double)(i1 + j1 + 2), 0.0D).endVertex();
+                    bufferbuilder.vertex((double)i2, (double)(i1 - 2), 0.0D).endVertex();
+                    bufferbuilder.vertex((double)l1, (double)(i1 - 2), 0.0D).endVertex();
+                    tesselator.end();
+                    RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
+                    bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+                    bufferbuilder.vertex((double)(l1 + 1), (double)(i1 + j1 + 1), 0.0D).endVertex();
+                    bufferbuilder.vertex((double)(i2 - 1), (double)(i1 + j1 + 1), 0.0D).endVertex();
+                    bufferbuilder.vertex((double)(i2 - 1), (double)(i1 - 1), 0.0D).endVertex();
+                    bufferbuilder.vertex((double)(l1 + 1), (double)(i1 - 1), 0.0D).endVertex();
+                    tesselator.end();
+                    RenderSystem.enableTexture();
+                }
+
+                int j2 = this.getRowLeft();
+                e.render(pMatrixStack, j, k, j2, k1, j1, pMouseX, pMouseY, Objects.equals(this.hovered, e), pPartialTicks);
             }
+        }
+    }
 
-            int j2 = this.getRowLeft();
-            e.render(p_93452_, j, k, j2, k1, j1, p_93455_, p_93456_, Objects.equals(this.hovered, e), p_93457_);
-         }
-      }
+    public int getRowLeft()
+    {
+        return this.x0 + this.width / 2 - this.getRowWidth() / 2 + 2;
+    }
 
-   }
+    public int getRowRight()
+    {
+        return this.getRowLeft() + this.getRowWidth();
+    }
 
-   public int getRowLeft() {
-      return this.x0 + this.width / 2 - this.getRowWidth() / 2 + 2;
-   }
+    protected int getRowTop(int p_93512_)
+    {
+        return this.y0 + 4 - (int)this.getScrollAmount() + p_93512_ * this.itemHeight + this.headerHeight;
+    }
 
-   public int getRowRight() {
-      return this.getRowLeft() + this.getRowWidth();
-   }
+    private int getRowBottom(int pIndex)
+    {
+        return this.getRowTop(pIndex) + this.itemHeight;
+    }
 
-   protected int getRowTop(int p_93512_) {
-      return this.y0 + 4 - (int)this.getScrollAmount() + p_93512_ * this.itemHeight + this.headerHeight;
-   }
+    protected boolean isFocused()
+    {
+        return false;
+    }
 
-   private int getRowBottom(int p_93486_) {
-      return this.getRowTop(p_93486_) + this.itemHeight;
-   }
+    public NarratableEntry.NarrationPriority narrationPriority()
+    {
+        if (this.isFocused())
+        {
+            return NarratableEntry.NarrationPriority.FOCUSED;
+        }
+        else
+        {
+            return this.hovered != null ? NarratableEntry.NarrationPriority.HOVERED : NarratableEntry.NarrationPriority.NONE;
+        }
+    }
 
-   protected boolean isFocused() {
-      return false;
-   }
+    @Nullable
+    protected E remove(int pIndex)
+    {
+        E e = this.children.get(pIndex);
+        return (E)(this.removeEntry(this.children.get(pIndex)) ? e : null);
+    }
 
-   public NarratableEntry.NarrationPriority narrationPriority() {
-      if (this.isFocused()) {
-         return NarratableEntry.NarrationPriority.FOCUSED;
-      } else {
-         return this.hovered != null ? NarratableEntry.NarrationPriority.HOVERED : NarratableEntry.NarrationPriority.NONE;
-      }
-   }
+    protected boolean removeEntry(E pEntry)
+    {
+        boolean flag = this.children.remove(pEntry);
 
-   @Nullable
-   protected E remove(int p_93515_) {
-      E e = this.children.get(p_93515_);
-      return (E)(this.removeEntry(this.children.get(p_93515_)) ? e : null);
-   }
+        if (flag && pEntry == this.getSelected())
+        {
+            this.setSelected((E)null);
+        }
 
-   protected boolean removeEntry(E p_93503_) {
-      boolean flag = this.children.remove(p_93503_);
-      if (flag && p_93503_ == this.getSelected()) {
-         this.setSelected((E)null);
-      }
+        return flag;
+    }
 
-      return flag;
-   }
+    @Nullable
+    protected E getHovered()
+    {
+        return this.hovered;
+    }
 
-   @Nullable
-   protected E getHovered() {
-      return this.hovered;
-   }
+    void bindEntryToSelf(AbstractSelectionList.Entry<E> p_93506_)
+    {
+        p_93506_.list = this;
+    }
 
-   void bindEntryToSelf(AbstractSelectionList.Entry<E> p_93506_) {
-      p_93506_.list = this;
-   }
+    protected void narrateListElementPosition(NarrationElementOutput p_168791_, E p_168792_)
+    {
+        List<E> list = this.children();
 
-   protected void narrateListElementPosition(NarrationElementOutput p_168791_, E p_168792_) {
-      List<E> list = this.children();
-      if (list.size() > 1) {
-         int i = list.indexOf(p_168792_);
-         if (i != -1) {
-            p_168791_.add(NarratedElementType.POSITION, new TranslatableComponent("narrator.position.list", i + 1, list.size()));
-         }
-      }
+        if (list.size() > 1)
+        {
+            int i = list.indexOf(p_168792_);
 
-   }
+            if (i != -1)
+            {
+                p_168791_.add(NarratedElementType.POSITION, new TranslatableComponent("narrator.position.list", i + 1, list.size()));
+            }
+        }
+    }
 
-   @OnlyIn(Dist.CLIENT)
-   public abstract static class Entry<E extends AbstractSelectionList.Entry<E>> implements GuiEventListener {
-      @Deprecated
-      AbstractSelectionList<E> list;
+    public abstract static class Entry<E extends AbstractSelectionList.Entry<E>> implements GuiEventListener
+    {
+        @Deprecated
+        AbstractSelectionList<E> list;
 
-      public abstract void render(PoseStack p_93523_, int p_93524_, int p_93525_, int p_93526_, int p_93527_, int p_93528_, int p_93529_, int p_93530_, boolean p_93531_, float p_93532_);
+        public abstract void render(PoseStack pMatrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks);
 
-      public boolean isMouseOver(double p_93537_, double p_93538_) {
-         return Objects.equals(this.list.getEntryAtPosition(p_93537_, p_93538_), this);
-      }
-   }
+        public boolean isMouseOver(double pMouseX, double p_93538_)
+        {
+            return Objects.equals(this.list.getEntryAtPosition(pMouseX, p_93538_), this);
+        }
+    }
 
-   @OnlyIn(Dist.CLIENT)
-   protected static enum SelectionDirection {
-      UP,
-      DOWN;
-   }
+    protected static enum SelectionDirection
+    {
+        UP,
+        DOWN;
+    }
 
-   @OnlyIn(Dist.CLIENT)
-   class TrackedList extends AbstractList<E> {
-      private final List<E> delegate = Lists.newArrayList();
+    class TrackedList extends AbstractList<E>
+    {
+        private final List<E> delegate = Lists.newArrayList();
 
-      public E get(int p_93557_) {
-         return this.delegate.get(p_93557_);
-      }
+        public E get(int p_93557_)
+        {
+            return this.delegate.get(p_93557_);
+        }
 
-      public int size() {
-         return this.delegate.size();
-      }
+        public int size()
+        {
+            return this.delegate.size();
+        }
 
-      public E set(int p_93559_, E p_93560_) {
-         E e = this.delegate.set(p_93559_, p_93560_);
-         AbstractSelectionList.this.bindEntryToSelf(p_93560_);
-         return e;
-      }
+        public E set(int p_93559_, E p_93560_)
+        {
+            E e = this.delegate.set(p_93559_, p_93560_);
+            AbstractSelectionList.this.bindEntryToSelf(p_93560_);
+            return e;
+        }
 
-      public void add(int p_93567_, E p_93568_) {
-         this.delegate.add(p_93567_, p_93568_);
-         AbstractSelectionList.this.bindEntryToSelf(p_93568_);
-      }
+        public void add(int p_93567_, E p_93568_)
+        {
+            this.delegate.add(p_93567_, p_93568_);
+            AbstractSelectionList.this.bindEntryToSelf(p_93568_);
+        }
 
-      public E remove(int p_93565_) {
-         return this.delegate.remove(p_93565_);
-      }
-   }
+        public E remove(int p_93565_)
+        {
+            return this.delegate.remove(p_93565_);
+        }
+    }
 }

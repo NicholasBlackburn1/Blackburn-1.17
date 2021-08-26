@@ -12,57 +12,74 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
-public class HoneyBottleItem extends Item {
-   private static final int DRINK_DURATION = 40;
+public class HoneyBottleItem extends Item
+{
+    private static final int DRINK_DURATION = 40;
 
-   public HoneyBottleItem(Item.Properties p_41346_) {
-      super(p_41346_);
-   }
+    public HoneyBottleItem(Item.Properties p_41346_)
+    {
+        super(p_41346_);
+    }
 
-   public ItemStack finishUsingItem(ItemStack p_41348_, Level p_41349_, LivingEntity p_41350_) {
-      super.finishUsingItem(p_41348_, p_41349_, p_41350_);
-      if (p_41350_ instanceof ServerPlayer) {
-         ServerPlayer serverplayer = (ServerPlayer)p_41350_;
-         CriteriaTriggers.CONSUME_ITEM.trigger(serverplayer, p_41348_);
-         serverplayer.awardStat(Stats.ITEM_USED.get(this));
-      }
+    public ItemStack finishUsingItem(ItemStack pStack, Level pLevel, LivingEntity pEntityLiving)
+    {
+        super.finishUsingItem(pStack, pLevel, pEntityLiving);
 
-      if (!p_41349_.isClientSide) {
-         p_41350_.removeEffect(MobEffects.POISON);
-      }
+        if (pEntityLiving instanceof ServerPlayer)
+        {
+            ServerPlayer serverplayer = (ServerPlayer)pEntityLiving;
+            CriteriaTriggers.CONSUME_ITEM.trigger(serverplayer, pStack);
+            serverplayer.awardStat(Stats.ITEM_USED.get(this));
+        }
 
-      if (p_41348_.isEmpty()) {
-         return new ItemStack(Items.GLASS_BOTTLE);
-      } else {
-         if (p_41350_ instanceof Player && !((Player)p_41350_).getAbilities().instabuild) {
-            ItemStack itemstack = new ItemStack(Items.GLASS_BOTTLE);
-            Player player = (Player)p_41350_;
-            if (!player.getInventory().add(itemstack)) {
-               player.drop(itemstack, false);
+        if (!pLevel.isClientSide)
+        {
+            pEntityLiving.removeEffect(MobEffects.POISON);
+        }
+
+        if (pStack.isEmpty())
+        {
+            return new ItemStack(Items.GLASS_BOTTLE);
+        }
+        else
+        {
+            if (pEntityLiving instanceof Player && !((Player)pEntityLiving).getAbilities().instabuild)
+            {
+                ItemStack itemstack = new ItemStack(Items.GLASS_BOTTLE);
+                Player player = (Player)pEntityLiving;
+
+                if (!player.getInventory().add(itemstack))
+                {
+                    player.drop(itemstack, false);
+                }
             }
-         }
 
-         return p_41348_;
-      }
-   }
+            return pStack;
+        }
+    }
 
-   public int getUseDuration(ItemStack p_41360_) {
-      return 40;
-   }
+    public int getUseDuration(ItemStack pStack)
+    {
+        return 40;
+    }
 
-   public UseAnim getUseAnimation(ItemStack p_41358_) {
-      return UseAnim.DRINK;
-   }
+    public UseAnim getUseAnimation(ItemStack pStack)
+    {
+        return UseAnim.DRINK;
+    }
 
-   public SoundEvent getDrinkingSound() {
-      return SoundEvents.HONEY_DRINK;
-   }
+    public SoundEvent getDrinkingSound()
+    {
+        return SoundEvents.HONEY_DRINK;
+    }
 
-   public SoundEvent getEatingSound() {
-      return SoundEvents.HONEY_DRINK;
-   }
+    public SoundEvent getEatingSound()
+    {
+        return SoundEvents.HONEY_DRINK;
+    }
 
-   public InteractionResultHolder<ItemStack> use(Level p_41352_, Player p_41353_, InteractionHand p_41354_) {
-      return ItemUtils.startUsingInstantly(p_41352_, p_41353_, p_41354_);
-   }
+    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand)
+    {
+        return ItemUtils.startUsingInstantly(pLevel, pPlayer, pHand);
+    }
 }

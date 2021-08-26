@@ -2,9 +2,10 @@ package net.minecraft.core;
 
 import javax.annotation.Nullable;
 
-public interface IdMap<T> extends Iterable<T> {
-   int getId(T p_122652_);
+public interface IdMap<T> extends Iterable<T>
+{
+    int getId(T pValue);
 
-   @Nullable
-   T byId(int p_122651_);
+    @Nullable
+    T byId(int pValue);
 }

@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.world.entity.Entity;
 
-public interface ContextAwareComponent {
-   MutableComponent resolve(@Nullable CommandSourceStack p_130756_, @Nullable Entity p_130757_, int p_130758_) throws CommandSyntaxException;
+public interface ContextAwareComponent
+{
+    MutableComponent resolve(@Nullable CommandSourceStack p_130756_, @Nullable Entity p_130757_, int p_130758_) throws CommandSyntaxException;
 }

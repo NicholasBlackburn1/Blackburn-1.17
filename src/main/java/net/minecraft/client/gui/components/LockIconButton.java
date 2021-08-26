@@ -6,68 +6,80 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
-public class LockIconButton extends Button {
-   private boolean locked;
+public class LockIconButton extends Button
+{
+    private boolean locked;
 
-   public LockIconButton(int p_94299_, int p_94300_, Button.OnPress p_94301_) {
-      super(p_94299_, p_94300_, 20, 20, new TranslatableComponent("narrator.button.difficulty_lock"), p_94301_);
-   }
+    public LockIconButton(int p_94299_, int p_94300_, Button.OnPress p_94301_)
+    {
+        super(p_94299_, p_94300_, 20, 20, new TranslatableComponent("narrator.button.difficulty_lock"), p_94301_);
+    }
 
-   protected MutableComponent createNarrationMessage() {
-      return CommonComponents.joinForNarration(super.createNarrationMessage(), this.isLocked() ? new TranslatableComponent("narrator.button.difficulty_lock.locked") : new TranslatableComponent("narrator.button.difficulty_lock.unlocked"));
-   }
+    protected MutableComponent createNarrationMessage()
+    {
+        return CommonComponents.joinForNarration(super.createNarrationMessage(), this.isLocked() ? new TranslatableComponent("narrator.button.difficulty_lock.locked") : new TranslatableComponent("narrator.button.difficulty_lock.unlocked"));
+    }
 
-   public boolean isLocked() {
-      return this.locked;
-   }
+    public boolean isLocked()
+    {
+        return this.locked;
+    }
 
-   public void setLocked(boolean p_94310_) {
-      this.locked = p_94310_;
-   }
+    public void setLocked(boolean pLocked)
+    {
+        this.locked = pLocked;
+    }
 
-   public void renderButton(PoseStack p_94304_, int p_94305_, int p_94306_, float p_94307_) {
-      RenderSystem.setShader(GameRenderer::getPositionTexShader);
-      RenderSystem.setShaderTexture(0, Button.WIDGETS_LOCATION);
-      RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-      LockIconButton.Icon lockiconbutton$icon;
-      if (!this.active) {
-         lockiconbutton$icon = this.locked ? LockIconButton.Icon.LOCKED_DISABLED : LockIconButton.Icon.UNLOCKED_DISABLED;
-      } else if (this.isHovered()) {
-         lockiconbutton$icon = this.locked ? LockIconButton.Icon.LOCKED_HOVER : LockIconButton.Icon.UNLOCKED_HOVER;
-      } else {
-         lockiconbutton$icon = this.locked ? LockIconButton.Icon.LOCKED : LockIconButton.Icon.UNLOCKED;
-      }
+    public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks)
+    {
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, Button.WIDGETS_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        LockIconButton.Icon lockiconbutton$icon;
 
-      this.blit(p_94304_, this.x, this.y, lockiconbutton$icon.getX(), lockiconbutton$icon.getY(), this.width, this.height);
-   }
+        if (!this.active)
+        {
+            lockiconbutton$icon = this.locked ? LockIconButton.Icon.LOCKED_DISABLED : LockIconButton.Icon.UNLOCKED_DISABLED;
+        }
+        else if (this.isHovered())
+        {
+            lockiconbutton$icon = this.locked ? LockIconButton.Icon.LOCKED_HOVER : LockIconButton.Icon.UNLOCKED_HOVER;
+        }
+        else
+        {
+            lockiconbutton$icon = this.locked ? LockIconButton.Icon.LOCKED : LockIconButton.Icon.UNLOCKED;
+        }
 
-   @OnlyIn(Dist.CLIENT)
-   static enum Icon {
-      LOCKED(0, 146),
-      LOCKED_HOVER(0, 166),
-      LOCKED_DISABLED(0, 186),
-      UNLOCKED(20, 146),
-      UNLOCKED_HOVER(20, 166),
-      UNLOCKED_DISABLED(20, 186);
+        this.blit(pMatrixStack, this.x, this.y, lockiconbutton$icon.getX(), lockiconbutton$icon.getY(), this.width, this.height);
+    }
 
-      private final int x;
-      private final int y;
+    static enum Icon
+    {
+        LOCKED(0, 146),
+        LOCKED_HOVER(0, 166),
+        LOCKED_DISABLED(0, 186),
+        UNLOCKED(20, 146),
+        UNLOCKED_HOVER(20, 166),
+        UNLOCKED_DISABLED(20, 186);
 
-      private Icon(int p_94324_, int p_94325_) {
-         this.x = p_94324_;
-         this.y = p_94325_;
-      }
+        private final int x;
+        private final int y;
 
-      public int getX() {
-         return this.x;
-      }
+        private Icon(int p_94324_, int p_94325_)
+        {
+            this.x = p_94324_;
+            this.y = p_94325_;
+        }
 
-      public int getY() {
-         return this.y;
-      }
-   }
+        public int getX()
+        {
+            return this.x;
+        }
+
+        public int getY()
+        {
+            return this.y;
+        }
+    }
 }

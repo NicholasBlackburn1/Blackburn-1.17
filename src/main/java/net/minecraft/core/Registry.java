@@ -105,395 +105,487 @@ import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public abstract class Registry<T> implements Codec<T>, Keyable, IdMap<T> {
-   protected static final Logger LOGGER = LogManager.getLogger();
-   private static final Map<ResourceLocation, Supplier<?>> LOADERS = Maps.newLinkedHashMap();
-   public static final ResourceLocation ROOT_REGISTRY_NAME = new ResourceLocation("root");
-   protected static final WritableRegistry<WritableRegistry<?>> WRITABLE_REGISTRY = new MappedRegistry<>(createRegistryKey("root"), Lifecycle.experimental());
-   public static final Registry<? extends Registry<?>> REGISTRY = WRITABLE_REGISTRY;
-   public static final ResourceKey<Registry<SoundEvent>> SOUND_EVENT_REGISTRY = createRegistryKey("sound_event");
-   public static final ResourceKey<Registry<Fluid>> FLUID_REGISTRY = createRegistryKey("fluid");
-   public static final ResourceKey<Registry<MobEffect>> MOB_EFFECT_REGISTRY = createRegistryKey("mob_effect");
-   public static final ResourceKey<Registry<Block>> BLOCK_REGISTRY = createRegistryKey("block");
-   public static final ResourceKey<Registry<Enchantment>> ENCHANTMENT_REGISTRY = createRegistryKey("enchantment");
-   public static final ResourceKey<Registry<EntityType<?>>> ENTITY_TYPE_REGISTRY = createRegistryKey("entity_type");
-   public static final ResourceKey<Registry<Item>> ITEM_REGISTRY = createRegistryKey("item");
-   public static final ResourceKey<Registry<Potion>> POTION_REGISTRY = createRegistryKey("potion");
-   public static final ResourceKey<Registry<ParticleType<?>>> PARTICLE_TYPE_REGISTRY = createRegistryKey("particle_type");
-   public static final ResourceKey<Registry<BlockEntityType<?>>> BLOCK_ENTITY_TYPE_REGISTRY = createRegistryKey("block_entity_type");
-   public static final ResourceKey<Registry<Motive>> MOTIVE_REGISTRY = createRegistryKey("motive");
-   public static final ResourceKey<Registry<ResourceLocation>> CUSTOM_STAT_REGISTRY = createRegistryKey("custom_stat");
-   public static final ResourceKey<Registry<ChunkStatus>> CHUNK_STATUS_REGISTRY = createRegistryKey("chunk_status");
-   public static final ResourceKey<Registry<RuleTestType<?>>> RULE_TEST_REGISTRY = createRegistryKey("rule_test");
-   public static final ResourceKey<Registry<PosRuleTestType<?>>> POS_RULE_TEST_REGISTRY = createRegistryKey("pos_rule_test");
-   public static final ResourceKey<Registry<MenuType<?>>> MENU_REGISTRY = createRegistryKey("menu");
-   public static final ResourceKey<Registry<RecipeType<?>>> RECIPE_TYPE_REGISTRY = createRegistryKey("recipe_type");
-   public static final ResourceKey<Registry<RecipeSerializer<?>>> RECIPE_SERIALIZER_REGISTRY = createRegistryKey("recipe_serializer");
-   public static final ResourceKey<Registry<Attribute>> ATTRIBUTE_REGISTRY = createRegistryKey("attribute");
-   public static final ResourceKey<Registry<GameEvent>> GAME_EVENT_REGISTRY = createRegistryKey("game_event");
-   public static final ResourceKey<Registry<PositionSourceType<?>>> POSITION_SOURCE_TYPE_REGISTRY = createRegistryKey("position_source_type");
-   public static final ResourceKey<Registry<StatType<?>>> STAT_TYPE_REGISTRY = createRegistryKey("stat_type");
-   public static final ResourceKey<Registry<VillagerType>> VILLAGER_TYPE_REGISTRY = createRegistryKey("villager_type");
-   public static final ResourceKey<Registry<VillagerProfession>> VILLAGER_PROFESSION_REGISTRY = createRegistryKey("villager_profession");
-   public static final ResourceKey<Registry<PoiType>> POINT_OF_INTEREST_TYPE_REGISTRY = createRegistryKey("point_of_interest_type");
-   public static final ResourceKey<Registry<MemoryModuleType<?>>> MEMORY_MODULE_TYPE_REGISTRY = createRegistryKey("memory_module_type");
-   public static final ResourceKey<Registry<SensorType<?>>> SENSOR_TYPE_REGISTRY = createRegistryKey("sensor_type");
-   public static final ResourceKey<Registry<Schedule>> SCHEDULE_REGISTRY = createRegistryKey("schedule");
-   public static final ResourceKey<Registry<Activity>> ACTIVITY_REGISTRY = createRegistryKey("activity");
-   public static final ResourceKey<Registry<LootPoolEntryType>> LOOT_ENTRY_REGISTRY = createRegistryKey("loot_pool_entry_type");
-   public static final ResourceKey<Registry<LootItemFunctionType>> LOOT_FUNCTION_REGISTRY = createRegistryKey("loot_function_type");
-   public static final ResourceKey<Registry<LootItemConditionType>> LOOT_ITEM_REGISTRY = createRegistryKey("loot_condition_type");
-   public static final ResourceKey<Registry<LootNumberProviderType>> LOOT_NUMBER_PROVIDER_REGISTRY = createRegistryKey("loot_number_provider_type");
-   public static final ResourceKey<Registry<LootNbtProviderType>> LOOT_NBT_PROVIDER_REGISTRY = createRegistryKey("loot_nbt_provider_type");
-   public static final ResourceKey<Registry<LootScoreProviderType>> LOOT_SCORE_PROVIDER_REGISTRY = createRegistryKey("loot_score_provider_type");
-   public static final ResourceKey<Registry<DimensionType>> DIMENSION_TYPE_REGISTRY = createRegistryKey("dimension_type");
-   public static final ResourceKey<Registry<Level>> DIMENSION_REGISTRY = createRegistryKey("dimension");
-   public static final ResourceKey<Registry<LevelStem>> LEVEL_STEM_REGISTRY = createRegistryKey("dimension");
-   public static final DefaultedRegistry<GameEvent> GAME_EVENT = registerDefaulted(GAME_EVENT_REGISTRY, "step", () -> {
-      return GameEvent.STEP;
-   });
-   public static final Registry<SoundEvent> SOUND_EVENT = registerSimple(SOUND_EVENT_REGISTRY, () -> {
-      return SoundEvents.ITEM_PICKUP;
-   });
-   public static final DefaultedRegistry<Fluid> FLUID = registerDefaulted(FLUID_REGISTRY, "empty", () -> {
-      return Fluids.EMPTY;
-   });
-   public static final Registry<MobEffect> MOB_EFFECT = registerSimple(MOB_EFFECT_REGISTRY, () -> {
-      return MobEffects.LUCK;
-   });
-   public static final DefaultedRegistry<Block> BLOCK = registerDefaulted(BLOCK_REGISTRY, "air", () -> {
-      return Blocks.AIR;
-   });
-   public static final Registry<Enchantment> ENCHANTMENT = registerSimple(ENCHANTMENT_REGISTRY, () -> {
-      return Enchantments.BLOCK_FORTUNE;
-   });
-   public static final DefaultedRegistry<EntityType<?>> ENTITY_TYPE = registerDefaulted(ENTITY_TYPE_REGISTRY, "pig", () -> {
-      return EntityType.PIG;
-   });
-   public static final DefaultedRegistry<Item> ITEM = registerDefaulted(ITEM_REGISTRY, "air", () -> {
-      return Items.AIR;
-   });
-   public static final DefaultedRegistry<Potion> POTION = registerDefaulted(POTION_REGISTRY, "empty", () -> {
-      return Potions.EMPTY;
-   });
-   public static final Registry<ParticleType<?>> PARTICLE_TYPE = registerSimple(PARTICLE_TYPE_REGISTRY, () -> {
-      return ParticleTypes.BLOCK;
-   });
-   public static final Registry<BlockEntityType<?>> BLOCK_ENTITY_TYPE = registerSimple(BLOCK_ENTITY_TYPE_REGISTRY, () -> {
-      return BlockEntityType.FURNACE;
-   });
-   public static final DefaultedRegistry<Motive> MOTIVE = registerDefaulted(MOTIVE_REGISTRY, "kebab", () -> {
-      return Motive.KEBAB;
-   });
-   public static final Registry<ResourceLocation> CUSTOM_STAT = registerSimple(CUSTOM_STAT_REGISTRY, () -> {
-      return Stats.JUMP;
-   });
-   public static final DefaultedRegistry<ChunkStatus> CHUNK_STATUS = registerDefaulted(CHUNK_STATUS_REGISTRY, "empty", () -> {
-      return ChunkStatus.EMPTY;
-   });
-   public static final Registry<RuleTestType<?>> RULE_TEST = registerSimple(RULE_TEST_REGISTRY, () -> {
-      return RuleTestType.ALWAYS_TRUE_TEST;
-   });
-   public static final Registry<PosRuleTestType<?>> POS_RULE_TEST = registerSimple(POS_RULE_TEST_REGISTRY, () -> {
-      return PosRuleTestType.ALWAYS_TRUE_TEST;
-   });
-   public static final Registry<MenuType<?>> MENU = registerSimple(MENU_REGISTRY, () -> {
-      return MenuType.ANVIL;
-   });
-   public static final Registry<RecipeType<?>> RECIPE_TYPE = registerSimple(RECIPE_TYPE_REGISTRY, () -> {
-      return RecipeType.CRAFTING;
-   });
-   public static final Registry<RecipeSerializer<?>> RECIPE_SERIALIZER = registerSimple(RECIPE_SERIALIZER_REGISTRY, () -> {
-      return RecipeSerializer.SHAPELESS_RECIPE;
-   });
-   public static final Registry<Attribute> ATTRIBUTE = registerSimple(ATTRIBUTE_REGISTRY, () -> {
-      return Attributes.LUCK;
-   });
-   public static final Registry<PositionSourceType<?>> POSITION_SOURCE_TYPE = registerSimple(POSITION_SOURCE_TYPE_REGISTRY, () -> {
-      return PositionSourceType.BLOCK;
-   });
-   public static final Registry<StatType<?>> STAT_TYPE = registerSimple(STAT_TYPE_REGISTRY, () -> {
-      return Stats.ITEM_USED;
-   });
-   public static final DefaultedRegistry<VillagerType> VILLAGER_TYPE = registerDefaulted(VILLAGER_TYPE_REGISTRY, "plains", () -> {
-      return VillagerType.PLAINS;
-   });
-   public static final DefaultedRegistry<VillagerProfession> VILLAGER_PROFESSION = registerDefaulted(VILLAGER_PROFESSION_REGISTRY, "none", () -> {
-      return VillagerProfession.NONE;
-   });
-   public static final DefaultedRegistry<PoiType> POINT_OF_INTEREST_TYPE = registerDefaulted(POINT_OF_INTEREST_TYPE_REGISTRY, "unemployed", () -> {
-      return PoiType.UNEMPLOYED;
-   });
-   public static final DefaultedRegistry<MemoryModuleType<?>> MEMORY_MODULE_TYPE = registerDefaulted(MEMORY_MODULE_TYPE_REGISTRY, "dummy", () -> {
-      return MemoryModuleType.DUMMY;
-   });
-   public static final DefaultedRegistry<SensorType<?>> SENSOR_TYPE = registerDefaulted(SENSOR_TYPE_REGISTRY, "dummy", () -> {
-      return SensorType.DUMMY;
-   });
-   public static final Registry<Schedule> SCHEDULE = registerSimple(SCHEDULE_REGISTRY, () -> {
-      return Schedule.EMPTY;
-   });
-   public static final Registry<Activity> ACTIVITY = registerSimple(ACTIVITY_REGISTRY, () -> {
-      return Activity.IDLE;
-   });
-   public static final Registry<LootPoolEntryType> LOOT_POOL_ENTRY_TYPE = registerSimple(LOOT_ENTRY_REGISTRY, () -> {
-      return LootPoolEntries.EMPTY;
-   });
-   public static final Registry<LootItemFunctionType> LOOT_FUNCTION_TYPE = registerSimple(LOOT_FUNCTION_REGISTRY, () -> {
-      return LootItemFunctions.SET_COUNT;
-   });
-   public static final Registry<LootItemConditionType> LOOT_CONDITION_TYPE = registerSimple(LOOT_ITEM_REGISTRY, () -> {
-      return LootItemConditions.INVERTED;
-   });
-   public static final Registry<LootNumberProviderType> LOOT_NUMBER_PROVIDER_TYPE = registerSimple(LOOT_NUMBER_PROVIDER_REGISTRY, () -> {
-      return NumberProviders.CONSTANT;
-   });
-   public static final Registry<LootNbtProviderType> LOOT_NBT_PROVIDER_TYPE = registerSimple(LOOT_NBT_PROVIDER_REGISTRY, () -> {
-      return NbtProviders.CONTEXT;
-   });
-   public static final Registry<LootScoreProviderType> LOOT_SCORE_PROVIDER_TYPE = registerSimple(LOOT_SCORE_PROVIDER_REGISTRY, () -> {
-      return ScoreboardNameProviders.CONTEXT;
-   });
-   public static final ResourceKey<Registry<FloatProviderType<?>>> FLOAT_PROVIDER_TYPE_REGISTRY = createRegistryKey("float_provider_type");
-   public static final Registry<FloatProviderType<?>> FLOAT_PROVIDER_TYPES = registerSimple(FLOAT_PROVIDER_TYPE_REGISTRY, () -> {
-      return FloatProviderType.CONSTANT;
-   });
-   public static final ResourceKey<Registry<IntProviderType<?>>> INT_PROVIDER_TYPE_REGISTRY = createRegistryKey("int_provider_type");
-   public static final Registry<IntProviderType<?>> INT_PROVIDER_TYPES = registerSimple(INT_PROVIDER_TYPE_REGISTRY, () -> {
-      return IntProviderType.CONSTANT;
-   });
-   public static final ResourceKey<Registry<HeightProviderType<?>>> HEIGHT_PROVIDER_TYPE_REGISTRY = createRegistryKey("height_provider_type");
-   public static final Registry<HeightProviderType<?>> HEIGHT_PROVIDER_TYPES = registerSimple(HEIGHT_PROVIDER_TYPE_REGISTRY, () -> {
-      return HeightProviderType.CONSTANT;
-   });
-   public static final ResourceKey<Registry<NoiseGeneratorSettings>> NOISE_GENERATOR_SETTINGS_REGISTRY = createRegistryKey("worldgen/noise_settings");
-   public static final ResourceKey<Registry<ConfiguredSurfaceBuilder<?>>> CONFIGURED_SURFACE_BUILDER_REGISTRY = createRegistryKey("worldgen/configured_surface_builder");
-   public static final ResourceKey<Registry<ConfiguredWorldCarver<?>>> CONFIGURED_CARVER_REGISTRY = createRegistryKey("worldgen/configured_carver");
-   public static final ResourceKey<Registry<ConfiguredFeature<?, ?>>> CONFIGURED_FEATURE_REGISTRY = createRegistryKey("worldgen/configured_feature");
-   public static final ResourceKey<Registry<ConfiguredStructureFeature<?, ?>>> CONFIGURED_STRUCTURE_FEATURE_REGISTRY = createRegistryKey("worldgen/configured_structure_feature");
-   public static final ResourceKey<Registry<StructureProcessorList>> PROCESSOR_LIST_REGISTRY = createRegistryKey("worldgen/processor_list");
-   public static final ResourceKey<Registry<StructureTemplatePool>> TEMPLATE_POOL_REGISTRY = createRegistryKey("worldgen/template_pool");
-   public static final ResourceKey<Registry<Biome>> BIOME_REGISTRY = createRegistryKey("worldgen/biome");
-   public static final ResourceKey<Registry<SurfaceBuilder<?>>> SURFACE_BUILDER_REGISTRY = createRegistryKey("worldgen/surface_builder");
-   public static final Registry<SurfaceBuilder<?>> SURFACE_BUILDER = registerSimple(SURFACE_BUILDER_REGISTRY, () -> {
-      return SurfaceBuilder.DEFAULT;
-   });
-   public static final ResourceKey<Registry<WorldCarver<?>>> CARVER_REGISTRY = createRegistryKey("worldgen/carver");
-   public static final Registry<WorldCarver<?>> CARVER = registerSimple(CARVER_REGISTRY, () -> {
-      return WorldCarver.CAVE;
-   });
-   public static final ResourceKey<Registry<Feature<?>>> FEATURE_REGISTRY = createRegistryKey("worldgen/feature");
-   public static final Registry<Feature<?>> FEATURE = registerSimple(FEATURE_REGISTRY, () -> {
-      return Feature.ORE;
-   });
-   public static final ResourceKey<Registry<StructureFeature<?>>> STRUCTURE_FEATURE_REGISTRY = createRegistryKey("worldgen/structure_feature");
-   public static final Registry<StructureFeature<?>> STRUCTURE_FEATURE = registerSimple(STRUCTURE_FEATURE_REGISTRY, () -> {
-      return StructureFeature.MINESHAFT;
-   });
-   public static final ResourceKey<Registry<StructurePieceType>> STRUCTURE_PIECE_REGISTRY = createRegistryKey("worldgen/structure_piece");
-   public static final Registry<StructurePieceType> STRUCTURE_PIECE = registerSimple(STRUCTURE_PIECE_REGISTRY, () -> {
-      return StructurePieceType.MINE_SHAFT_ROOM;
-   });
-   public static final ResourceKey<Registry<FeatureDecorator<?>>> DECORATOR_REGISTRY = createRegistryKey("worldgen/decorator");
-   public static final Registry<FeatureDecorator<?>> DECORATOR = registerSimple(DECORATOR_REGISTRY, () -> {
-      return FeatureDecorator.NOPE;
-   });
-   public static final ResourceKey<Registry<BlockStateProviderType<?>>> BLOCK_STATE_PROVIDER_TYPE_REGISTRY = createRegistryKey("worldgen/block_state_provider_type");
-   public static final ResourceKey<Registry<BlockPlacerType<?>>> BLOCK_PLACER_TYPE_REGISTRY = createRegistryKey("worldgen/block_placer_type");
-   public static final ResourceKey<Registry<FoliagePlacerType<?>>> FOLIAGE_PLACER_TYPE_REGISTRY = createRegistryKey("worldgen/foliage_placer_type");
-   public static final ResourceKey<Registry<TrunkPlacerType<?>>> TRUNK_PLACER_TYPE_REGISTRY = createRegistryKey("worldgen/trunk_placer_type");
-   public static final ResourceKey<Registry<TreeDecoratorType<?>>> TREE_DECORATOR_TYPE_REGISTRY = createRegistryKey("worldgen/tree_decorator_type");
-   public static final ResourceKey<Registry<FeatureSizeType<?>>> FEATURE_SIZE_TYPE_REGISTRY = createRegistryKey("worldgen/feature_size_type");
-   public static final ResourceKey<Registry<Codec<? extends BiomeSource>>> BIOME_SOURCE_REGISTRY = createRegistryKey("worldgen/biome_source");
-   public static final ResourceKey<Registry<Codec<? extends ChunkGenerator>>> CHUNK_GENERATOR_REGISTRY = createRegistryKey("worldgen/chunk_generator");
-   public static final ResourceKey<Registry<StructureProcessorType<?>>> STRUCTURE_PROCESSOR_REGISTRY = createRegistryKey("worldgen/structure_processor");
-   public static final ResourceKey<Registry<StructurePoolElementType<?>>> STRUCTURE_POOL_ELEMENT_REGISTRY = createRegistryKey("worldgen/structure_pool_element");
-   public static final Registry<BlockStateProviderType<?>> BLOCKSTATE_PROVIDER_TYPES = registerSimple(BLOCK_STATE_PROVIDER_TYPE_REGISTRY, () -> {
-      return BlockStateProviderType.SIMPLE_STATE_PROVIDER;
-   });
-   public static final Registry<BlockPlacerType<?>> BLOCK_PLACER_TYPES = registerSimple(BLOCK_PLACER_TYPE_REGISTRY, () -> {
-      return BlockPlacerType.SIMPLE_BLOCK_PLACER;
-   });
-   public static final Registry<FoliagePlacerType<?>> FOLIAGE_PLACER_TYPES = registerSimple(FOLIAGE_PLACER_TYPE_REGISTRY, () -> {
-      return FoliagePlacerType.BLOB_FOLIAGE_PLACER;
-   });
-   public static final Registry<TrunkPlacerType<?>> TRUNK_PLACER_TYPES = registerSimple(TRUNK_PLACER_TYPE_REGISTRY, () -> {
-      return TrunkPlacerType.STRAIGHT_TRUNK_PLACER;
-   });
-   public static final Registry<TreeDecoratorType<?>> TREE_DECORATOR_TYPES = registerSimple(TREE_DECORATOR_TYPE_REGISTRY, () -> {
-      return TreeDecoratorType.LEAVE_VINE;
-   });
-   public static final Registry<FeatureSizeType<?>> FEATURE_SIZE_TYPES = registerSimple(FEATURE_SIZE_TYPE_REGISTRY, () -> {
-      return FeatureSizeType.TWO_LAYERS_FEATURE_SIZE;
-   });
-   public static final Registry<Codec<? extends BiomeSource>> BIOME_SOURCE = registerSimple(BIOME_SOURCE_REGISTRY, Lifecycle.stable(), () -> {
-      return BiomeSource.CODEC;
-   });
-   public static final Registry<Codec<? extends ChunkGenerator>> CHUNK_GENERATOR = registerSimple(CHUNK_GENERATOR_REGISTRY, Lifecycle.stable(), () -> {
-      return ChunkGenerator.CODEC;
-   });
-   public static final Registry<StructureProcessorType<?>> STRUCTURE_PROCESSOR = registerSimple(STRUCTURE_PROCESSOR_REGISTRY, () -> {
-      return StructureProcessorType.BLOCK_IGNORE;
-   });
-   public static final Registry<StructurePoolElementType<?>> STRUCTURE_POOL_ELEMENT = registerSimple(STRUCTURE_POOL_ELEMENT_REGISTRY, () -> {
-      return StructurePoolElementType.EMPTY;
-   });
-   private final ResourceKey<? extends Registry<T>> key;
-   private final Lifecycle lifecycle;
+public abstract class Registry<T> implements Codec<T>, Keyable, IdMap<T>
+{
+    protected static final Logger LOGGER = LogManager.getLogger();
+    private static final Map < ResourceLocation, Supplier<? >> LOADERS = Maps.newLinkedHashMap();
+    public static final ResourceLocation ROOT_REGISTRY_NAME = new ResourceLocation("root");
+    protected static final WritableRegistry < WritableRegistry<? >> WRITABLE_REGISTRY = new MappedRegistry<>(createRegistryKey("root"), Lifecycle.experimental());
+    public static final Registry <? extends Registry<? >> REGISTRY = WRITABLE_REGISTRY;
+    public static final ResourceKey<Registry<SoundEvent>> SOUND_EVENT_REGISTRY = createRegistryKey("sound_event");
+    public static final ResourceKey<Registry<Fluid>> FLUID_REGISTRY = createRegistryKey("fluid");
+    public static final ResourceKey<Registry<MobEffect>> MOB_EFFECT_REGISTRY = createRegistryKey("mob_effect");
+    public static final ResourceKey<Registry<Block>> BLOCK_REGISTRY = createRegistryKey("block");
+    public static final ResourceKey<Registry<Enchantment>> ENCHANTMENT_REGISTRY = createRegistryKey("enchantment");
+    public static final ResourceKey < Registry < EntityType<? >>> ENTITY_TYPE_REGISTRY = createRegistryKey("entity_type");
+    public static final ResourceKey<Registry<Item>> ITEM_REGISTRY = createRegistryKey("item");
+    public static final ResourceKey<Registry<Potion>> POTION_REGISTRY = createRegistryKey("potion");
+    public static final ResourceKey < Registry < ParticleType<? >>> PARTICLE_TYPE_REGISTRY = createRegistryKey("particle_type");
+    public static final ResourceKey < Registry < BlockEntityType<? >>> BLOCK_ENTITY_TYPE_REGISTRY = createRegistryKey("block_entity_type");
+    public static final ResourceKey<Registry<Motive>> MOTIVE_REGISTRY = createRegistryKey("motive");
+    public static final ResourceKey<Registry<ResourceLocation>> CUSTOM_STAT_REGISTRY = createRegistryKey("custom_stat");
+    public static final ResourceKey<Registry<ChunkStatus>> CHUNK_STATUS_REGISTRY = createRegistryKey("chunk_status");
+    public static final ResourceKey < Registry < RuleTestType<? >>> RULE_TEST_REGISTRY = createRegistryKey("rule_test");
+    public static final ResourceKey < Registry < PosRuleTestType<? >>> POS_RULE_TEST_REGISTRY = createRegistryKey("pos_rule_test");
+    public static final ResourceKey < Registry < MenuType<? >>> MENU_REGISTRY = createRegistryKey("menu");
+    public static final ResourceKey < Registry < RecipeType<? >>> RECIPE_TYPE_REGISTRY = createRegistryKey("recipe_type");
+    public static final ResourceKey < Registry < RecipeSerializer<? >>> RECIPE_SERIALIZER_REGISTRY = createRegistryKey("recipe_serializer");
+    public static final ResourceKey<Registry<Attribute>> ATTRIBUTE_REGISTRY = createRegistryKey("attribute");
+    public static final ResourceKey<Registry<GameEvent>> GAME_EVENT_REGISTRY = createRegistryKey("game_event");
+    public static final ResourceKey < Registry < PositionSourceType<? >>> POSITION_SOURCE_TYPE_REGISTRY = createRegistryKey("position_source_type");
+    public static final ResourceKey < Registry < StatType<? >>> STAT_TYPE_REGISTRY = createRegistryKey("stat_type");
+    public static final ResourceKey<Registry<VillagerType>> VILLAGER_TYPE_REGISTRY = createRegistryKey("villager_type");
+    public static final ResourceKey<Registry<VillagerProfession>> VILLAGER_PROFESSION_REGISTRY = createRegistryKey("villager_profession");
+    public static final ResourceKey<Registry<PoiType>> POINT_OF_INTEREST_TYPE_REGISTRY = createRegistryKey("point_of_interest_type");
+    public static final ResourceKey < Registry < MemoryModuleType<? >>> MEMORY_MODULE_TYPE_REGISTRY = createRegistryKey("memory_module_type");
+    public static final ResourceKey < Registry < SensorType<? >>> SENSOR_TYPE_REGISTRY = createRegistryKey("sensor_type");
+    public static final ResourceKey<Registry<Schedule>> SCHEDULE_REGISTRY = createRegistryKey("schedule");
+    public static final ResourceKey<Registry<Activity>> ACTIVITY_REGISTRY = createRegistryKey("activity");
+    public static final ResourceKey<Registry<LootPoolEntryType>> LOOT_ENTRY_REGISTRY = createRegistryKey("loot_pool_entry_type");
+    public static final ResourceKey<Registry<LootItemFunctionType>> LOOT_FUNCTION_REGISTRY = createRegistryKey("loot_function_type");
+    public static final ResourceKey<Registry<LootItemConditionType>> LOOT_ITEM_REGISTRY = createRegistryKey("loot_condition_type");
+    public static final ResourceKey<Registry<LootNumberProviderType>> LOOT_NUMBER_PROVIDER_REGISTRY = createRegistryKey("loot_number_provider_type");
+    public static final ResourceKey<Registry<LootNbtProviderType>> LOOT_NBT_PROVIDER_REGISTRY = createRegistryKey("loot_nbt_provider_type");
+    public static final ResourceKey<Registry<LootScoreProviderType>> LOOT_SCORE_PROVIDER_REGISTRY = createRegistryKey("loot_score_provider_type");
+    public static final ResourceKey<Registry<DimensionType>> DIMENSION_TYPE_REGISTRY = createRegistryKey("dimension_type");
+    public static final ResourceKey<Registry<Level>> DIMENSION_REGISTRY = createRegistryKey("dimension");
+    public static final ResourceKey<Registry<LevelStem>> LEVEL_STEM_REGISTRY = createRegistryKey("dimension");
+    public static final DefaultedRegistry<GameEvent> GAME_EVENT = registerDefaulted(GAME_EVENT_REGISTRY, "step", () ->
+    {
+        return GameEvent.STEP;
+    });
+    public static final Registry<SoundEvent> SOUND_EVENT = registerSimple(SOUND_EVENT_REGISTRY, () ->
+    {
+        return SoundEvents.ITEM_PICKUP;
+    });
+    public static final DefaultedRegistry<Fluid> FLUID = registerDefaulted(FLUID_REGISTRY, "empty", () ->
+    {
+        return Fluids.EMPTY;
+    });
+    public static final Registry<MobEffect> MOB_EFFECT = registerSimple(MOB_EFFECT_REGISTRY, () ->
+    {
+        return MobEffects.LUCK;
+    });
+    public static final DefaultedRegistry<Block> BLOCK = registerDefaulted(BLOCK_REGISTRY, "air", () ->
+    {
+        return Blocks.AIR;
+    });
+    public static final Registry<Enchantment> ENCHANTMENT = registerSimple(ENCHANTMENT_REGISTRY, () ->
+    {
+        return Enchantments.BLOCK_FORTUNE;
+    });
+    public static final DefaultedRegistry < EntityType<? >> ENTITY_TYPE = registerDefaulted(ENTITY_TYPE_REGISTRY, "pig", () ->
+    {
+        return EntityType.PIG;
+    });
+    public static final DefaultedRegistry<Item> ITEM = registerDefaulted(ITEM_REGISTRY, "air", () ->
+    {
+        return Items.AIR;
+    });
+    public static final DefaultedRegistry<Potion> POTION = registerDefaulted(POTION_REGISTRY, "empty", () ->
+    {
+        return Potions.EMPTY;
+    });
+    public static final Registry < ParticleType<? >> PARTICLE_TYPE = registerSimple(PARTICLE_TYPE_REGISTRY, () ->
+    {
+        return ParticleTypes.BLOCK;
+    });
+    public static final Registry < BlockEntityType<? >> BLOCK_ENTITY_TYPE = registerSimple(BLOCK_ENTITY_TYPE_REGISTRY, () ->
+    {
+        return BlockEntityType.FURNACE;
+    });
+    public static final DefaultedRegistry<Motive> MOTIVE = registerDefaulted(MOTIVE_REGISTRY, "kebab", () ->
+    {
+        return Motive.KEBAB;
+    });
+    public static final Registry<ResourceLocation> CUSTOM_STAT = registerSimple(CUSTOM_STAT_REGISTRY, () ->
+    {
+        return Stats.JUMP;
+    });
+    public static final DefaultedRegistry<ChunkStatus> CHUNK_STATUS = registerDefaulted(CHUNK_STATUS_REGISTRY, "empty", () ->
+    {
+        return ChunkStatus.EMPTY;
+    });
+    public static final Registry < RuleTestType<? >> RULE_TEST = registerSimple(RULE_TEST_REGISTRY, () ->
+    {
+        return RuleTestType.ALWAYS_TRUE_TEST;
+    });
+    public static final Registry < PosRuleTestType<? >> POS_RULE_TEST = registerSimple(POS_RULE_TEST_REGISTRY, () ->
+    {
+        return PosRuleTestType.ALWAYS_TRUE_TEST;
+    });
+    public static final Registry < MenuType<? >> MENU = registerSimple(MENU_REGISTRY, () ->
+    {
+        return MenuType.ANVIL;
+    });
+    public static final Registry < RecipeType<? >> RECIPE_TYPE = registerSimple(RECIPE_TYPE_REGISTRY, () ->
+    {
+        return RecipeType.CRAFTING;
+    });
+    public static final Registry < RecipeSerializer<? >> RECIPE_SERIALIZER = registerSimple(RECIPE_SERIALIZER_REGISTRY, () ->
+    {
+        return RecipeSerializer.SHAPELESS_RECIPE;
+    });
+    public static final Registry<Attribute> ATTRIBUTE = registerSimple(ATTRIBUTE_REGISTRY, () ->
+    {
+        return Attributes.LUCK;
+    });
+    public static final Registry < PositionSourceType<? >> POSITION_SOURCE_TYPE = registerSimple(POSITION_SOURCE_TYPE_REGISTRY, () ->
+    {
+        return PositionSourceType.BLOCK;
+    });
+    public static final Registry < StatType<? >> STAT_TYPE = registerSimple(STAT_TYPE_REGISTRY, () ->
+    {
+        return Stats.ITEM_USED;
+    });
+    public static final DefaultedRegistry<VillagerType> VILLAGER_TYPE = registerDefaulted(VILLAGER_TYPE_REGISTRY, "plains", () ->
+    {
+        return VillagerType.PLAINS;
+    });
+    public static final DefaultedRegistry<VillagerProfession> VILLAGER_PROFESSION = registerDefaulted(VILLAGER_PROFESSION_REGISTRY, "none", () ->
+    {
+        return VillagerProfession.NONE;
+    });
+    public static final DefaultedRegistry<PoiType> POINT_OF_INTEREST_TYPE = registerDefaulted(POINT_OF_INTEREST_TYPE_REGISTRY, "unemployed", () ->
+    {
+        return PoiType.UNEMPLOYED;
+    });
+    public static final DefaultedRegistry < MemoryModuleType<? >> MEMORY_MODULE_TYPE = registerDefaulted(MEMORY_MODULE_TYPE_REGISTRY, "dummy", () ->
+    {
+        return MemoryModuleType.DUMMY;
+    });
+    public static final DefaultedRegistry < SensorType<? >> SENSOR_TYPE = registerDefaulted(SENSOR_TYPE_REGISTRY, "dummy", () ->
+    {
+        return SensorType.DUMMY;
+    });
+    public static final Registry<Schedule> SCHEDULE = registerSimple(SCHEDULE_REGISTRY, () ->
+    {
+        return Schedule.EMPTY;
+    });
+    public static final Registry<Activity> ACTIVITY = registerSimple(ACTIVITY_REGISTRY, () ->
+    {
+        return Activity.IDLE;
+    });
+    public static final Registry<LootPoolEntryType> LOOT_POOL_ENTRY_TYPE = registerSimple(LOOT_ENTRY_REGISTRY, () ->
+    {
+        return LootPoolEntries.EMPTY;
+    });
+    public static final Registry<LootItemFunctionType> LOOT_FUNCTION_TYPE = registerSimple(LOOT_FUNCTION_REGISTRY, () ->
+    {
+        return LootItemFunctions.SET_COUNT;
+    });
+    public static final Registry<LootItemConditionType> LOOT_CONDITION_TYPE = registerSimple(LOOT_ITEM_REGISTRY, () ->
+    {
+        return LootItemConditions.INVERTED;
+    });
+    public static final Registry<LootNumberProviderType> LOOT_NUMBER_PROVIDER_TYPE = registerSimple(LOOT_NUMBER_PROVIDER_REGISTRY, () ->
+    {
+        return NumberProviders.CONSTANT;
+    });
+    public static final Registry<LootNbtProviderType> LOOT_NBT_PROVIDER_TYPE = registerSimple(LOOT_NBT_PROVIDER_REGISTRY, () ->
+    {
+        return NbtProviders.CONTEXT;
+    });
+    public static final Registry<LootScoreProviderType> LOOT_SCORE_PROVIDER_TYPE = registerSimple(LOOT_SCORE_PROVIDER_REGISTRY, () ->
+    {
+        return ScoreboardNameProviders.CONTEXT;
+    });
+    public static final ResourceKey < Registry < FloatProviderType<? >>> FLOAT_PROVIDER_TYPE_REGISTRY = createRegistryKey("float_provider_type");
+    public static final Registry < FloatProviderType<? >> FLOAT_PROVIDER_TYPES = registerSimple(FLOAT_PROVIDER_TYPE_REGISTRY, () ->
+    {
+        return FloatProviderType.CONSTANT;
+    });
+    public static final ResourceKey < Registry < IntProviderType<? >>> INT_PROVIDER_TYPE_REGISTRY = createRegistryKey("int_provider_type");
+    public static final Registry < IntProviderType<? >> INT_PROVIDER_TYPES = registerSimple(INT_PROVIDER_TYPE_REGISTRY, () ->
+    {
+        return IntProviderType.CONSTANT;
+    });
+    public static final ResourceKey < Registry < HeightProviderType<? >>> HEIGHT_PROVIDER_TYPE_REGISTRY = createRegistryKey("height_provider_type");
+    public static final Registry < HeightProviderType<? >> HEIGHT_PROVIDER_TYPES = registerSimple(HEIGHT_PROVIDER_TYPE_REGISTRY, () ->
+    {
+        return HeightProviderType.CONSTANT;
+    });
+    public static final ResourceKey<Registry<NoiseGeneratorSettings>> NOISE_GENERATOR_SETTINGS_REGISTRY = createRegistryKey("worldgen/noise_settings");
+    public static final ResourceKey < Registry < ConfiguredSurfaceBuilder<? >>> CONFIGURED_SURFACE_BUILDER_REGISTRY = createRegistryKey("worldgen/configured_surface_builder");
+    public static final ResourceKey < Registry < ConfiguredWorldCarver<? >>> CONFIGURED_CARVER_REGISTRY = createRegistryKey("worldgen/configured_carver");
+    public static final ResourceKey < Registry < ConfiguredFeature <? , ? >>> CONFIGURED_FEATURE_REGISTRY = createRegistryKey("worldgen/configured_feature");
+    public static final ResourceKey < Registry < ConfiguredStructureFeature <? , ? >>> CONFIGURED_STRUCTURE_FEATURE_REGISTRY = createRegistryKey("worldgen/configured_structure_feature");
+    public static final ResourceKey<Registry<StructureProcessorList>> PROCESSOR_LIST_REGISTRY = createRegistryKey("worldgen/processor_list");
+    public static final ResourceKey<Registry<StructureTemplatePool>> TEMPLATE_POOL_REGISTRY = createRegistryKey("worldgen/template_pool");
+    public static final ResourceKey<Registry<Biome>> BIOME_REGISTRY = createRegistryKey("worldgen/biome");
+    public static final ResourceKey < Registry < SurfaceBuilder<? >>> SURFACE_BUILDER_REGISTRY = createRegistryKey("worldgen/surface_builder");
+    public static final Registry < SurfaceBuilder<? >> SURFACE_BUILDER = registerSimple(SURFACE_BUILDER_REGISTRY, () ->
+    {
+        return SurfaceBuilder.DEFAULT;
+    });
+    public static final ResourceKey < Registry < WorldCarver<? >>> CARVER_REGISTRY = createRegistryKey("worldgen/carver");
+    public static final Registry < WorldCarver<? >> CARVER = registerSimple(CARVER_REGISTRY, () ->
+    {
+        return WorldCarver.CAVE;
+    });
+    public static final ResourceKey < Registry < Feature<? >>> FEATURE_REGISTRY = createRegistryKey("worldgen/feature");
+    public static final Registry < Feature<? >> FEATURE = registerSimple(FEATURE_REGISTRY, () ->
+    {
+        return Feature.ORE;
+    });
+    public static final ResourceKey < Registry < StructureFeature<? >>> STRUCTURE_FEATURE_REGISTRY = createRegistryKey("worldgen/structure_feature");
+    public static final Registry < StructureFeature<? >> STRUCTURE_FEATURE = registerSimple(STRUCTURE_FEATURE_REGISTRY, () ->
+    {
+        return StructureFeature.MINESHAFT;
+    });
+    public static final ResourceKey<Registry<StructurePieceType>> STRUCTURE_PIECE_REGISTRY = createRegistryKey("worldgen/structure_piece");
+    public static final Registry<StructurePieceType> STRUCTURE_PIECE = registerSimple(STRUCTURE_PIECE_REGISTRY, () ->
+    {
+        return StructurePieceType.MINE_SHAFT_ROOM;
+    });
+    public static final ResourceKey < Registry < FeatureDecorator<? >>> DECORATOR_REGISTRY = createRegistryKey("worldgen/decorator");
+    public static final Registry < FeatureDecorator<? >> DECORATOR = registerSimple(DECORATOR_REGISTRY, () ->
+    {
+        return FeatureDecorator.NOPE;
+    });
+    public static final ResourceKey < Registry < BlockStateProviderType<? >>> BLOCK_STATE_PROVIDER_TYPE_REGISTRY = createRegistryKey("worldgen/block_state_provider_type");
+    public static final ResourceKey < Registry < BlockPlacerType<? >>> BLOCK_PLACER_TYPE_REGISTRY = createRegistryKey("worldgen/block_placer_type");
+    public static final ResourceKey < Registry < FoliagePlacerType<? >>> FOLIAGE_PLACER_TYPE_REGISTRY = createRegistryKey("worldgen/foliage_placer_type");
+    public static final ResourceKey < Registry < TrunkPlacerType<? >>> TRUNK_PLACER_TYPE_REGISTRY = createRegistryKey("worldgen/trunk_placer_type");
+    public static final ResourceKey < Registry < TreeDecoratorType<? >>> TREE_DECORATOR_TYPE_REGISTRY = createRegistryKey("worldgen/tree_decorator_type");
+    public static final ResourceKey < Registry < FeatureSizeType<? >>> FEATURE_SIZE_TYPE_REGISTRY = createRegistryKey("worldgen/feature_size_type");
+    public static final ResourceKey < Registry < Codec <? extends BiomeSource >>> BIOME_SOURCE_REGISTRY = createRegistryKey("worldgen/biome_source");
+    public static final ResourceKey < Registry < Codec <? extends ChunkGenerator >>> CHUNK_GENERATOR_REGISTRY = createRegistryKey("worldgen/chunk_generator");
+    public static final ResourceKey < Registry < StructureProcessorType<? >>> STRUCTURE_PROCESSOR_REGISTRY = createRegistryKey("worldgen/structure_processor");
+    public static final ResourceKey < Registry < StructurePoolElementType<? >>> STRUCTURE_POOL_ELEMENT_REGISTRY = createRegistryKey("worldgen/structure_pool_element");
+    public static final Registry < BlockStateProviderType<? >> BLOCKSTATE_PROVIDER_TYPES = registerSimple(BLOCK_STATE_PROVIDER_TYPE_REGISTRY, () ->
+    {
+        return BlockStateProviderType.SIMPLE_STATE_PROVIDER;
+    });
+    public static final Registry < BlockPlacerType<? >> BLOCK_PLACER_TYPES = registerSimple(BLOCK_PLACER_TYPE_REGISTRY, () ->
+    {
+        return BlockPlacerType.SIMPLE_BLOCK_PLACER;
+    });
+    public static final Registry < FoliagePlacerType<? >> FOLIAGE_PLACER_TYPES = registerSimple(FOLIAGE_PLACER_TYPE_REGISTRY, () ->
+    {
+        return FoliagePlacerType.BLOB_FOLIAGE_PLACER;
+    });
+    public static final Registry < TrunkPlacerType<? >> TRUNK_PLACER_TYPES = registerSimple(TRUNK_PLACER_TYPE_REGISTRY, () ->
+    {
+        return TrunkPlacerType.STRAIGHT_TRUNK_PLACER;
+    });
+    public static final Registry < TreeDecoratorType<? >> TREE_DECORATOR_TYPES = registerSimple(TREE_DECORATOR_TYPE_REGISTRY, () ->
+    {
+        return TreeDecoratorType.LEAVE_VINE;
+    });
+    public static final Registry < FeatureSizeType<? >> FEATURE_SIZE_TYPES = registerSimple(FEATURE_SIZE_TYPE_REGISTRY, () ->
+    {
+        return FeatureSizeType.TWO_LAYERS_FEATURE_SIZE;
+    });
+    public static final Registry < Codec <? extends BiomeSource >> BIOME_SOURCE = registerSimple(BIOME_SOURCE_REGISTRY, Lifecycle.stable(), () ->
+    {
+        return BiomeSource.CODEC;
+    });
+    public static final Registry < Codec <? extends ChunkGenerator >> CHUNK_GENERATOR = registerSimple(CHUNK_GENERATOR_REGISTRY, Lifecycle.stable(), () ->
+    {
+        return ChunkGenerator.CODEC;
+    });
+    public static final Registry < StructureProcessorType<? >> STRUCTURE_PROCESSOR = registerSimple(STRUCTURE_PROCESSOR_REGISTRY, () ->
+    {
+        return StructureProcessorType.BLOCK_IGNORE;
+    });
+    public static final Registry < StructurePoolElementType<? >> STRUCTURE_POOL_ELEMENT = registerSimple(STRUCTURE_POOL_ELEMENT_REGISTRY, () ->
+    {
+        return StructurePoolElementType.EMPTY;
+    });
+    private final ResourceKey <? extends Registry<T >> key;
+    private final Lifecycle lifecycle;
 
-   private static <T> ResourceKey<Registry<T>> createRegistryKey(String p_122979_) {
-      return ResourceKey.createRegistryKey(new ResourceLocation(p_122979_));
-   }
+    private static <T> ResourceKey<Registry<T>> createRegistryKey(String pName)
+    {
+        return ResourceKey.createRegistryKey(new ResourceLocation(pName));
+    }
 
-   public static <T extends WritableRegistry<?>> void checkRegistry(WritableRegistry<T> p_122970_) {
-      p_122970_.forEach((p_175461_) -> {
-         if (p_175461_.keySet().isEmpty()) {
-            Util.logAndPauseIfInIde("Registry '" + p_122970_.getKey(p_175461_) + "' was empty after loading");
-         }
+    public static < T extends WritableRegistry<? >> void checkRegistry(WritableRegistry<T> pRegistry)
+    {
+        pRegistry.forEach((p_175461_) ->
+        {
+            if (p_175461_.keySet().isEmpty())
+            {
+                Util.logAndPauseIfInIde("Registry '" + pRegistry.getKey(p_175461_) + "' was empty after loading");
+            }
 
-         if (p_175461_ instanceof DefaultedRegistry) {
-            ResourceLocation resourcelocation = ((DefaultedRegistry)p_175461_).getDefaultKey();
-            Validate.notNull(p_175461_.get(resourcelocation), "Missing default of DefaultedMappedRegistry: " + resourcelocation);
-         }
+            if (p_175461_ instanceof DefaultedRegistry)
+            {
+                ResourceLocation resourcelocation = ((DefaultedRegistry)p_175461_).getDefaultKey();
+                Validate.notNull(p_175461_.get(resourcelocation), "Missing default of DefaultedMappedRegistry: " + resourcelocation);
+            }
+        });
+    }
 
-      });
-   }
+    private static <T> Registry<T> registerSimple(ResourceKey <? extends Registry<T >> pRegistryKey, Supplier<T> pLifecycle)
+    {
+        return registerSimple(pRegistryKey, Lifecycle.experimental(), pLifecycle);
+    }
 
-   private static <T> Registry<T> registerSimple(ResourceKey<? extends Registry<T>> p_123000_, Supplier<T> p_123001_) {
-      return registerSimple(p_123000_, Lifecycle.experimental(), p_123001_);
-   }
+    private static <T> DefaultedRegistry<T> registerDefaulted(ResourceKey <? extends Registry<T >> pRegistryKey, String pDefaultedValueKey, Supplier<T> pLifecycle)
+    {
+        return registerDefaulted(pRegistryKey, pDefaultedValueKey, Lifecycle.experimental(), pLifecycle);
+    }
 
-   private static <T> DefaultedRegistry<T> registerDefaulted(ResourceKey<? extends Registry<T>> p_122996_, String p_122997_, Supplier<T> p_122998_) {
-      return registerDefaulted(p_122996_, p_122997_, Lifecycle.experimental(), p_122998_);
-   }
+    private static <T> Registry<T> registerSimple(ResourceKey <? extends Registry<T >> pRegistryKey, Lifecycle pLifecycle, Supplier<T> pSupplier)
+    {
+        return internalRegister(pRegistryKey, new MappedRegistry<>(pRegistryKey, pLifecycle), pSupplier, pLifecycle);
+    }
 
-   private static <T> Registry<T> registerSimple(ResourceKey<? extends Registry<T>> p_122982_, Lifecycle p_122983_, Supplier<T> p_122984_) {
-      return internalRegister(p_122982_, new MappedRegistry<>(p_122982_, p_122983_), p_122984_, p_122983_);
-   }
+    private static <T> DefaultedRegistry<T> registerDefaulted(ResourceKey <? extends Registry<T >> pRegistryKey, String pDefaultedValueKey, Lifecycle pLifecycle, Supplier<T> pSupplier)
+    {
+        return internalRegister(pRegistryKey, new DefaultedRegistry<>(pDefaultedValueKey, pRegistryKey, pLifecycle), pSupplier, pLifecycle);
+    }
 
-   private static <T> DefaultedRegistry<T> registerDefaulted(ResourceKey<? extends Registry<T>> p_122991_, String p_122992_, Lifecycle p_122993_, Supplier<T> p_122994_) {
-      return internalRegister(p_122991_, new DefaultedRegistry<>(p_122992_, p_122991_, p_122993_), p_122994_, p_122993_);
-   }
+    private static <T, R extends WritableRegistry<T>> R internalRegister(ResourceKey <? extends Registry<T >> pRegistryKey, R pInstance, Supplier<T> pObjectSupplier, Lifecycle pLifecycle)
+    {
+        ResourceLocation resourcelocation = pRegistryKey.location();
+        LOADERS.put(resourcelocation, pObjectSupplier);
+        WritableRegistry<R> writableregistry = (WritableRegistry<R>)WRITABLE_REGISTRY;
+        return (R)writableregistry.register((ResourceKey)pRegistryKey, pInstance, pLifecycle);
+    }
 
-   private static <T, R extends WritableRegistry<T>> R internalRegister(ResourceKey<? extends Registry<T>> p_122986_, R p_122987_, Supplier<T> p_122988_, Lifecycle p_122989_) {
-      ResourceLocation resourcelocation = p_122986_.location();
-      LOADERS.put(resourcelocation, p_122988_);
-      WritableRegistry<R> writableregistry = (WritableRegistry<R>)WRITABLE_REGISTRY;
-      return (R)writableregistry.register((ResourceKey)p_122986_, p_122987_, p_122989_);
-   }
+    protected Registry(ResourceKey <? extends Registry<T >> p_122920_, Lifecycle p_122921_)
+    {
+        Bootstrap.checkBootstrapCalled(() ->
+        {
+            return "registry " + p_122920_;
+        });
+        this.key = p_122920_;
+        this.lifecycle = p_122921_;
+    }
 
-   protected Registry(ResourceKey<? extends Registry<T>> p_122920_, Lifecycle p_122921_) {
-      Bootstrap.checkBootstrapCalled(() -> {
-         return "registry " + p_122920_;
-      });
-      this.key = p_122920_;
-      this.lifecycle = p_122921_;
-   }
+    public ResourceKey <? extends Registry<T >> key()
+    {
+        return this.key;
+    }
 
-   public ResourceKey<? extends Registry<T>> key() {
-      return this.key;
-   }
+    public String toString()
+    {
+        return "Registry[" + this.key + " (" + this.lifecycle + ")]";
+    }
 
-   public String toString() {
-      return "Registry[" + this.key + " (" + this.lifecycle + ")]";
-   }
+    public <U> DataResult<Pair<T, U>> decode(DynamicOps<U> p_123016_, U p_123017_)
+    {
+        return p_123016_.compressMaps() ? p_123016_.getNumberValue(p_123017_).flatMap((p_175463_) ->
+        {
+            T t = this.byId(p_175463_.intValue());
+            return t == null ? DataResult.error("Unknown registry id: " + p_175463_) : DataResult.success(t, this.lifecycle(t));
+        }).map((p_175455_) ->
+        {
+            return Pair.of((T)p_175455_, p_123016_.empty());
+        }) : ResourceLocation.CODEC.decode(p_123016_, p_123017_).flatMap((p_175452_) ->
+        {
+            T t = this.get(p_175452_.getFirst());
+            return t == null ? DataResult.error("Unknown registry key: " + p_175452_.getFirst()) : DataResult.success(Pair.of(t, p_175452_.getSecond()), this.lifecycle(t));
+        });
+    }
 
-   public <U> DataResult<Pair<T, U>> decode(DynamicOps<U> p_123016_, U p_123017_) {
-      return p_123016_.compressMaps() ? p_123016_.getNumberValue(p_123017_).flatMap((p_175463_) -> {
-         T t = this.byId(p_175463_.intValue());
-         return t == null ? DataResult.error("Unknown registry id: " + p_175463_) : DataResult.success(t, this.lifecycle(t));
-      }).map((p_175455_) -> {
-         return Pair.of((T)p_175455_, p_123016_.empty());
-      }) : ResourceLocation.CODEC.decode(p_123016_, p_123017_).flatMap((p_175452_) -> {
-         T t = this.get(p_175452_.getFirst());
-         return t == null ? DataResult.error("Unknown registry key: " + p_175452_.getFirst()) : DataResult.success(Pair.of(t, p_175452_.getSecond()), this.lifecycle(t));
-      });
-   }
+    public <U> DataResult<U> encode(T p_123020_, DynamicOps<U> p_123021_, U p_123022_)
+    {
+        ResourceLocation resourcelocation = this.getKey(p_123020_);
 
-   public <U> DataResult<U> encode(T p_123020_, DynamicOps<U> p_123021_, U p_123022_) {
-      ResourceLocation resourcelocation = this.getKey(p_123020_);
-      if (resourcelocation == null) {
-         return DataResult.error("Unknown registry element " + p_123020_);
-      } else {
-         return p_123021_.compressMaps() ? p_123021_.mergeToPrimitive(p_123022_, p_123021_.createInt(this.getId(p_123020_))).setLifecycle(this.lifecycle) : p_123021_.mergeToPrimitive(p_123022_, p_123021_.createString(resourcelocation.toString())).setLifecycle(this.lifecycle);
-      }
-   }
+        if (resourcelocation == null)
+        {
+            return DataResult.error("Unknown registry element " + p_123020_);
+        }
+        else
+        {
+            return p_123021_.compressMaps() ? p_123021_.mergeToPrimitive(p_123022_, p_123021_.createInt(this.getId(p_123020_))).setLifecycle(this.lifecycle) : p_123021_.mergeToPrimitive(p_123022_, p_123021_.createString(resourcelocation.toString())).setLifecycle(this.lifecycle);
+        }
+    }
 
-   public <U> Stream<U> keys(DynamicOps<U> p_123030_) {
-      return this.keySet().stream().map((p_175458_) -> {
-         return p_123030_.createString(p_175458_.toString());
-      });
-   }
+    public <U> Stream<U> keys(DynamicOps<U> p_123030_)
+    {
+        return this.keySet().stream().map((p_175458_) ->
+        {
+            return p_123030_.createString(p_175458_.toString());
+        });
+    }
 
-   @Nullable
-   public abstract ResourceLocation getKey(T p_123006_);
+    @Nullable
+    public abstract ResourceLocation getKey(T pValue);
 
-   public abstract Optional<ResourceKey<T>> getResourceKey(T p_123008_);
+    public abstract Optional<ResourceKey<T>> getResourceKey(T pValue);
 
-   public abstract int getId(@Nullable T p_122977_);
+    public abstract int getId(@Nullable T pValue);
 
-   @Nullable
-   public abstract T get(@Nullable ResourceKey<T> p_122980_);
+    @Nullable
+    public abstract T get(@Nullable ResourceKey<T> pKey);
 
-   @Nullable
-   public abstract T get(@Nullable ResourceLocation p_123002_);
+    @Nullable
+    public abstract T get(@Nullable ResourceLocation pKey);
 
-   protected abstract Lifecycle lifecycle(T p_123012_);
+    protected abstract Lifecycle lifecycle(T pObject);
 
-   public abstract Lifecycle elementsLifecycle();
+    public abstract Lifecycle elementsLifecycle();
 
-   public Optional<T> getOptional(@Nullable ResourceLocation p_123007_) {
-      return Optional.ofNullable(this.get(p_123007_));
-   }
+    public Optional<T> getOptional(@Nullable ResourceLocation pRegistryKey)
+    {
+        return Optional.ofNullable(this.get(pRegistryKey));
+    }
 
-   public Optional<T> getOptional(@Nullable ResourceKey<T> p_123010_) {
-      return Optional.ofNullable(this.get(p_123010_));
-   }
+    public Optional<T> getOptional(@Nullable ResourceKey<T> pRegistryKey)
+    {
+        return Optional.ofNullable(this.get(pRegistryKey));
+    }
 
-   public T getOrThrow(ResourceKey<T> p_123014_) {
-      T t = this.get(p_123014_);
-      if (t == null) {
-         throw new IllegalStateException("Missing: " + p_123014_);
-      } else {
-         return t;
-      }
-   }
+    public T getOrThrow(ResourceKey<T> pKey)
+    {
+        T t = this.get(pKey);
 
-   public abstract Set<ResourceLocation> keySet();
+        if (t == null)
+        {
+            throw new IllegalStateException("Missing: " + pKey);
+        }
+        else
+        {
+            return t;
+        }
+    }
 
-   public abstract Set<Entry<ResourceKey<T>, T>> entrySet();
+    public abstract Set<ResourceLocation> keySet();
 
-   @Nullable
-   public abstract T getRandom(Random p_175464_);
+    public abstract Set<Entry<ResourceKey<T>, T>> entrySet();
 
-   public Stream<T> stream() {
-      return StreamSupport.stream(this.spliterator(), false);
-   }
+    @Nullable
+    public abstract T getRandom(Random pRandom);
 
-   public abstract boolean containsKey(ResourceLocation p_123011_);
+    public Stream<T> stream()
+    {
+        return StreamSupport.stream(this.spliterator(), false);
+    }
 
-   public abstract boolean containsKey(ResourceKey<T> p_175475_);
+    public abstract boolean containsKey(ResourceLocation pName);
 
-   public static <T> T register(Registry<? super T> p_122962_, String p_122963_, T p_122964_) {
-      return register(p_122962_, new ResourceLocation(p_122963_), p_122964_);
-   }
+    public abstract boolean containsKey(ResourceKey<T> pName);
 
-   public static <V, T extends V> T register(Registry<V> p_122966_, ResourceLocation p_122967_, T p_122968_) {
-      return (T)((WritableRegistry)p_122966_).register(ResourceKey.create(p_122966_.key, p_122967_), p_122968_, Lifecycle.stable());
-   }
+    public static <T> T register(Registry <? super T > pRegistry, String pIdentifier, T pValue)
+    {
+        return register(pRegistry, new ResourceLocation(pIdentifier), pValue);
+    }
 
-   public static <V, T extends V> T registerMapping(Registry<V> p_122957_, int p_122958_, String p_122959_, T p_122960_) {
-      return (T)((WritableRegistry)p_122957_).registerMapping(p_122958_, ResourceKey.create(p_122957_.key, new ResourceLocation(p_122959_)), p_122960_, Lifecycle.stable());
-   }
+    public static <V, T extends V> T register(Registry<V> pRegistry, ResourceLocation pIdentifier, T pValue)
+    {
+        return (T)((WritableRegistry)pRegistry).register(ResourceKey.create(pRegistry.key, pIdentifier), pValue, Lifecycle.stable());
+    }
 
-   static {
-      BuiltinRegistries.bootstrap();
-      LOADERS.forEach((p_175466_, p_175467_) -> {
-         if (p_175467_.get() == null) {
-            LOGGER.error("Unable to bootstrap registry '{}'", (Object)p_175466_);
-         }
+    public static <V, T extends V> T registerMapping(Registry<V> pRegistry, int pId, String pIdentifier, T pValue)
+    {
+        return (T)((WritableRegistry)pRegistry).registerMapping(pId, ResourceKey.create(pRegistry.key, new ResourceLocation(pIdentifier)), pValue, Lifecycle.stable());
+    }
 
-      });
-      checkRegistry(WRITABLE_REGISTRY);
-   }
+    static
+    {
+        BuiltinRegistries.bootstrap();
+        LOADERS.forEach((p_175466_, p_175467_) ->
+        {
+            if (p_175467_.get() == null)
+            {
+                LOGGER.error("Unable to bootstrap registry '{}'", (Object)p_175466_);
+            }
+        });
+        checkRegistry(WRITABLE_REGISTRY);
+    }
 }

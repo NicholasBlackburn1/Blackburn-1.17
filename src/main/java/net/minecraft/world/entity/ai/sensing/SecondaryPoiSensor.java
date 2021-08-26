@@ -13,40 +13,52 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.level.Level;
 
-public class SecondaryPoiSensor extends Sensor<Villager> {
-   private static final int SCAN_RATE = 40;
+public class SecondaryPoiSensor extends Sensor<Villager>
+{
+    private static final int SCAN_RATE = 40;
 
-   public SecondaryPoiSensor() {
-      super(40);
-   }
+    public SecondaryPoiSensor()
+    {
+        super(40);
+    }
 
-   protected void doTick(ServerLevel p_26754_, Villager p_26755_) {
-      ResourceKey<Level> resourcekey = p_26754_.dimension();
-      BlockPos blockpos = p_26755_.blockPosition();
-      List<GlobalPos> list = Lists.newArrayList();
-      int i = 4;
+    protected void doTick(ServerLevel pLevel, Villager pEntity)
+    {
+        ResourceKey<Level> resourcekey = pLevel.dimension();
+        BlockPos blockpos = pEntity.blockPosition();
+        List<GlobalPos> list = Lists.newArrayList();
+        int i = 4;
 
-      for(int j = -4; j <= 4; ++j) {
-         for(int k = -2; k <= 2; ++k) {
-            for(int l = -4; l <= 4; ++l) {
-               BlockPos blockpos1 = blockpos.offset(j, k, l);
-               if (p_26755_.getVillagerData().getProfession().getSecondaryPoi().contains(p_26754_.getBlockState(blockpos1).getBlock())) {
-                  list.add(GlobalPos.of(resourcekey, blockpos1));
-               }
+        for (int j = -4; j <= 4; ++j)
+        {
+            for (int k = -2; k <= 2; ++k)
+            {
+                for (int l = -4; l <= 4; ++l)
+                {
+                    BlockPos blockpos1 = blockpos.offset(j, k, l);
+
+                    if (pEntity.getVillagerData().getProfession().getSecondaryPoi().contains(pLevel.getBlockState(blockpos1).getBlock()))
+                    {
+                        list.add(GlobalPos.of(resourcekey, blockpos1));
+                    }
+                }
             }
-         }
-      }
+        }
 
-      Brain<?> brain = p_26755_.getBrain();
-      if (!list.isEmpty()) {
-         brain.setMemory(MemoryModuleType.SECONDARY_JOB_SITE, list);
-      } else {
-         brain.eraseMemory(MemoryModuleType.SECONDARY_JOB_SITE);
-      }
+        Brain<?> brain = pEntity.getBrain();
 
-   }
+        if (!list.isEmpty())
+        {
+            brain.setMemory(MemoryModuleType.SECONDARY_JOB_SITE, list);
+        }
+        else
+        {
+            brain.eraseMemory(MemoryModuleType.SECONDARY_JOB_SITE);
+        }
+    }
 
-   public Set<MemoryModuleType<?>> requires() {
-      return ImmutableSet.of(MemoryModuleType.SECONDARY_JOB_SITE);
-   }
+    public Set < MemoryModuleType<? >> requires()
+    {
+        return ImmutableSet.of(MemoryModuleType.SECONDARY_JOB_SITE);
+    }
 }

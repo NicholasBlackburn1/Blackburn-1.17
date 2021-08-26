@@ -6,11 +6,12 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 
-public interface NbtProvider {
-   @Nullable
-   Tag get(LootContext p_165622_);
+public interface NbtProvider
+{
+    @Nullable
+    Tag get(LootContext p_165622_);
 
-   Set<LootContextParam<?>> getReferencedContextParams();
+    Set < LootContextParam<? >> getReferencedContextParams();
 
-   LootNbtProviderType getType();
+    LootNbtProviderType getType();
 }

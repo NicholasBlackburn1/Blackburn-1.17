@@ -5,50 +5,59 @@ import com.mojang.realmsclient.dto.WorldTemplate;
 import com.mojang.realmsclient.exception.RetryCallException;
 import com.mojang.realmsclient.gui.screens.RealmsConfigureWorldScreen;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
-public class SwitchMinigameTask extends LongRunningTask {
-   private final long worldId;
-   private final WorldTemplate worldTemplate;
-   private final RealmsConfigureWorldScreen lastScreen;
+public class SwitchMinigameTask extends LongRunningTask
+{
+    private final long worldId;
+    private final WorldTemplate worldTemplate;
+    private final RealmsConfigureWorldScreen lastScreen;
 
-   public SwitchMinigameTask(long p_90451_, WorldTemplate p_90452_, RealmsConfigureWorldScreen p_90453_) {
-      this.worldId = p_90451_;
-      this.worldTemplate = p_90452_;
-      this.lastScreen = p_90453_;
-   }
+    public SwitchMinigameTask(long p_90451_, WorldTemplate p_90452_, RealmsConfigureWorldScreen p_90453_)
+    {
+        this.worldId = p_90451_;
+        this.worldTemplate = p_90452_;
+        this.lastScreen = p_90453_;
+    }
 
-   public void run() {
-      RealmsClient realmsclient = RealmsClient.create();
-      this.setTitle(new TranslatableComponent("mco.minigame.world.starting.screen.title"));
+    public void run()
+    {
+        RealmsClient realmsclient = RealmsClient.create();
+        this.setTitle(new TranslatableComponent("mco.minigame.world.starting.screen.title"));
 
-      for(int i = 0; i < 25; ++i) {
-         try {
-            if (this.aborted()) {
-               return;
+        for (int i = 0; i < 25; ++i)
+        {
+            try
+            {
+                if (this.aborted())
+                {
+                    return;
+                }
+
+                if (realmsclient.putIntoMinigameMode(this.worldId, this.worldTemplate.id))
+                {
+                    setScreen(this.lastScreen);
+                    break;
+                }
             }
+            catch (RetryCallException retrycallexception)
+            {
+                if (this.aborted())
+                {
+                    return;
+                }
 
-            if (realmsclient.putIntoMinigameMode(this.worldId, this.worldTemplate.id)) {
-               setScreen(this.lastScreen);
-               break;
+                pause((long)retrycallexception.delaySeconds);
             }
-         } catch (RetryCallException retrycallexception) {
-            if (this.aborted()) {
-               return;
+            catch (Exception exception)
+            {
+                if (this.aborted())
+                {
+                    return;
+                }
+
+                LOGGER.error("Couldn't start mini game!");
+                this.error(exception.toString());
             }
-
-            pause((long)retrycallexception.delaySeconds);
-         } catch (Exception exception) {
-            if (this.aborted()) {
-               return;
-            }
-
-            LOGGER.error("Couldn't start mini game!");
-            this.error(exception.toString());
-         }
-      }
-
-   }
+        }
+    }
 }

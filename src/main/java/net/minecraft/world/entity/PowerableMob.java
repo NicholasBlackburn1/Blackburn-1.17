@@ -1,5 +1,6 @@
 package net.minecraft.world.entity;
 
-public interface PowerableMob {
-   boolean isPowered();
+public interface PowerableMob
+{
+    boolean isPowered();
 }

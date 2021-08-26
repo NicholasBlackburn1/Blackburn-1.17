@@ -6,15 +6,16 @@ import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 
-public interface Resource extends Closeable {
-   ResourceLocation getLocation();
+public interface Resource extends Closeable
+{
+    ResourceLocation getLocation();
 
-   InputStream getInputStream();
+    InputStream getInputStream();
 
-   boolean hasMetadata();
+    boolean hasMetadata();
 
-   @Nullable
-   <T> T getMetadata(MetadataSectionSerializer<T> p_10725_);
+    @Nullable
+    <T> T getMetadata(MetadataSectionSerializer<T> pSerializer);
 
-   String getSourceName();
+    String getSourceName();
 }

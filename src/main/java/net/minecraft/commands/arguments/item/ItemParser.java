@@ -18,105 +18,131 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagCollection;
 import net.minecraft.world.item.Item;
 
-public class ItemParser {
-   public static final SimpleCommandExceptionType ERROR_NO_TAGS_ALLOWED = new SimpleCommandExceptionType(new TranslatableComponent("argument.item.tag.disallowed"));
-   public static final DynamicCommandExceptionType ERROR_UNKNOWN_ITEM = new DynamicCommandExceptionType((p_121013_) -> {
-      return new TranslatableComponent("argument.item.id.invalid", p_121013_);
-   });
-   private static final char SYNTAX_START_NBT = '{';
-   private static final char SYNTAX_TAG = '#';
-   private static final BiFunction<SuggestionsBuilder, TagCollection<Item>, CompletableFuture<Suggestions>> SUGGEST_NOTHING = (p_121028_, p_121029_) -> {
-      return p_121028_.buildFuture();
-   };
-   private final StringReader reader;
-   private final boolean forTesting;
-   private Item item;
-   @Nullable
-   private CompoundTag nbt;
-   private ResourceLocation tag = new ResourceLocation("");
-   private int tagCursor;
-   private BiFunction<SuggestionsBuilder, TagCollection<Item>, CompletableFuture<Suggestions>> suggestions = SUGGEST_NOTHING;
+public class ItemParser
+{
+    public static final SimpleCommandExceptionType ERROR_NO_TAGS_ALLOWED = new SimpleCommandExceptionType(new TranslatableComponent("argument.item.tag.disallowed"));
+    public static final DynamicCommandExceptionType ERROR_UNKNOWN_ITEM = new DynamicCommandExceptionType((p_121013_) ->
+    {
+        return new TranslatableComponent("argument.item.id.invalid", p_121013_);
+    });
+    private static final char SYNTAX_START_NBT = '{';
+    private static final char SYNTAX_TAG = '#';
+    private static final BiFunction<SuggestionsBuilder, TagCollection<Item>, CompletableFuture<Suggestions>> SUGGEST_NOTHING = (p_121028_, p_121029_) ->
+    {
+        return p_121028_.buildFuture();
+    };
+    private final StringReader reader;
+    private final boolean forTesting;
+    private Item item;
+    @Nullable
+    private CompoundTag nbt;
+    private ResourceLocation tag = new ResourceLocation("");
+    private int tagCursor;
+    private BiFunction<SuggestionsBuilder, TagCollection<Item>, CompletableFuture<Suggestions>> suggestions = SUGGEST_NOTHING;
 
-   public ItemParser(StringReader p_121004_, boolean p_121005_) {
-      this.reader = p_121004_;
-      this.forTesting = p_121005_;
-   }
+    public ItemParser(StringReader p_121004_, boolean p_121005_)
+    {
+        this.reader = p_121004_;
+        this.forTesting = p_121005_;
+    }
 
-   public Item getItem() {
-      return this.item;
-   }
+    public Item getItem()
+    {
+        return this.item;
+    }
 
-   @Nullable
-   public CompoundTag getNbt() {
-      return this.nbt;
-   }
+    @Nullable
+    public CompoundTag getNbt()
+    {
+        return this.nbt;
+    }
 
-   public ResourceLocation getTag() {
-      return this.tag;
-   }
+    public ResourceLocation getTag()
+    {
+        return this.tag;
+    }
 
-   public void readItem() throws CommandSyntaxException {
-      int i = this.reader.getCursor();
-      ResourceLocation resourcelocation = ResourceLocation.read(this.reader);
-      this.item = Registry.ITEM.getOptional(resourcelocation).orElseThrow(() -> {
-         this.reader.setCursor(i);
-         return ERROR_UNKNOWN_ITEM.createWithContext(this.reader, resourcelocation.toString());
-      });
-   }
+    public void readItem() throws CommandSyntaxException
+    {
+        int i = this.reader.getCursor();
+        ResourceLocation resourcelocation = ResourceLocation.read(this.reader);
+        this.item = Registry.ITEM.getOptional(resourcelocation).orElseThrow(() ->
+        {
+            this.reader.setCursor(i);
+            return ERROR_UNKNOWN_ITEM.createWithContext(this.reader, resourcelocation.toString());
+        });
+    }
 
-   public void readTag() throws CommandSyntaxException {
-      if (!this.forTesting) {
-         throw ERROR_NO_TAGS_ALLOWED.create();
-      } else {
-         this.suggestions = this::suggestTag;
-         this.reader.expect('#');
-         this.tagCursor = this.reader.getCursor();
-         this.tag = ResourceLocation.read(this.reader);
-      }
-   }
+    public void readTag() throws CommandSyntaxException
+    {
+        if (!this.forTesting)
+        {
+            throw ERROR_NO_TAGS_ALLOWED.create();
+        }
+        else
+        {
+            this.suggestions = this::suggestTag;
+            this.reader.expect('#');
+            this.tagCursor = this.reader.getCursor();
+            this.tag = ResourceLocation.read(this.reader);
+        }
+    }
 
-   public void readNbt() throws CommandSyntaxException {
-      this.nbt = (new TagParser(this.reader)).readStruct();
-   }
+    public void readNbt() throws CommandSyntaxException
+    {
+        this.nbt = (new TagParser(this.reader)).readStruct();
+    }
 
-   public ItemParser parse() throws CommandSyntaxException {
-      this.suggestions = this::suggestItemIdOrTag;
-      if (this.reader.canRead() && this.reader.peek() == '#') {
-         this.readTag();
-      } else {
-         this.readItem();
-         this.suggestions = this::suggestOpenNbt;
-      }
+    public ItemParser parse() throws CommandSyntaxException
+    {
+        this.suggestions = this::suggestItemIdOrTag;
 
-      if (this.reader.canRead() && this.reader.peek() == '{') {
-         this.suggestions = SUGGEST_NOTHING;
-         this.readNbt();
-      }
+        if (this.reader.canRead() && this.reader.peek() == '#')
+        {
+            this.readTag();
+        }
+        else
+        {
+            this.readItem();
+            this.suggestions = this::suggestOpenNbt;
+        }
 
-      return this;
-   }
+        if (this.reader.canRead() && this.reader.peek() == '{')
+        {
+            this.suggestions = SUGGEST_NOTHING;
+            this.readNbt();
+        }
 
-   private CompletableFuture<Suggestions> suggestOpenNbt(SuggestionsBuilder p_121016_, TagCollection<Item> p_121017_) {
-      if (p_121016_.getRemaining().isEmpty()) {
-         p_121016_.suggest(String.valueOf('{'));
-      }
+        return this;
+    }
 
-      return p_121016_.buildFuture();
-   }
+    private CompletableFuture<Suggestions> suggestOpenNbt(SuggestionsBuilder pBuilder, TagCollection<Item> p_121017_)
+    {
+        if (pBuilder.getRemaining().isEmpty())
+        {
+            pBuilder.suggest(String.valueOf('{'));
+        }
 
-   private CompletableFuture<Suggestions> suggestTag(SuggestionsBuilder p_121020_, TagCollection<Item> p_121021_) {
-      return SharedSuggestionProvider.suggestResource(p_121021_.getAvailableTags(), p_121020_.createOffset(this.tagCursor));
-   }
+        return pBuilder.buildFuture();
+    }
 
-   private CompletableFuture<Suggestions> suggestItemIdOrTag(SuggestionsBuilder p_121024_, TagCollection<Item> p_121025_) {
-      if (this.forTesting) {
-         SharedSuggestionProvider.suggestResource(p_121025_.getAvailableTags(), p_121024_, String.valueOf('#'));
-      }
+    private CompletableFuture<Suggestions> suggestTag(SuggestionsBuilder pBuilder, TagCollection<Item> p_121021_)
+    {
+        return SharedSuggestionProvider.suggestResource(p_121021_.getAvailableTags(), pBuilder.createOffset(this.tagCursor));
+    }
 
-      return SharedSuggestionProvider.suggestResource(Registry.ITEM.keySet(), p_121024_);
-   }
+    private CompletableFuture<Suggestions> suggestItemIdOrTag(SuggestionsBuilder pBuilder, TagCollection<Item> p_121025_)
+    {
+        if (this.forTesting)
+        {
+            SharedSuggestionProvider.suggestResource(p_121025_.getAvailableTags(), pBuilder, String.valueOf('#'));
+        }
 
-   public CompletableFuture<Suggestions> fillSuggestions(SuggestionsBuilder p_121010_, TagCollection<Item> p_121011_) {
-      return this.suggestions.apply(p_121010_.createOffset(this.reader.getCursor()), p_121011_);
-   }
+        return SharedSuggestionProvider.suggestResource(Registry.ITEM.keySet(), pBuilder);
+    }
+
+    public CompletableFuture<Suggestions> fillSuggestions(SuggestionsBuilder pBuilder, TagCollection<Item> p_121011_)
+    {
+        return this.suggestions.apply(pBuilder.createOffset(this.reader.getCursor()), p_121011_);
+    }
 }

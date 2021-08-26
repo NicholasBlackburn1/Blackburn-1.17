@@ -10,20 +10,25 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class BlastFurnaceBlockEntity extends AbstractFurnaceBlockEntity {
-   public BlastFurnaceBlockEntity(BlockPos p_155225_, BlockState p_155226_) {
-      super(BlockEntityType.BLAST_FURNACE, p_155225_, p_155226_, RecipeType.BLASTING);
-   }
+public class BlastFurnaceBlockEntity extends AbstractFurnaceBlockEntity
+{
+    public BlastFurnaceBlockEntity(BlockPos p_155225_, BlockState p_155226_)
+    {
+        super(BlockEntityType.BLAST_FURNACE, p_155225_, p_155226_, RecipeType.BLASTING);
+    }
 
-   protected Component getDefaultName() {
-      return new TranslatableComponent("container.blast_furnace");
-   }
+    protected Component getDefaultName()
+    {
+        return new TranslatableComponent("container.blast_furnace");
+    }
 
-   protected int getBurnDuration(ItemStack p_58852_) {
-      return super.getBurnDuration(p_58852_) / 2;
-   }
+    protected int getBurnDuration(ItemStack pFuel)
+    {
+        return super.getBurnDuration(pFuel) / 2;
+    }
 
-   protected AbstractContainerMenu createMenu(int p_58849_, Inventory p_58850_) {
-      return new BlastFurnaceMenu(p_58849_, p_58850_, this, this.dataAccess);
-   }
+    protected AbstractContainerMenu createMenu(int pId, Inventory pPlayer)
+    {
+        return new BlastFurnaceMenu(pId, pPlayer, this, this.dataAccess);
+    }
 }

@@ -11,21 +11,26 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.phys.AABB;
 
-public class NearestLivingEntitySensor extends Sensor<LivingEntity> {
-   protected void doTick(ServerLevel p_26710_, LivingEntity p_26711_) {
-      AABB aabb = p_26711_.getBoundingBox().inflate(16.0D, 16.0D, 16.0D);
-      List<LivingEntity> list = p_26710_.getEntitiesOfClass(LivingEntity.class, aabb, (p_26717_) -> {
-         return p_26717_ != p_26711_ && p_26717_.isAlive();
-      });
-      list.sort(Comparator.comparingDouble(p_26711_::distanceToSqr));
-      Brain<?> brain = p_26711_.getBrain();
-      brain.setMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES, list);
-      brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, list.stream().filter((p_26714_) -> {
-         return isEntityTargetable(p_26711_, p_26714_);
-      }).collect(Collectors.toList()));
-   }
+public class NearestLivingEntitySensor extends Sensor<LivingEntity>
+{
+    protected void doTick(ServerLevel pLevel, LivingEntity pEntity)
+    {
+        AABB aabb = pEntity.getBoundingBox().inflate(16.0D, 16.0D, 16.0D);
+        List<LivingEntity> list = pLevel.getEntitiesOfClass(LivingEntity.class, aabb, (p_26717_) ->
+        {
+            return p_26717_ != pEntity && p_26717_.isAlive();
+        });
+        list.sort(Comparator.comparingDouble(pEntity::distanceToSqr));
+        Brain<?> brain = pEntity.getBrain();
+        brain.setMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES, list);
+        brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, list.stream().filter((p_26714_) ->
+        {
+            return isEntityTargetable(pEntity, p_26714_);
+        }).collect(Collectors.toList()));
+    }
 
-   public Set<MemoryModuleType<?>> requires() {
-      return ImmutableSet.of(MemoryModuleType.NEAREST_LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES);
-   }
+    public Set < MemoryModuleType<? >> requires()
+    {
+        return ImmutableSet.of(MemoryModuleType.NEAREST_LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES);
+    }
 }

@@ -59,645 +59,886 @@ import net.minecraft.server.Bootstrap;
 import net.minecraft.util.Mth;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.optifine.SmartExecutorService;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class Util {
-   private static final AtomicInteger WORKER_COUNT = new AtomicInteger(1);
-   private static final ExecutorService BOOTSTRAP_EXECUTOR = makeExecutor("Bootstrap");
-   private static final ExecutorService BACKGROUND_EXECUTOR = makeExecutor("Main");
-   private static final ExecutorService IO_POOL = makeIoExecutor();
-   public static LongSupplier timeSource = System::nanoTime;
-   public static final UUID NIL_UUID = new UUID(0L, 0L);
-   public static final FileSystemProvider ZIP_FILE_SYSTEM_PROVIDER = FileSystemProvider.installedProviders().stream().filter((p_143794_) -> {
-      return p_143794_.getScheme().equalsIgnoreCase("jar");
-   }).findFirst().orElseThrow(() -> {
-      return new IllegalStateException("No jar file system provider found");
-   });
-   static final Logger LOGGER = LogManager.getLogger();
+public class Util
+{
+    private static final AtomicInteger WORKER_COUNT = new AtomicInteger(1);
+    private static final ExecutorService BOOTSTRAP_EXECUTOR = makeExecutor("Bootstrap");
+    private static final ExecutorService BACKGROUND_EXECUTOR = makeExecutor("Main");
+    private static final ExecutorService IO_POOL = makeIoExecutor();
+    public static LongSupplier timeSource = System::nanoTime;
+    public static final UUID NIL_UUID = new UUID(0L, 0L);
+    public static final FileSystemProvider ZIP_FILE_SYSTEM_PROVIDER = FileSystemProvider.installedProviders().stream().filter((p_300575_0_) ->
+    {
+        return p_300575_0_.getScheme().equalsIgnoreCase("jar");
+    }).findFirst().orElseThrow(() ->
+    {
+        return new IllegalStateException("No jar file system provider found");
+    });
+    static final Logger LOGGER = LogManager.getLogger();
+    private static Exception exceptionOpenUrl;
+    private static final ExecutorService CAPE_EXECUTOR = makeExecutor("Cape");
+    private static LongSupplier INNER_CLASS_SHIFT = () ->
+    {
+        return 0L;
+    };
 
-   public static <K, V> Collector<Entry<? extends K, ? extends V>, ?, Map<K, V>> toMap() {
-      return Collectors.toMap(Entry::getKey, Entry::getValue);
-   }
+    public static <K, V> Collector < Entry <? extends K, ? extends V > , ? , Map<K, V >> toMap()
+    {
+        return Collectors.toMap(Entry::getKey, Entry::getValue);
+    }
 
-   public static <T extends Comparable<T>> String getPropertyName(Property<T> p_137454_, Object p_137455_) {
-      return p_137454_.getName((T)(p_137455_));
-   }
+    public static <T extends Comparable<T>> String getPropertyName(Property<T> pProperty, Object pValue)
+    {
+        return pProperty.getName((T)(pValue));
+    }
 
-   public static String makeDescriptionId(String p_137493_, @Nullable ResourceLocation p_137494_) {
-      return p_137494_ == null ? p_137493_ + ".unregistered_sadface" : p_137493_ + "." + p_137494_.getNamespace() + "." + p_137494_.getPath().replace('/', '.');
-   }
+    public static String makeDescriptionId(String pType, @Nullable ResourceLocation pId)
+    {
+        return pId == null ? pType + ".unregistered_sadface" : pType + "." + pId.getNamespace() + "." + pId.getPath().replace('/', '.');
+    }
 
-   public static long getMillis() {
-      return getNanos() / 1000000L;
-   }
+    public static long getMillis()
+    {
+        return getNanos() / 1000000L;
+    }
 
-   public static long getNanos() {
-      return timeSource.getAsLong();
-   }
+    public static long getNanos()
+    {
+        return timeSource.getAsLong();
+    }
 
-   public static long getEpochMillis() {
-      return Instant.now().toEpochMilli();
-   }
+    public static long getEpochMillis()
+    {
+        return Instant.now().toEpochMilli();
+    }
 
-   private static ExecutorService makeExecutor(String p_137478_) {
-      int i = Mth.clamp(Runtime.getRuntime().availableProcessors() - 1, 1, 7);
-      ExecutorService executorservice;
-      if (i <= 0) {
-         executorservice = MoreExecutors.newDirectExecutorService();
-      } else {
-         executorservice = new ForkJoinPool(i, (p_143792_) -> {
-            ForkJoinWorkerThread forkjoinworkerthread = new ForkJoinWorkerThread(p_143792_) {
-               protected void onTermination(Throwable p_137590_) {
-                  if (p_137590_ != null) {
-                     Util.LOGGER.warn("{} died", this.getName(), p_137590_);
-                  } else {
-                     Util.LOGGER.debug("{} shutdown", (Object)this.getName());
-                  }
+    private static ExecutorService makeExecutor(String pServiceName)
+    {
+        int i = Mth.clamp(Runtime.getRuntime().availableProcessors() - 1, 1, 7);
+        ExecutorService executorservice;
 
-                  super.onTermination(p_137590_);
-               }
-            };
-            forkjoinworkerthread.setName("Worker-" + p_137478_ + "-" + WORKER_COUNT.getAndIncrement());
-            return forkjoinworkerthread;
-         }, Util::onThreadException, true);
-      }
+        if (i <= 0)
+        {
+            executorservice = MoreExecutors.newDirectExecutorService();
+        }
+        else
+        {
+            executorservice = new ForkJoinPool(i, (p_300572_1_) ->
+            {
+                ForkJoinWorkerThread forkjoinworkerthread = new ForkJoinWorkerThread(p_300572_1_)
+                {
+                    protected void onTermination(Throwable p_137590_)
+                    {
+                        if (p_137590_ != null)
+                        {
+                            Util.LOGGER.warn("{} died", this.getName(), p_137590_);
+                        }
+                        else
+                        {
+                            Util.LOGGER.debug("{} shutdown", (Object)this.getName());
+                        }
 
-      return executorservice;
-   }
+                        super.onTermination(p_137590_);
+                    }
+                };
+                forkjoinworkerthread.setName("Worker-" + pServiceName + "-" + WORKER_COUNT.getAndIncrement());
 
-   public static Executor bootstrapExecutor() {
-      return BOOTSTRAP_EXECUTOR;
-   }
+                if (pServiceName.equals("Bootstrap"))
+                {
+                    forkjoinworkerthread.setPriority(1);
+                }
 
-   public static Executor backgroundExecutor() {
-      return BACKGROUND_EXECUTOR;
-   }
+                return forkjoinworkerthread;
+            }, Util::onThreadException, true);
+        }
 
-   public static Executor ioPool() {
-      return IO_POOL;
-   }
+        if (pServiceName.equals("Bootstrap"))
+        {
+            executorservice = createSmartExecutor(executorservice);
+        }
 
-   public static void shutdownExecutors() {
-      shutdownExecutor(BACKGROUND_EXECUTOR);
-      shutdownExecutor(IO_POOL);
-   }
+        return executorservice;
+    }
 
-   private static void shutdownExecutor(ExecutorService p_137532_) {
-      p_137532_.shutdown();
+    private static ExecutorService createSmartExecutor(ExecutorService executor)
+    {
+        int i = Runtime.getRuntime().availableProcessors();
 
-      boolean flag;
-      try {
-         flag = p_137532_.awaitTermination(3L, TimeUnit.SECONDS);
-      } catch (InterruptedException interruptedexception) {
-         flag = false;
-      }
+        if (i <= 1)
+        {
+            return executor;
+        }
+        else
+        {
+            ExecutorService executorservice = new SmartExecutorService(executor);
+            return executorservice;
+        }
+    }
 
-      if (!flag) {
-         p_137532_.shutdownNow();
-      }
+    public static Executor bootstrapExecutor()
+    {
+        return BOOTSTRAP_EXECUTOR;
+    }
 
-   }
+    public static Executor backgroundExecutor()
+    {
+        return BACKGROUND_EXECUTOR;
+    }
 
-   private static ExecutorService makeIoExecutor() {
-      return Executors.newCachedThreadPool((p_143784_) -> {
-         Thread thread = new Thread(p_143784_);
-         thread.setName("IO-Worker-" + WORKER_COUNT.getAndIncrement());
-         thread.setUncaughtExceptionHandler(Util::onThreadException);
-         return thread;
-      });
-   }
+    public static Executor ioPool()
+    {
+        return IO_POOL;
+    }
 
-   public static <T> CompletableFuture<T> failedFuture(Throwable p_137499_) {
-      CompletableFuture<T> completablefuture = new CompletableFuture<>();
-      completablefuture.completeExceptionally(p_137499_);
-      return completablefuture;
-   }
+    public static void shutdownExecutors()
+    {
+        shutdownExecutor(BACKGROUND_EXECUTOR);
+        shutdownExecutor(IO_POOL);
+        shutdownExecutor(CAPE_EXECUTOR);
+    }
 
-   public static void throwAsRuntime(Throwable p_137560_) {
-      throw p_137560_ instanceof RuntimeException ? (RuntimeException)p_137560_ : new RuntimeException(p_137560_);
-   }
+    private static void shutdownExecutor(ExecutorService pService)
+    {
+        pService.shutdown();
+        boolean flag;
 
-   private static void onThreadException(Thread p_137496_, Throwable p_137497_) {
-      pauseInIde(p_137497_);
-      if (p_137497_ instanceof CompletionException) {
-         p_137497_ = p_137497_.getCause();
-      }
+        try
+        {
+            flag = pService.awaitTermination(3L, TimeUnit.SECONDS);
+        }
+        catch (InterruptedException interruptedexception)
+        {
+            flag = false;
+        }
 
-      if (p_137497_ instanceof ReportedException) {
-         Bootstrap.realStdoutPrintln(((ReportedException)p_137497_).getReport().getFriendlyReport());
-         System.exit(-1);
-      }
+        if (!flag)
+        {
+            pService.shutdownNow();
+        }
+    }
 
-      LOGGER.error(String.format("Caught exception in thread %s", p_137496_), p_137497_);
-   }
+    private static ExecutorService makeIoExecutor()
+    {
+        return Executors.newCachedThreadPool((p_300570_0_) ->
+        {
+            Thread thread = new Thread(p_300570_0_);
+            thread.setName("IO-Worker-" + WORKER_COUNT.getAndIncrement());
+            thread.setUncaughtExceptionHandler(Util::onThreadException);
+            return thread;
+        });
+    }
 
-   @Nullable
-   public static Type<?> fetchChoiceType(TypeReference p_137457_, String p_137458_) {
-      return !SharedConstants.CHECK_DATA_FIXER_SCHEMA ? null : doFetchChoiceType(p_137457_, p_137458_);
-   }
+    public static <T> CompletableFuture<T> failedFuture(Throwable pThrowable)
+    {
+        CompletableFuture<T> completablefuture = new CompletableFuture<>();
+        completablefuture.completeExceptionally(pThrowable);
+        return completablefuture;
+    }
 
-   @Nullable
-   private static Type<?> doFetchChoiceType(TypeReference p_137552_, String p_137553_) {
-      Type<?> type = null;
+    public static void throwAsRuntime(Throwable pThrowable)
+    {
+        throw pThrowable instanceof RuntimeException ? (RuntimeException)pThrowable : new RuntimeException(pThrowable);
+    }
 
-      try {
-         type = DataFixers.getDataFixer().getSchema(DataFixUtils.makeKey(SharedConstants.getCurrentVersion().getWorldVersion())).getChoiceType(p_137552_, p_137553_);
-      } catch (IllegalArgumentException illegalargumentexception) {
-         LOGGER.error("No data fixer registered for {}", (Object)p_137553_);
-         if (SharedConstants.IS_RUNNING_IN_IDE) {
-            throw illegalargumentexception;
-         }
-      }
+    private static void onThreadException(Thread pThread, Throwable pThrowable)
+    {
+        pauseInIde(pThrowable);
 
-      return type;
-   }
+        if (pThrowable instanceof CompletionException)
+        {
+            pThrowable = pThrowable.getCause();
+        }
 
-   public static Runnable wrapThreadWithTaskName(String p_143788_, Runnable p_143789_) {
-      return SharedConstants.IS_RUNNING_IN_IDE ? () -> {
-         Thread thread = Thread.currentThread();
-         String s = thread.getName();
-         thread.setName(p_143788_);
+        if (pThrowable instanceof ReportedException)
+        {
+            Bootstrap.realStdoutPrintln(((ReportedException)pThrowable).getReport().getFriendlyReport());
+            System.exit(-1);
+        }
 
-         try {
-            p_143789_.run();
-         } finally {
-            thread.setName(s);
-         }
+        LOGGER.error(String.format("Caught exception in thread %s", pThread), pThrowable);
+    }
 
-      } : p_143789_;
-   }
+    @Nullable
+    public static Type<?> fetchChoiceType(TypeReference pType, String pChoiceName)
+    {
+        return !SharedConstants.CHECK_DATA_FIXER_SCHEMA ? null : doFetchChoiceType(pType, pChoiceName);
+    }
 
-   public static Util.OS getPlatform() {
-      String s = System.getProperty("os.name").toLowerCase(Locale.ROOT);
-      if (s.contains("win")) {
-         return Util.OS.WINDOWS;
-      } else if (s.contains("mac")) {
-         return Util.OS.OSX;
-      } else if (s.contains("solaris")) {
-         return Util.OS.SOLARIS;
-      } else if (s.contains("sunos")) {
-         return Util.OS.SOLARIS;
-      } else if (s.contains("linux")) {
-         return Util.OS.LINUX;
-      } else {
-         return s.contains("unix") ? Util.OS.LINUX : Util.OS.UNKNOWN;
-      }
-   }
+    @Nullable
+    private static Type<?> doFetchChoiceType(TypeReference pType, String pChoiceName)
+    {
+        Type<?> type = null;
 
-   public static Stream<String> getVmArguments() {
-      RuntimeMXBean runtimemxbean = ManagementFactory.getRuntimeMXBean();
-      return runtimemxbean.getInputArguments().stream().filter((p_143839_) -> {
-         return p_143839_.startsWith("-X");
-      });
-   }
+        try
+        {
+            type = DataFixers.getDataFixer().getSchema(DataFixUtils.makeKey(SharedConstants.getCurrentVersion().getWorldVersion())).getChoiceType(pType, pChoiceName);
+        }
+        catch (IllegalArgumentException illegalargumentexception)
+        {
+            LOGGER.debug("No data fixer registered for {}", (Object)pChoiceName);
 
-   public static <T> T lastOf(List<T> p_137510_) {
-      return p_137510_.get(p_137510_.size() - 1);
-   }
-
-   public static <T> T findNextInIterable(Iterable<T> p_137467_, @Nullable T p_137468_) {
-      Iterator<T> iterator = p_137467_.iterator();
-      T t = iterator.next();
-      if (p_137468_ != null) {
-         T t1 = t;
-
-         while(t1 != p_137468_) {
-            if (iterator.hasNext()) {
-               t1 = iterator.next();
+            if (SharedConstants.IS_RUNNING_IN_IDE)
+            {
+                throw illegalargumentexception;
             }
-         }
+        }
 
-         if (iterator.hasNext()) {
-            return iterator.next();
-         }
-      }
+        return type;
+    }
 
-      return t;
-   }
+    public static Runnable wrapThreadWithTaskName(String p_143788_, Runnable p_143789_)
+    {
+        return SharedConstants.IS_RUNNING_IN_IDE ? () ->
+        {
+            Thread thread = Thread.currentThread();
+            String s = thread.getName();
+            thread.setName(p_143788_);
 
-   public static <T> T findPreviousInIterable(Iterable<T> p_137555_, @Nullable T p_137556_) {
-      Iterator<T> iterator = p_137555_.iterator();
-
-      T t;
-      T t1;
-      for(t = null; iterator.hasNext(); t = t1) {
-         t1 = iterator.next();
-         if (t1 == p_137556_) {
-            if (t == null) {
-               t = (T)(iterator.hasNext() ? Iterators.getLast(iterator) : p_137556_);
-            }
-            break;
-         }
-      }
-
-      return t;
-   }
-
-   public static <T> T make(Supplier<T> p_137538_) {
-      return p_137538_.get();
-   }
-
-   public static <T> T make(T p_137470_, Consumer<T> p_137471_) {
-      p_137471_.accept(p_137470_);
-      return p_137470_;
-   }
-
-   public static <K> Strategy<K> identityStrategy() {
-      return (Strategy<K>) Util.IdentityStrategy.INSTANCE;
-   }
-
-   public static <V> CompletableFuture<List<V>> sequence(List<? extends CompletableFuture<? extends V>> p_137568_) {
-      return p_137568_.stream().reduce(CompletableFuture.completedFuture(Lists.newArrayList()), (p_143836_, p_143837_) -> {
-         return p_143837_.thenCombine(p_143836_, (p_143781_, p_143782_) -> {
-            List<V> list = Lists.newArrayListWithCapacity(p_143782_.size() + 1);
-            list.addAll(p_143782_);
-            list.add(p_143781_);
-            return list;
-         });
-      }, (p_143819_, p_143820_) -> {
-         return p_143819_.thenCombine(p_143820_, (p_143802_, p_143803_) -> {
-            List<V> list = Lists.newArrayListWithCapacity(p_143802_.size() + p_143803_.size());
-            list.addAll(p_143802_);
-            list.addAll(p_143803_);
-            return list;
-         });
-      });
-   }
-
-   public static <V> CompletableFuture<List<V>> sequenceFailFast(List<? extends CompletableFuture<? extends V>> p_143841_) {
-      List<V> list = Lists.newArrayListWithCapacity(p_143841_.size());
-      CompletableFuture<?>[] completablefuture = new CompletableFuture[p_143841_.size()];
-      CompletableFuture<Void> completablefuture1 = new CompletableFuture<>();
-      p_143841_.forEach((p_143811_) -> {
-         int i = list.size();
-         list.add((V)null);
-         completablefuture[i] = p_143811_.whenComplete((p_143816_, p_143817_) -> {
-            if (p_143817_ != null) {
-               completablefuture1.completeExceptionally(p_143817_);
-            } else {
-               list.set(i, p_143816_);
-            }
-
-         });
-      });
-      return CompletableFuture.allOf(completablefuture).applyToEither(completablefuture1, (p_143800_) -> {
-         return list;
-      });
-   }
-
-   public static <T> Stream<T> toStream(Optional<? extends T> p_137520_) {
-      return DataFixUtils.orElseGet(p_137520_.map(Stream::of), Stream::empty);
-   }
-
-   public static <T> Optional<T> ifElse(Optional<T> p_137522_, Consumer<T> p_137523_, Runnable p_137524_) {
-      if (p_137522_.isPresent()) {
-         p_137523_.accept(p_137522_.get());
-      } else {
-         p_137524_.run();
-      }
-
-      return p_137522_;
-   }
-
-   public static Runnable name(Runnable p_137475_, Supplier<String> p_137476_) {
-      return p_137475_;
-   }
-
-   public static void logAndPauseIfInIde(String p_143786_) {
-      LOGGER.error(p_143786_);
-      if (SharedConstants.IS_RUNNING_IN_IDE) {
-         doPause();
-      }
-
-   }
-
-   public static <T extends Throwable> T pauseInIde(T p_137571_) {
-      if (SharedConstants.IS_RUNNING_IN_IDE) {
-         LOGGER.error("Trying to throw a fatal exception, pausing in IDE", p_137571_);
-         doPause();
-      }
-
-      return p_137571_;
-   }
-
-   private static void doPause() {
-      while(true) {
-         try {
-            Thread.sleep(1000L);
-            LOGGER.error("paused");
-         } catch (InterruptedException interruptedexception) {
-            return;
-         }
-      }
-   }
-
-   public static String describeError(Throwable p_137576_) {
-      if (p_137576_.getCause() != null) {
-         return describeError(p_137576_.getCause());
-      } else {
-         return p_137576_.getMessage() != null ? p_137576_.getMessage() : p_137576_.toString();
-      }
-   }
-
-   public static <T> T getRandom(T[] p_137546_, Random p_137547_) {
-      return p_137546_[p_137547_.nextInt(p_137546_.length)];
-   }
-
-   public static int getRandom(int[] p_137543_, Random p_137544_) {
-      return p_137543_[p_137544_.nextInt(p_137543_.length)];
-   }
-
-   public static <T> T getRandom(List<T> p_143805_, Random p_143806_) {
-      return p_143805_.get(p_143806_.nextInt(p_143805_.size()));
-   }
-
-   private static BooleanSupplier createRenamer(final Path p_137503_, final Path p_137504_) {
-      return new BooleanSupplier() {
-         public boolean getAsBoolean() {
             try {
-               Files.move(p_137503_, p_137504_);
-               return true;
-            } catch (IOException ioexception) {
-               Util.LOGGER.error("Failed to rename", (Throwable)ioexception);
-               return false;
+                p_143789_.run();
             }
-         }
-
-         public String toString() {
-            return "rename " + p_137503_ + " to " + p_137504_;
-         }
-      };
-   }
-
-   private static BooleanSupplier createDeleter(final Path p_137501_) {
-      return new BooleanSupplier() {
-         public boolean getAsBoolean() {
-            try {
-               Files.deleteIfExists(p_137501_);
-               return true;
-            } catch (IOException ioexception) {
-               Util.LOGGER.warn("Failed to delete", (Throwable)ioexception);
-               return false;
+            finally {
+                thread.setName(s);
             }
-         }
+        } : p_143789_;
+    }
 
-         public String toString() {
-            return "delete old " + p_137501_;
-         }
-      };
-   }
+    public static Util.OS getPlatform()
+    {
+        String s = System.getProperty("os.name").toLowerCase(Locale.ROOT);
 
-   private static BooleanSupplier createFileDeletedCheck(final Path p_137562_) {
-      return new BooleanSupplier() {
-         public boolean getAsBoolean() {
-            return !Files.exists(p_137562_);
-         }
+        if (s.contains("win"))
+        {
+            return Util.OS.WINDOWS;
+        }
+        else if (s.contains("mac"))
+        {
+            return Util.OS.OSX;
+        }
+        else if (s.contains("solaris"))
+        {
+            return Util.OS.SOLARIS;
+        }
+        else if (s.contains("sunos"))
+        {
+            return Util.OS.SOLARIS;
+        }
+        else if (s.contains("linux"))
+        {
+            return Util.OS.LINUX;
+        }
+        else
+        {
+            return s.contains("unix") ? Util.OS.LINUX : Util.OS.UNKNOWN;
+        }
+    }
 
-         public String toString() {
-            return "verify that " + p_137562_ + " is deleted";
-         }
-      };
-   }
+    public static Stream<String> getVmArguments()
+    {
+        RuntimeMXBean runtimemxbean = ManagementFactory.getRuntimeMXBean();
+        return runtimemxbean.getInputArguments().stream().filter((p_300614_0_) ->
+        {
+            return p_300614_0_.startsWith("-X");
+        });
+    }
 
-   private static BooleanSupplier createFileCreatedCheck(final Path p_137573_) {
-      return new BooleanSupplier() {
-         public boolean getAsBoolean() {
-            return Files.isRegularFile(p_137573_);
-         }
+    public static <T> T lastOf(List<T> pList)
+    {
+        return pList.get(pList.size() - 1);
+    }
 
-         public String toString() {
-            return "verify that " + p_137573_ + " is present";
-         }
-      };
-   }
+    public static <T> T findNextInIterable(Iterable<T> pIterable, @Nullable T pElement)
+    {
+        Iterator<T> iterator = pIterable.iterator();
+        T t = iterator.next();
 
-   private static boolean executeInSequence(BooleanSupplier... p_137549_) {
-      for(BooleanSupplier booleansupplier : p_137549_) {
-         if (!booleansupplier.getAsBoolean()) {
-            LOGGER.warn("Failed to execute {}", (Object)booleansupplier);
-            return false;
-         }
-      }
+        if (pElement != null)
+        {
+            T t1 = t;
 
-      return true;
-   }
-
-   private static boolean runWithRetries(int p_137450_, String p_137451_, BooleanSupplier... p_137452_) {
-      for(int i = 0; i < p_137450_; ++i) {
-         if (executeInSequence(p_137452_)) {
-            return true;
-         }
-
-         LOGGER.error("Failed to {}, retrying {}/{}", p_137451_, i, p_137450_);
-      }
-
-      LOGGER.error("Failed to {}, aborting, progress might be lost", (Object)p_137451_);
-      return false;
-   }
-
-   public static void safeReplaceFile(File p_137463_, File p_137464_, File p_137465_) {
-      safeReplaceFile(p_137463_.toPath(), p_137464_.toPath(), p_137465_.toPath());
-   }
-
-   public static void safeReplaceFile(Path p_137506_, Path p_137507_, Path p_137508_) {
-      int i = 10;
-      if (!Files.exists(p_137506_) || runWithRetries(10, "create backup " + p_137508_, createDeleter(p_137508_), createRenamer(p_137506_, p_137508_), createFileCreatedCheck(p_137508_))) {
-         if (runWithRetries(10, "remove old " + p_137506_, createDeleter(p_137506_), createFileDeletedCheck(p_137506_))) {
-            if (!runWithRetries(10, "replace " + p_137506_ + " with " + p_137507_, createRenamer(p_137507_, p_137506_), createFileCreatedCheck(p_137506_))) {
-               runWithRetries(10, "restore " + p_137506_ + " from " + p_137508_, createRenamer(p_137508_, p_137506_), createFileCreatedCheck(p_137506_));
+            while (t1 != pElement)
+            {
+                if (iterator.hasNext())
+                {
+                    t1 = iterator.next();
+                }
             }
 
-         }
-      }
-   }
-
-   public static int offsetByCodepoints(String p_137480_, int p_137481_, int p_137482_) {
-      int i = p_137480_.length();
-      if (p_137482_ >= 0) {
-         for(int j = 0; p_137481_ < i && j < p_137482_; ++j) {
-            if (Character.isHighSurrogate(p_137480_.charAt(p_137481_++)) && p_137481_ < i && Character.isLowSurrogate(p_137480_.charAt(p_137481_))) {
-               ++p_137481_;
+            if (iterator.hasNext())
+            {
+                return iterator.next();
             }
-         }
-      } else {
-         for(int k = p_137482_; p_137481_ > 0 && k < 0; ++k) {
-            --p_137481_;
-            if (Character.isLowSurrogate(p_137480_.charAt(p_137481_)) && p_137481_ > 0 && Character.isHighSurrogate(p_137480_.charAt(p_137481_ - 1))) {
-               --p_137481_;
+        }
+
+        return t;
+    }
+
+    public static <T> T findPreviousInIterable(Iterable<T> pIterable, @Nullable T pCurrent)
+    {
+        Iterator<T> iterator = pIterable.iterator();
+        T t;
+        T t1;
+
+        for (t = null; iterator.hasNext(); t = t1)
+        {
+            t1 = iterator.next();
+
+            if (t1 == pCurrent)
+            {
+                if (t == null)
+                {
+                    t = (T)(iterator.hasNext() ? Iterators.getLast(iterator) : pCurrent);
+                }
+
+                break;
             }
-         }
-      }
+        }
 
-      return p_137481_;
-   }
+        return t;
+    }
 
-   public static Consumer<String> prefix(String p_137490_, Consumer<String> p_137491_) {
-      return (p_143826_) -> {
-         p_137491_.accept(p_137490_ + p_143826_);
-      };
-   }
+    public static <T> T make(Supplier<T> pObject)
+    {
+        return pObject.get();
+    }
 
-   public static DataResult<int[]> fixedSize(IntStream p_137540_, int p_137541_) {
-      int[] aint = p_137540_.limit((long)(p_137541_ + 1)).toArray();
-      if (aint.length != p_137541_) {
-         String s = "Input is not a list of " + p_137541_ + " ints";
-         return aint.length >= p_137541_ ? DataResult.error(s, Arrays.copyOf(aint, p_137541_)) : DataResult.error(s);
-      } else {
-         return DataResult.success(aint);
-      }
-   }
+    public static <T> T make(T pObject, Consumer<T> pConsumer)
+    {
+        pConsumer.accept(pObject);
+        return pObject;
+    }
 
-   public static <T> DataResult<List<T>> fixedSize(List<T> p_143796_, int p_143797_) {
-      if (p_143796_.size() != p_143797_) {
-         String s = "Input is not a list of " + p_143797_ + " elements";
-         return p_143796_.size() >= p_143797_ ? DataResult.error(s, p_143796_.subList(0, p_143797_)) : DataResult.error(s);
-      } else {
-         return DataResult.success(p_143796_);
-      }
-   }
+    public static <K> Strategy<K> identityStrategy()
+    {
+        return (Strategy<K>) Util.IdentityStrategy.INSTANCE;
+    }
 
-   public static void startTimerHackThread() {
-      Thread thread = new Thread("Timer hack thread") {
-         public void run() {
-            while(true) {
-               try {
-                  Thread.sleep(2147483647L);
-               } catch (InterruptedException interruptedexception) {
-                  Util.LOGGER.warn("Timer hack thread interrupted, that really should not happen");
-                  return;
-               }
-            }
-         }
-      };
-      thread.setDaemon(true);
-      thread.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
-      thread.start();
-   }
-
-   public static void copyBetweenDirs(Path p_137564_, Path p_137565_, Path p_137566_) throws IOException {
-      Path path = p_137564_.relativize(p_137566_);
-      Path path1 = p_137565_.resolve(path);
-      Files.copy(p_137566_, path1);
-   }
-
-   public static String sanitizeName(String p_137484_, CharPredicate p_137485_) {
-      return p_137484_.toLowerCase(Locale.ROOT).chars().mapToObj((p_143831_) -> {
-         return p_137485_.test((char)p_143831_) ? Character.toString((char)p_143831_) : "_";
-      }).collect(Collectors.joining());
-   }
-
-   public static <T, R> Function<T, R> memoize(final Function<T, R> p_143828_) {
-      return new Function<T, R>() {
-         private final Map<T, R> cache = Maps.newHashMap();
-
-         public R apply(T p_143849_) {
-            return this.cache.computeIfAbsent(p_143849_, p_143828_);
-         }
-
-         public String toString() {
-            return "memoize/1[function=" + p_143828_ + ", size=" + this.cache.size() + "]";
-         }
-      };
-   }
-
-   public static <T, U, R> BiFunction<T, U, R> memoize(final BiFunction<T, U, R> p_143822_) {
-      return new BiFunction<T, U, R>() {
-         private final Map<Pair<T, U>, R> cache = Maps.newHashMap();
-
-         public R apply(T p_143859_, U p_143860_) {
-            return this.cache.computeIfAbsent(Pair.of(p_143859_, p_143860_), (p_143857_) -> {
-               return p_143822_.apply(p_143857_.getFirst(), p_143857_.getSecond());
+    public static <V> CompletableFuture<List<V>> sequence(List <? extends CompletableFuture <? extends V >> pFutures)
+    {
+        return pFutures.stream().reduce(CompletableFuture.completedFuture(Lists.newArrayList()), (p_221769_0_, p_221769_1_) ->
+        {
+            return p_221769_1_.thenCombine(p_221769_0_, (p_300567_0_, p_300567_1_) -> {
+                List<V> list = Lists.newArrayListWithCapacity(p_300567_1_.size() + 1);
+                list.addAll(p_300567_1_);
+                list.add(p_300567_0_);
+                return list;
             });
-         }
+        }, (p_300597_0_, p_300597_1_) ->
+        {
+            return p_300597_0_.thenCombine(p_300597_1_, (p_300583_0_, p_300583_1_) -> {
+                List<V> list = Lists.newArrayListWithCapacity(p_300583_0_.size() + p_300583_1_.size());
+                list.addAll(p_300583_0_);
+                list.addAll(p_300583_1_);
+                return list;
+            });
+        });
+    }
 
-         public String toString() {
-            return "memoize/2[function=" + p_143822_ + ", size=" + this.cache.size() + "]";
-         }
-      };
-   }
+    public static <V> CompletableFuture<List<V>> sequenceFailFast(List <? extends CompletableFuture <? extends V >> p_143841_)
+    {
+        List<V> list = Lists.newArrayListWithCapacity(p_143841_.size());
+        CompletableFuture<?>[] completablefuture = new CompletableFuture[p_143841_.size()];
+        CompletableFuture<Void> completablefuture1 = new CompletableFuture<>();
+        p_143841_.forEach((p_300586_3_) ->
+        {
+            int i = list.size();
+            list.add((V)null);
+            completablefuture[i] = p_300586_3_.whenComplete((p_300591_3_, p_300591_4_) -> {
+                if (p_300591_4_ != null)
+                {
+                    completablefuture1.completeExceptionally(p_300591_4_);
+                }
+                else {
+                    list.set(i, p_300591_3_);
+                }
+            });
+        });
+        return CompletableFuture.allOf(completablefuture).applyToEither(completablefuture1, (p_300580_1_) ->
+        {
+            return list;
+        });
+    }
 
-   static enum IdentityStrategy implements Strategy<Object> {
-      INSTANCE;
+    public static <T> Stream<T> toStream(Optional <? extends T > pOptional)
+    {
+        return pOptional.isPresent() ? Stream.of(pOptional.get()) : Stream.empty();
+    }
 
-      public int hashCode(Object p_137626_) {
-         return System.identityHashCode(p_137626_);
-      }
+    public static Exception getExceptionOpenUrl()
+    {
+        return exceptionOpenUrl;
+    }
 
-      public boolean equals(Object p_137623_, Object p_137624_) {
-         return p_137623_ == p_137624_;
-      }
-   }
+    public static void setExceptionOpenUrl(Exception exceptionOpenUrl)
+    {
+        Util.exceptionOpenUrl = exceptionOpenUrl;
+    }
 
-   public static enum OS {
-      LINUX,
-      SOLARIS,
-      WINDOWS {
-         protected String[] getOpenUrlArguments(URL p_137662_) {
-            return new String[]{"rundll32", "url.dll,FileProtocolHandler", p_137662_.toString()};
-         }
-      },
-      OSX {
-         protected String[] getOpenUrlArguments(URL p_137667_) {
-            return new String[]{"open", p_137667_.toString()};
-         }
-      },
-      UNKNOWN;
+    public static ExecutorService getCapeExecutor()
+    {
+        return CAPE_EXECUTOR;
+    }
 
-      public void openUrl(URL p_137651_) {
-         try {
-            Process process = AccessController.doPrivileged((PrivilegedExceptionAction<Process>)(() -> {
-               return Runtime.getRuntime().exec(this.getOpenUrlArguments(p_137651_));
-            }));
+    public static <T> Optional<T> ifElse(Optional<T> pOpt, Consumer<T> pConsumer, Runnable pOrElse)
+    {
+        if (pOpt.isPresent())
+        {
+            pConsumer.accept(pOpt.get());
+        }
+        else
+        {
+            pOrElse.run();
+        }
 
-            for(String s : IOUtils.readLines(process.getErrorStream())) {
-               Util.LOGGER.error(s);
+        return pOpt;
+    }
+
+    public static Runnable name(Runnable pRunnable, Supplier<String> pSupplier)
+    {
+        return pRunnable;
+    }
+
+    public static void logAndPauseIfInIde(String p_143786_)
+    {
+        LOGGER.error(p_143786_);
+
+        if (SharedConstants.IS_RUNNING_IN_IDE)
+        {
+            doPause();
+        }
+    }
+
+    public static <T extends Throwable> T pauseInIde(T pThrowable)
+    {
+        if (SharedConstants.IS_RUNNING_IN_IDE)
+        {
+            LOGGER.error("Trying to throw a fatal exception, pausing in IDE", pThrowable);
+            doPause();
+        }
+
+        return pThrowable;
+    }
+
+    private static void doPause()
+    {
+        while (true)
+        {
+            try
+            {
+                Thread.sleep(1000L);
+                LOGGER.error("paused");
+            }
+            catch (InterruptedException interruptedexception)
+            {
+                return;
+            }
+        }
+    }
+
+    public static String describeError(Throwable pThrowable)
+    {
+        if (pThrowable.getCause() != null)
+        {
+            return describeError(pThrowable.getCause());
+        }
+        else
+        {
+            return pThrowable.getMessage() != null ? pThrowable.getMessage() : pThrowable.toString();
+        }
+    }
+
+    public static <T> T m_137545_(T[] p_137546_, Random p_137547_)
+    {
+        return p_137546_[p_137547_.nextInt(p_137546_.length)];
+    }
+
+    public static int m_137542_(int[] p_137543_, Random p_137544_)
+    {
+        return p_137543_[p_137544_.nextInt(p_137543_.length)];
+    }
+
+    public static <T> T getRandom(List<T> pSelections, Random pRand)
+    {
+        return pSelections.get(pRand.nextInt(pSelections.size()));
+    }
+
+    private static BooleanSupplier createRenamer(final Path pFilePath, final Path pNewName)
+    {
+        return new BooleanSupplier()
+        {
+            public boolean getAsBoolean()
+            {
+                try
+                {
+                    Files.move(pFilePath, pNewName);
+                    return true;
+                }
+                catch (IOException ioexception)
+                {
+                    Util.LOGGER.error("Failed to rename", (Throwable)ioexception);
+                    return false;
+                }
+            }
+            public String toString()
+            {
+                return "rename " + pFilePath + " to " + pNewName;
+            }
+        };
+    }
+
+    private static BooleanSupplier createDeleter(final Path pFilePath)
+    {
+        return new BooleanSupplier()
+        {
+            public boolean getAsBoolean()
+            {
+                try
+                {
+                    Files.deleteIfExists(pFilePath);
+                    return true;
+                }
+                catch (IOException ioexception)
+                {
+                    Util.LOGGER.warn("Failed to delete", (Throwable)ioexception);
+                    return false;
+                }
+            }
+            public String toString()
+            {
+                return "delete old " + pFilePath;
+            }
+        };
+    }
+
+    private static BooleanSupplier createFileDeletedCheck(final Path pFilePath)
+    {
+        return new BooleanSupplier()
+        {
+            public boolean getAsBoolean()
+            {
+                return !Files.exists(pFilePath);
+            }
+            public String toString()
+            {
+                return "verify that " + pFilePath + " is deleted";
+            }
+        };
+    }
+
+    private static BooleanSupplier createFileCreatedCheck(final Path pFilePath)
+    {
+        return new BooleanSupplier()
+        {
+            public boolean getAsBoolean()
+            {
+                return Files.isRegularFile(pFilePath);
+            }
+            public String toString()
+            {
+                return "verify that " + pFilePath + " is present";
+            }
+        };
+    }
+
+    private static boolean m_137548_(BooleanSupplier... p_137549_)
+    {
+        for (BooleanSupplier booleansupplier : p_137549_)
+        {
+            if (!booleansupplier.getAsBoolean())
+            {
+                LOGGER.warn("Failed to execute {}", (Object)booleansupplier);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static boolean m_137449_(int p_137450_, String p_137451_, BooleanSupplier... p_137452_)
+    {
+        for (int i = 0; i < p_137450_; ++i)
+        {
+            if (m_137548_(p_137452_))
+            {
+                return true;
             }
 
-            process.getInputStream().close();
-            process.getErrorStream().close();
-            process.getOutputStream().close();
-         } catch (IOException | PrivilegedActionException privilegedactionexception) {
-            Util.LOGGER.error("Couldn't open url '{}'", p_137651_, privilegedactionexception);
-         }
+            LOGGER.error("Failed to {}, retrying {}/{}", p_137451_, i, p_137450_);
+        }
 
-      }
+        LOGGER.error("Failed to {}, aborting, progress might be lost", (Object)p_137451_);
+        return false;
+    }
 
-      public void openUri(URI p_137649_) {
-         try {
-            this.openUrl(p_137649_.toURL());
-         } catch (MalformedURLException malformedurlexception) {
-            Util.LOGGER.error("Couldn't open uri '{}'", p_137649_, malformedurlexception);
-         }
+    public static void safeReplaceFile(File pCurrent, File pLatest, File pOldBackup)
+    {
+        safeReplaceFile(pCurrent.toPath(), pLatest.toPath(), pOldBackup.toPath());
+    }
 
-      }
+    public static void safeReplaceFile(Path pCurrent, Path pLatest, Path pOldBackup)
+    {
+        int i = 10;
 
-      public void openFile(File p_137645_) {
-         try {
-            this.openUrl(p_137645_.toURI().toURL());
-         } catch (MalformedURLException malformedurlexception) {
-            Util.LOGGER.error("Couldn't open file '{}'", p_137645_, malformedurlexception);
-         }
+        if ((!Files.exists(pCurrent) || m_137449_(10, "create backup " + pOldBackup, createDeleter(pOldBackup), createRenamer(pCurrent, pOldBackup), createFileCreatedCheck(pOldBackup))) && m_137449_(10, "remove old " + pCurrent, createDeleter(pCurrent), createFileDeletedCheck(pCurrent)) && !m_137449_(10, "replace " + pCurrent + " with " + pLatest, createRenamer(pLatest, pCurrent), createFileCreatedCheck(pCurrent)))
+        {
+            m_137449_(10, "restore " + pCurrent + " from " + pOldBackup, createRenamer(pOldBackup, pCurrent), createFileCreatedCheck(pCurrent));
+        }
+    }
 
-      }
+    public static int offsetByCodepoints(String p_137480_, int p_137481_, int p_137482_)
+    {
+        int i = p_137480_.length();
 
-      protected String[] getOpenUrlArguments(URL p_137652_) {
-         String s = p_137652_.toString();
-         if ("file".equals(p_137652_.getProtocol())) {
-            s = s.replace("file:", "file://");
-         }
+        if (p_137482_ >= 0)
+        {
+            for (int j = 0; p_137481_ < i && j < p_137482_; ++j)
+            {
+                if (Character.isHighSurrogate(p_137480_.charAt(p_137481_++)) && p_137481_ < i && Character.isLowSurrogate(p_137480_.charAt(p_137481_)))
+                {
+                    ++p_137481_;
+                }
+            }
+        }
+        else
+        {
+            for (int k = p_137482_; p_137481_ > 0 && k < 0; ++k)
+            {
+                --p_137481_;
 
-         return new String[]{"xdg-open", s};
-      }
+                if (Character.isLowSurrogate(p_137480_.charAt(p_137481_)) && p_137481_ > 0 && Character.isHighSurrogate(p_137480_.charAt(p_137481_ - 1)))
+                {
+                    --p_137481_;
+                }
+            }
+        }
 
-      public void openUri(String p_137647_) {
-         try {
-            this.openUrl((new URI(p_137647_)).toURL());
-         } catch (MalformedURLException | IllegalArgumentException | URISyntaxException urisyntaxexception) {
-            Util.LOGGER.error("Couldn't open uri '{}'", p_137647_, urisyntaxexception);
-         }
+        return p_137481_;
+    }
 
-      }
-   }
+    public static Consumer<String> prefix(String pPrefix, Consumer<String> pConsumer)
+    {
+        return (p_300602_2_) ->
+        {
+            pConsumer.accept(pPrefix + p_300602_2_);
+        };
+    }
+
+    public static DataResult<int[]> fixedSize(IntStream pStream, int pSize)
+    {
+        int[] aint = pStream.limit((long)(pSize + 1)).toArray();
+
+        if (aint.length != pSize)
+        {
+            String s = "Input is not a list of " + pSize + " ints";
+            return aint.length >= pSize ? DataResult.error(s, Arrays.copyOf(aint, pSize)) : DataResult.error(s);
+        }
+        else
+        {
+            return DataResult.success(aint);
+        }
+    }
+
+    public static <T> DataResult<List<T>> fixedSize(List<T> pStream, int pSize)
+    {
+        if (pStream.size() != pSize)
+        {
+            String s = "Input is not a list of " + pSize + " elements";
+            return pStream.size() >= pSize ? DataResult.error(s, pStream.subList(0, pSize)) : DataResult.error(s);
+        }
+        else
+        {
+            return DataResult.success(pStream);
+        }
+    }
+
+    public static void startTimerHackThread()
+    {
+        Thread thread = new Thread("Timer hack thread")
+        {
+            public void run()
+            {
+                while (true)
+                {
+                    try
+                    {
+                        Thread.sleep(2147483647L);
+                    }
+                    catch (InterruptedException interruptedexception)
+                    {
+                        Util.LOGGER.warn("Timer hack thread interrupted, that really should not happen");
+                        return;
+                    }
+                }
+            }
+        };
+        thread.setDaemon(true);
+        thread.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+        thread.start();
+    }
+
+    public static void copyBetweenDirs(Path pFromDirectory, Path pToDirectory, Path pFilePath) throws IOException
+    {
+        Path path = pFromDirectory.relativize(pFilePath);
+        Path path1 = pToDirectory.resolve(path);
+        Files.copy(pFilePath, path1);
+    }
+
+    public static String sanitizeName(String pFileName, CharPredicate pCharacterValidator)
+    {
+        return pFileName.toLowerCase(Locale.ROOT).chars().mapToObj((p_300608_1_) ->
+        {
+            return pCharacterValidator.test((char)p_300608_1_) ? Character.toString((char)p_300608_1_) : "_";
+        }).collect(Collectors.joining());
+    }
+
+    public static <T, R> Function<T, R> memoize(final Function<T, R> p_143828_)
+    {
+        return new Function<T, R>()
+        {
+            private final Map<T, R> cache = Maps.newHashMap();
+            public R apply(T p_143849_)
+            {
+                return this.cache.computeIfAbsent(p_143849_, p_143828_);
+            }
+            public String toString()
+            {
+                return "memoize/1[function=" + p_143828_ + ", size=" + this.cache.size() + "]";
+            }
+        };
+    }
+
+    public static <T, U, R> BiFunction<T, U, R> memoize(final BiFunction<T, U, R> p_143822_)
+    {
+        return new BiFunction<T, U, R>()
+        {
+            private final Map<Pair<T, U>, R> cache = Maps.newHashMap();
+            public R apply(T p_143859_, U p_143860_)
+            {
+                return this.cache.computeIfAbsent(Pair.of(p_143859_, p_143860_), (p_300628_1_) ->
+                {
+                    return p_143822_.apply(p_300628_1_.getFirst(), p_300628_1_.getSecond());
+                });
+            }
+            public String toString()
+            {
+                return "memoize/2[function=" + p_143822_ + ", size=" + this.cache.size() + "]";
+            }
+        };
+    }
+
+    static enum IdentityStrategy implements Strategy<Object>
+    {
+        INSTANCE;
+
+        public int hashCode(Object p_137626_)
+        {
+            return System.identityHashCode(p_137626_);
+        }
+
+        public boolean equals(Object p_137623_, Object p_137624_)
+        {
+            return p_137623_ == p_137624_;
+        }
+    }
+
+    public static enum OS
+    {
+        LINUX,
+        SOLARIS,
+        WINDOWS {
+            protected String[] getOpenUrlArguments(URL pUrl)
+            {
+                return new String[] {"rundll32", "url.dll,FileProtocolHandler", pUrl.toString()};
+            }
+        },
+        OSX {
+            protected String[] getOpenUrlArguments(URL pUrl)
+            {
+                return new String[] {"open", pUrl.toString()};
+            }
+        },
+        UNKNOWN;
+
+        private OS()
+        {
+        }
+
+        public void openUrl(URL pUrl)
+        {
+            try
+            {
+                Process process = AccessController.doPrivileged((PrivilegedExceptionAction<Process>)(() ->
+                {
+                    return Runtime.getRuntime().exec(this.getOpenUrlArguments(pUrl));
+                }));
+
+                for (String s : IOUtils.readLines(process.getErrorStream()))
+                {
+                    Util.LOGGER.error(s);
+                }
+
+                process.getInputStream().close();
+                process.getErrorStream().close();
+                process.getOutputStream().close();
+            }
+            catch (PrivilegedActionException | IOException ioexception)
+            {
+                Util.LOGGER.error("Couldn't open url '{}'", pUrl, ioexception);
+                Util.exceptionOpenUrl = ioexception;
+            }
+        }
+
+        public void openUri(URI pUri)
+        {
+            try
+            {
+                this.openUrl(pUri.toURL());
+            }
+            catch (MalformedURLException malformedurlexception)
+            {
+                Util.LOGGER.error("Couldn't open uri '{}'", pUri, malformedurlexception);
+            }
+        }
+
+        public void openFile(File pFile)
+        {
+            try
+            {
+                this.openUrl(pFile.toURI().toURL());
+            }
+            catch (MalformedURLException malformedurlexception)
+            {
+                Util.LOGGER.error("Couldn't open file '{}'", pFile, malformedurlexception);
+            }
+        }
+
+        protected String[] getOpenUrlArguments(URL pUrl)
+        {
+            String s = pUrl.toString();
+
+            if ("file".equals(pUrl.getProtocol()))
+            {
+                s = s.replace("file:", "file://");
+            }
+
+            return new String[] {"xdg-open", s};
+        }
+
+        public void openUri(String pUri)
+        {
+            try
+            {
+                this.openUrl((new URI(pUri)).toURL());
+            }
+            catch (IllegalArgumentException | URISyntaxException | MalformedURLException malformedurlexception)
+            {
+                Util.LOGGER.error("Couldn't open uri '{}'", pUri, malformedurlexception);
+            }
+        }
+    }
 }

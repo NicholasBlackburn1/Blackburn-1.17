@@ -9,94 +9,125 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.WrittenBookItem;
 import net.minecraft.world.level.Level;
 
-public class BookCloningRecipe extends CustomRecipe {
-   public BookCloningRecipe(ResourceLocation p_43802_) {
-      super(p_43802_);
-   }
+public class BookCloningRecipe extends CustomRecipe
+{
+    public BookCloningRecipe(ResourceLocation p_43802_)
+    {
+        super(p_43802_);
+    }
 
-   public boolean matches(CraftingContainer p_43814_, Level p_43815_) {
-      int i = 0;
-      ItemStack itemstack = ItemStack.EMPTY;
+    public boolean matches(CraftingContainer pInv, Level pLevel)
+    {
+        int i = 0;
+        ItemStack itemstack = ItemStack.EMPTY;
 
-      for(int j = 0; j < p_43814_.getContainerSize(); ++j) {
-         ItemStack itemstack1 = p_43814_.getItem(j);
-         if (!itemstack1.isEmpty()) {
-            if (itemstack1.is(Items.WRITTEN_BOOK)) {
-               if (!itemstack.isEmpty()) {
-                  return false;
-               }
+        for (int j = 0; j < pInv.getContainerSize(); ++j)
+        {
+            ItemStack itemstack1 = pInv.getItem(j);
 
-               itemstack = itemstack1;
-            } else {
-               if (!itemstack1.is(Items.WRITABLE_BOOK)) {
-                  return false;
-               }
+            if (!itemstack1.isEmpty())
+            {
+                if (itemstack1.is(Items.WRITTEN_BOOK))
+                {
+                    if (!itemstack.isEmpty())
+                    {
+                        return false;
+                    }
 
-               ++i;
+                    itemstack = itemstack1;
+                }
+                else
+                {
+                    if (!itemstack1.is(Items.WRITABLE_BOOK))
+                    {
+                        return false;
+                    }
+
+                    ++i;
+                }
             }
-         }
-      }
+        }
 
-      return !itemstack.isEmpty() && itemstack.hasTag() && i > 0;
-   }
+        return !itemstack.isEmpty() && itemstack.hasTag() && i > 0;
+    }
 
-   public ItemStack assemble(CraftingContainer p_43812_) {
-      int i = 0;
-      ItemStack itemstack = ItemStack.EMPTY;
+    public ItemStack assemble(CraftingContainer pInv)
+    {
+        int i = 0;
+        ItemStack itemstack = ItemStack.EMPTY;
 
-      for(int j = 0; j < p_43812_.getContainerSize(); ++j) {
-         ItemStack itemstack1 = p_43812_.getItem(j);
-         if (!itemstack1.isEmpty()) {
-            if (itemstack1.is(Items.WRITTEN_BOOK)) {
-               if (!itemstack.isEmpty()) {
-                  return ItemStack.EMPTY;
-               }
+        for (int j = 0; j < pInv.getContainerSize(); ++j)
+        {
+            ItemStack itemstack1 = pInv.getItem(j);
 
-               itemstack = itemstack1;
-            } else {
-               if (!itemstack1.is(Items.WRITABLE_BOOK)) {
-                  return ItemStack.EMPTY;
-               }
+            if (!itemstack1.isEmpty())
+            {
+                if (itemstack1.is(Items.WRITTEN_BOOK))
+                {
+                    if (!itemstack.isEmpty())
+                    {
+                        return ItemStack.EMPTY;
+                    }
 
-               ++i;
+                    itemstack = itemstack1;
+                }
+                else
+                {
+                    if (!itemstack1.is(Items.WRITABLE_BOOK))
+                    {
+                        return ItemStack.EMPTY;
+                    }
+
+                    ++i;
+                }
             }
-         }
-      }
+        }
 
-      if (!itemstack.isEmpty() && itemstack.hasTag() && i >= 1 && WrittenBookItem.getGeneration(itemstack) < 2) {
-         ItemStack itemstack2 = new ItemStack(Items.WRITTEN_BOOK, i);
-         CompoundTag compoundtag = itemstack.getTag().copy();
-         compoundtag.putInt("generation", WrittenBookItem.getGeneration(itemstack) + 1);
-         itemstack2.setTag(compoundtag);
-         return itemstack2;
-      } else {
-         return ItemStack.EMPTY;
-      }
-   }
+        if (!itemstack.isEmpty() && itemstack.hasTag() && i >= 1 && WrittenBookItem.getGeneration(itemstack) < 2)
+        {
+            ItemStack itemstack2 = new ItemStack(Items.WRITTEN_BOOK, i);
+            CompoundTag compoundtag = itemstack.getTag().copy();
+            compoundtag.putInt("generation", WrittenBookItem.getGeneration(itemstack) + 1);
+            itemstack2.setTag(compoundtag);
+            return itemstack2;
+        }
+        else
+        {
+            return ItemStack.EMPTY;
+        }
+    }
 
-   public NonNullList<ItemStack> getRemainingItems(CraftingContainer p_43820_) {
-      NonNullList<ItemStack> nonnulllist = NonNullList.withSize(p_43820_.getContainerSize(), ItemStack.EMPTY);
+    public NonNullList<ItemStack> getRemainingItems(CraftingContainer pInv)
+    {
+        NonNullList<ItemStack> nonnulllist = NonNullList.withSize(pInv.getContainerSize(), ItemStack.EMPTY);
 
-      for(int i = 0; i < nonnulllist.size(); ++i) {
-         ItemStack itemstack = p_43820_.getItem(i);
-         if (itemstack.getItem().hasCraftingRemainingItem()) {
-            nonnulllist.set(i, new ItemStack(itemstack.getItem().getCraftingRemainingItem()));
-         } else if (itemstack.getItem() instanceof WrittenBookItem) {
-            ItemStack itemstack1 = itemstack.copy();
-            itemstack1.setCount(1);
-            nonnulllist.set(i, itemstack1);
-            break;
-         }
-      }
+        for (int i = 0; i < nonnulllist.size(); ++i)
+        {
+            ItemStack itemstack = pInv.getItem(i);
 
-      return nonnulllist;
-   }
+            if (itemstack.getItem().hasCraftingRemainingItem())
+            {
+                nonnulllist.set(i, new ItemStack(itemstack.getItem().getCraftingRemainingItem()));
+            }
+            else if (itemstack.getItem() instanceof WrittenBookItem)
+            {
+                ItemStack itemstack1 = itemstack.copy();
+                itemstack1.setCount(1);
+                nonnulllist.set(i, itemstack1);
+                break;
+            }
+        }
 
-   public RecipeSerializer<?> getSerializer() {
-      return RecipeSerializer.BOOK_CLONING;
-   }
+        return nonnulllist;
+    }
 
-   public boolean canCraftInDimensions(int p_43804_, int p_43805_) {
-      return p_43804_ >= 3 && p_43805_ >= 3;
-   }
+    public RecipeSerializer<?> getSerializer()
+    {
+        return RecipeSerializer.BOOK_CLONING;
+    }
+
+    public boolean canCraftInDimensions(int pWidth, int pHeight)
+    {
+        return pWidth >= 3 && pHeight >= 3;
+    }
 }

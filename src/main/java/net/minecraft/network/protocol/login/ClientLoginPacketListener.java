@@ -2,14 +2,15 @@ package net.minecraft.network.protocol.login;
 
 import net.minecraft.network.PacketListener;
 
-public interface ClientLoginPacketListener extends PacketListener {
-   void handleHello(ClientboundHelloPacket p_134742_);
+public interface ClientLoginPacketListener extends PacketListener
+{
+    void handleHello(ClientboundHelloPacket pPacket);
 
-   void handleGameProfile(ClientboundGameProfilePacket p_134741_);
+    void handleGameProfile(ClientboundGameProfilePacket pPacket);
 
-   void handleDisconnect(ClientboundLoginDisconnectPacket p_134744_);
+    void handleDisconnect(ClientboundLoginDisconnectPacket pPacket);
 
-   void handleCompression(ClientboundLoginCompressionPacket p_134743_);
+    void handleCompression(ClientboundLoginCompressionPacket pPacket);
 
-   void handleCustomQuery(ClientboundCustomQueryPacket p_134740_);
+    void handleCustomQuery(ClientboundCustomQueryPacket pPacket);
 }

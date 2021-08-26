@@ -10,44 +10,61 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.lighting.LayerLightEngine;
 
-public abstract class SpreadingSnowyDirtBlock extends SnowyDirtBlock {
-   protected SpreadingSnowyDirtBlock(BlockBehaviour.Properties p_56817_) {
-      super(p_56817_);
-   }
+public abstract class SpreadingSnowyDirtBlock extends SnowyDirtBlock
+{
+    protected SpreadingSnowyDirtBlock(BlockBehaviour.Properties p_56817_)
+    {
+        super(p_56817_);
+    }
 
-   private static boolean canBeGrass(BlockState p_56824_, LevelReader p_56825_, BlockPos p_56826_) {
-      BlockPos blockpos = p_56826_.above();
-      BlockState blockstate = p_56825_.getBlockState(blockpos);
-      if (blockstate.is(Blocks.SNOW) && blockstate.getValue(SnowLayerBlock.LAYERS) == 1) {
-         return true;
-      } else if (blockstate.getFluidState().getAmount() == 8) {
-         return false;
-      } else {
-         int i = LayerLightEngine.getLightBlockInto(p_56825_, p_56824_, p_56826_, blockstate, blockpos, Direction.UP, blockstate.getLightBlock(p_56825_, blockpos));
-         return i < p_56825_.getMaxLightLevel();
-      }
-   }
+    private static boolean canBeGrass(BlockState pState, LevelReader pLevelReader, BlockPos pPos)
+    {
+        BlockPos blockpos = pPos.above();
+        BlockState blockstate = pLevelReader.getBlockState(blockpos);
 
-   private static boolean canPropagate(BlockState p_56828_, LevelReader p_56829_, BlockPos p_56830_) {
-      BlockPos blockpos = p_56830_.above();
-      return canBeGrass(p_56828_, p_56829_, p_56830_) && !p_56829_.getFluidState(blockpos).is(FluidTags.WATER);
-   }
+        if (blockstate.is(Blocks.SNOW) && blockstate.getValue(SnowLayerBlock.LAYERS) == 1)
+        {
+            return true;
+        }
+        else if (blockstate.getFluidState().getAmount() == 8)
+        {
+            return false;
+        }
+        else
+        {
+            int i = LayerLightEngine.getLightBlockInto(pLevelReader, pState, pPos, blockstate, blockpos, Direction.UP, blockstate.getLightBlock(pLevelReader, blockpos));
+            return i < pLevelReader.getMaxLightLevel();
+        }
+    }
 
-   public void randomTick(BlockState p_56819_, ServerLevel p_56820_, BlockPos p_56821_, Random p_56822_) {
-      if (!canBeGrass(p_56819_, p_56820_, p_56821_)) {
-         p_56820_.setBlockAndUpdate(p_56821_, Blocks.DIRT.defaultBlockState());
-      } else {
-         if (p_56820_.getMaxLocalRawBrightness(p_56821_.above()) >= 9) {
-            BlockState blockstate = this.defaultBlockState();
+    private static boolean canPropagate(BlockState pState, LevelReader pLevelReader, BlockPos pPos)
+    {
+        BlockPos blockpos = pPos.above();
+        return canBeGrass(pState, pLevelReader, pPos) && !pLevelReader.getFluidState(blockpos).is(FluidTags.WATER);
+    }
 
-            for(int i = 0; i < 4; ++i) {
-               BlockPos blockpos = p_56821_.offset(p_56822_.nextInt(3) - 1, p_56822_.nextInt(5) - 3, p_56822_.nextInt(3) - 1);
-               if (p_56820_.getBlockState(blockpos).is(Blocks.DIRT) && canPropagate(blockstate, p_56820_, blockpos)) {
-                  p_56820_.setBlockAndUpdate(blockpos, blockstate.setValue(SNOWY, Boolean.valueOf(p_56820_.getBlockState(blockpos.above()).is(Blocks.SNOW))));
-               }
+    public void randomTick(BlockState pState, ServerLevel pLevel, BlockPos pPos, Random pRandom)
+    {
+        if (!canBeGrass(pState, pLevel, pPos))
+        {
+            pLevel.setBlockAndUpdate(pPos, Blocks.DIRT.defaultBlockState());
+        }
+        else
+        {
+            if (pLevel.getMaxLocalRawBrightness(pPos.above()) >= 9)
+            {
+                BlockState blockstate = this.defaultBlockState();
+
+                for (int i = 0; i < 4; ++i)
+                {
+                    BlockPos blockpos = pPos.offset(pRandom.nextInt(3) - 1, pRandom.nextInt(5) - 3, pRandom.nextInt(3) - 1);
+
+                    if (pLevel.getBlockState(blockpos).is(Blocks.DIRT) && canPropagate(blockstate, pLevel, blockpos))
+                    {
+                        pLevel.setBlockAndUpdate(blockpos, blockstate.setValue(SNOWY, Boolean.valueOf(pLevel.getBlockState(blockpos.above()).is(Blocks.SNOW))));
+                    }
+                }
             }
-         }
-
-      }
-   }
+        }
+    }
 }

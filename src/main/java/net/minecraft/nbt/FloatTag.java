@@ -5,94 +5,116 @@ import java.io.DataOutput;
 import java.io.IOException;
 import net.minecraft.util.Mth;
 
-public class FloatTag extends NumericTag {
-   private static final int SELF_SIZE_IN_BITS = 96;
-   public static final FloatTag ZERO = new FloatTag(0.0F);
-   public static final TagType<FloatTag> TYPE = new TagType<FloatTag>() {
-      public FloatTag load(DataInput p_128590_, int p_128591_, NbtAccounter p_128592_) throws IOException {
-         p_128592_.accountBits(96L);
-         return FloatTag.valueOf(p_128590_.readFloat());
-      }
+public class FloatTag extends NumericTag
+{
+    private static final int SELF_SIZE_IN_BITS = 96;
+    public static final FloatTag ZERO = new FloatTag(0.0F);
+    public static final TagType<FloatTag> TYPE = new TagType<FloatTag>()
+    {
+        public FloatTag load(DataInput pInput, int pDepth, NbtAccounter pAccounter) throws IOException
+        {
+            pAccounter.accountBits(96L);
+            return FloatTag.valueOf(pInput.readFloat());
+        }
+        public String getName()
+        {
+            return "FLOAT";
+        }
+        public String getPrettyName()
+        {
+            return "TAG_Float";
+        }
+        public boolean isValue()
+        {
+            return true;
+        }
+    };
+    private final float data;
 
-      public String getName() {
-         return "FLOAT";
-      }
+    private FloatTag(float p_128564_)
+    {
+        this.data = p_128564_;
+    }
 
-      public String getPrettyName() {
-         return "TAG_Float";
-      }
+    public static FloatTag valueOf(float pValue)
+    {
+        return pValue == 0.0F ? ZERO : new FloatTag(pValue);
+    }
 
-      public boolean isValue() {
-         return true;
-      }
-   };
-   private final float data;
+    public void write(DataOutput pOutput) throws IOException
+    {
+        pOutput.writeFloat(this.data);
+    }
 
-   private FloatTag(float p_128564_) {
-      this.data = p_128564_;
-   }
+    public byte getId()
+    {
+        return 5;
+    }
 
-   public static FloatTag valueOf(float p_128567_) {
-      return p_128567_ == 0.0F ? ZERO : new FloatTag(p_128567_);
-   }
+    public TagType<FloatTag> getType()
+    {
+        return TYPE;
+    }
 
-   public void write(DataOutput p_128569_) throws IOException {
-      p_128569_.writeFloat(this.data);
-   }
+    public FloatTag copy()
+    {
+        return this;
+    }
 
-   public byte getId() {
-      return 5;
-   }
+    public boolean equals(Object p_128578_)
+    {
+        if (this == p_128578_)
+        {
+            return true;
+        }
+        else
+        {
+            return p_128578_ instanceof FloatTag && this.data == ((FloatTag)p_128578_).data;
+        }
+    }
 
-   public TagType<FloatTag> getType() {
-      return TYPE;
-   }
+    public int hashCode()
+    {
+        return Float.floatToIntBits(this.data);
+    }
 
-   public FloatTag copy() {
-      return this;
-   }
+    public void accept(TagVisitor p_177866_)
+    {
+        p_177866_.visitFloat(this);
+    }
 
-   public boolean equals(Object p_128578_) {
-      if (this == p_128578_) {
-         return true;
-      } else {
-         return p_128578_ instanceof FloatTag && this.data == ((FloatTag)p_128578_).data;
-      }
-   }
+    public long getAsLong()
+    {
+        return (long)this.data;
+    }
 
-   public int hashCode() {
-      return Float.floatToIntBits(this.data);
-   }
+    public int getAsInt()
+    {
+        return Mth.floor(this.data);
+    }
 
-   public void accept(TagVisitor p_177866_) {
-      p_177866_.visitFloat(this);
-   }
+    public short getAsShort()
+    {
+        return (short)(Mth.floor(this.data) & 65535);
+    }
 
-   public long getAsLong() {
-      return (long)this.data;
-   }
+    public byte getAsByte()
+    {
+        return (byte)(Mth.floor(this.data) & 255);
+    }
 
-   public int getAsInt() {
-      return Mth.floor(this.data);
-   }
+    public double getAsDouble()
+    {
+        return (double)this.data;
+    }
 
-   public short getAsShort() {
-      return (short)(Mth.floor(this.data) & '\uffff');
-   }
+    public float getAsFloat()
+    {
+        return this.data;
+    }
 
-   public byte getAsByte() {
-      return (byte)(Mth.floor(this.data) & 255);
-   }
-
-   public double getAsDouble() {
-      return (double)this.data;
-   }
-
-   public float getAsFloat() {
-      return this.data;
-   }
-
-   public Number getAsNumber() {
-      return this.data;
-   }
+    public Number getAsNumber()
+    {
+        return this.data;
+    }
 }

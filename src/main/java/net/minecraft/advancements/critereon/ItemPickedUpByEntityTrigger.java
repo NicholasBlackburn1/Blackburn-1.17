@@ -7,53 +7,66 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 
-public class ItemPickedUpByEntityTrigger extends SimpleCriterionTrigger<ItemPickedUpByEntityTrigger.TriggerInstance> {
-   static final ResourceLocation ID = new ResourceLocation("thrown_item_picked_up_by_entity");
+public class ItemPickedUpByEntityTrigger extends SimpleCriterionTrigger<ItemPickedUpByEntityTrigger.TriggerInstance>
+{
+    static final ResourceLocation ID = new ResourceLocation("thrown_item_picked_up_by_entity");
 
-   public ResourceLocation getId() {
-      return ID;
-   }
+    public ResourceLocation getId()
+    {
+        return ID;
+    }
 
-   protected ItemPickedUpByEntityTrigger.TriggerInstance createInstance(JsonObject p_44373_, EntityPredicate.Composite p_44374_, DeserializationContext p_44375_) {
-      ItemPredicate itempredicate = ItemPredicate.fromJson(p_44373_.get("item"));
-      EntityPredicate.Composite entitypredicate$composite = EntityPredicate.Composite.fromJson(p_44373_, "entity", p_44375_);
-      return new ItemPickedUpByEntityTrigger.TriggerInstance(p_44374_, itempredicate, entitypredicate$composite);
-   }
+    protected ItemPickedUpByEntityTrigger.TriggerInstance createInstance(JsonObject pJson, EntityPredicate.Composite pEntityPredicate, DeserializationContext pConditionsParser)
+    {
+        ItemPredicate itempredicate = ItemPredicate.fromJson(pJson.get("item"));
+        EntityPredicate.Composite entitypredicate$composite = EntityPredicate.Composite.fromJson(pJson, "entity", pConditionsParser);
+        return new ItemPickedUpByEntityTrigger.TriggerInstance(pEntityPredicate, itempredicate, entitypredicate$composite);
+    }
 
-   public void trigger(ServerPlayer p_44364_, ItemStack p_44365_, Entity p_44366_) {
-      LootContext lootcontext = EntityPredicate.createContext(p_44364_, p_44366_);
-      this.trigger(p_44364_, (p_44371_) -> {
-         return p_44371_.matches(p_44364_, p_44365_, lootcontext);
-      });
-   }
+    public void trigger(ServerPlayer pPlayer, ItemStack pStack, Entity pEntity)
+    {
+        LootContext lootcontext = EntityPredicate.createContext(pPlayer, pEntity);
+        this.trigger(pPlayer, (p_44371_) ->
+        {
+            return p_44371_.matches(pPlayer, pStack, lootcontext);
+        });
+    }
 
-   public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-      private final ItemPredicate item;
-      private final EntityPredicate.Composite entity;
+    public static class TriggerInstance extends AbstractCriterionTriggerInstance
+    {
+        private final ItemPredicate item;
+        private final EntityPredicate.Composite entity;
 
-      public TriggerInstance(EntityPredicate.Composite p_44384_, ItemPredicate p_44385_, EntityPredicate.Composite p_44386_) {
-         super(ItemPickedUpByEntityTrigger.ID, p_44384_);
-         this.item = p_44385_;
-         this.entity = p_44386_;
-      }
+        public TriggerInstance(EntityPredicate.Composite p_44384_, ItemPredicate p_44385_, EntityPredicate.Composite p_44386_)
+        {
+            super(ItemPickedUpByEntityTrigger.ID, p_44384_);
+            this.item = p_44385_;
+            this.entity = p_44386_;
+        }
 
-      public static ItemPickedUpByEntityTrigger.TriggerInstance itemPickedUpByEntity(EntityPredicate.Composite p_44392_, ItemPredicate.Builder p_44393_, EntityPredicate.Composite p_44394_) {
-         return new ItemPickedUpByEntityTrigger.TriggerInstance(p_44392_, p_44393_.build(), p_44394_);
-      }
+        public static ItemPickedUpByEntityTrigger.TriggerInstance itemPickedUpByEntity(EntityPredicate.Composite pPlayer, ItemPredicate.Builder pStack, EntityPredicate.Composite pEntity)
+        {
+            return new ItemPickedUpByEntityTrigger.TriggerInstance(pPlayer, pStack.build(), pEntity);
+        }
 
-      public boolean matches(ServerPlayer p_44388_, ItemStack p_44389_, LootContext p_44390_) {
-         if (!this.item.matches(p_44389_)) {
-            return false;
-         } else {
-            return this.entity.matches(p_44390_);
-         }
-      }
+        public boolean matches(ServerPlayer pPlayer, ItemStack pStack, LootContext pContext)
+        {
+            if (!this.item.matches(pStack))
+            {
+                return false;
+            }
+            else
+            {
+                return this.entity.matches(pContext);
+            }
+        }
 
-      public JsonObject serializeToJson(SerializationContext p_44396_) {
-         JsonObject jsonobject = super.serializeToJson(p_44396_);
-         jsonobject.add("item", this.item.serializeToJson());
-         jsonobject.add("entity", this.entity.toJson(p_44396_));
-         return jsonobject;
-      }
-   }
+        public JsonObject serializeToJson(SerializationContext pConditions)
+        {
+            JsonObject jsonobject = super.serializeToJson(pConditions);
+            jsonobject.add("item", this.item.serializeToJson());
+            jsonobject.add("entity", this.entity.toJson(pConditions));
+            return jsonobject;
+        }
+    }
 }

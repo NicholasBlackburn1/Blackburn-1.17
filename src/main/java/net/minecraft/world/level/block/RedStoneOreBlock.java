@@ -21,88 +21,107 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
-public class RedStoneOreBlock extends Block {
-   public static final BooleanProperty LIT = RedstoneTorchBlock.LIT;
+public class RedStoneOreBlock extends Block
+{
+    public static final BooleanProperty LIT = RedstoneTorchBlock.LIT;
 
-   public RedStoneOreBlock(BlockBehaviour.Properties p_55453_) {
-      super(p_55453_);
-      this.registerDefaultState(this.defaultBlockState().setValue(LIT, Boolean.valueOf(false)));
-   }
+    public RedStoneOreBlock(BlockBehaviour.Properties p_55453_)
+    {
+        super(p_55453_);
+        this.registerDefaultState(this.defaultBlockState().setValue(LIT, Boolean.valueOf(false)));
+    }
 
-   public void attack(BlockState p_55467_, Level p_55468_, BlockPos p_55469_, Player p_55470_) {
-      interact(p_55467_, p_55468_, p_55469_);
-      super.attack(p_55467_, p_55468_, p_55469_, p_55470_);
-   }
+    public void attack(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer)
+    {
+        interact(pState, pLevel, pPos);
+        super.attack(pState, pLevel, pPos, pPlayer);
+    }
 
-   public void stepOn(Level p_154299_, BlockPos p_154300_, BlockState p_154301_, Entity p_154302_) {
-      interact(p_154301_, p_154299_, p_154300_);
-      super.stepOn(p_154299_, p_154300_, p_154301_, p_154302_);
-   }
+    public void stepOn(Level p_154299_, BlockPos p_154300_, BlockState p_154301_, Entity p_154302_)
+    {
+        interact(p_154301_, p_154299_, p_154300_);
+        super.stepOn(p_154299_, p_154300_, p_154301_, p_154302_);
+    }
 
-   public InteractionResult use(BlockState p_55472_, Level p_55473_, BlockPos p_55474_, Player p_55475_, InteractionHand p_55476_, BlockHitResult p_55477_) {
-      if (p_55473_.isClientSide) {
-         spawnParticles(p_55473_, p_55474_);
-      } else {
-         interact(p_55472_, p_55473_, p_55474_);
-      }
+    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit)
+    {
+        if (pLevel.isClientSide)
+        {
+            spawnParticles(pLevel, pPos);
+        }
+        else
+        {
+            interact(pState, pLevel, pPos);
+        }
 
-      ItemStack itemstack = p_55475_.getItemInHand(p_55476_);
-      return itemstack.getItem() instanceof BlockItem && (new BlockPlaceContext(p_55475_, p_55476_, itemstack, p_55477_)).canPlace() ? InteractionResult.PASS : InteractionResult.SUCCESS;
-   }
+        ItemStack itemstack = pPlayer.getItemInHand(pHand);
+        return itemstack.getItem() instanceof BlockItem && (new BlockPlaceContext(pPlayer, pHand, itemstack, pHit)).canPlace() ? InteractionResult.PASS : InteractionResult.SUCCESS;
+    }
 
-   private static void interact(BlockState p_55493_, Level p_55494_, BlockPos p_55495_) {
-      spawnParticles(p_55494_, p_55495_);
-      if (!p_55493_.getValue(LIT)) {
-         p_55494_.setBlock(p_55495_, p_55493_.setValue(LIT, Boolean.valueOf(true)), 3);
-      }
+    private static void interact(BlockState pState, Level pLevel, BlockPos pPos)
+    {
+        spawnParticles(pLevel, pPos);
 
-   }
+        if (!pState.getValue(LIT))
+        {
+            pLevel.setBlock(pPos, pState.setValue(LIT, Boolean.valueOf(true)), 3);
+        }
+    }
 
-   public boolean isRandomlyTicking(BlockState p_55486_) {
-      return p_55486_.getValue(LIT);
-   }
+    public boolean isRandomlyTicking(BlockState pState)
+    {
+        return pState.getValue(LIT);
+    }
 
-   public void randomTick(BlockState p_55488_, ServerLevel p_55489_, BlockPos p_55490_, Random p_55491_) {
-      if (p_55488_.getValue(LIT)) {
-         p_55489_.setBlock(p_55490_, p_55488_.setValue(LIT, Boolean.valueOf(false)), 3);
-      }
+    public void randomTick(BlockState pState, ServerLevel pLevel, BlockPos pPos, Random pRandom)
+    {
+        if (pState.getValue(LIT))
+        {
+            pLevel.setBlock(pPos, pState.setValue(LIT, Boolean.valueOf(false)), 3);
+        }
+    }
 
-   }
+    public void spawnAfterBreak(BlockState pState, ServerLevel pLevel, BlockPos pPos, ItemStack pStack)
+    {
+        super.spawnAfterBreak(pState, pLevel, pPos, pStack);
 
-   public void spawnAfterBreak(BlockState p_55462_, ServerLevel p_55463_, BlockPos p_55464_, ItemStack p_55465_) {
-      super.spawnAfterBreak(p_55462_, p_55463_, p_55464_, p_55465_);
-      if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, p_55465_) == 0) {
-         int i = 1 + p_55463_.random.nextInt(5);
-         this.popExperience(p_55463_, p_55464_, i);
-      }
+        if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, pStack) == 0)
+        {
+            int i = 1 + pLevel.random.nextInt(5);
+            this.popExperience(pLevel, pPos, i);
+        }
+    }
 
-   }
+    public void animateTick(BlockState pState, Level pLevel, BlockPos pPos, Random pRand)
+    {
+        if (pState.getValue(LIT))
+        {
+            spawnParticles(pLevel, pPos);
+        }
+    }
 
-   public void animateTick(BlockState p_55479_, Level p_55480_, BlockPos p_55481_, Random p_55482_) {
-      if (p_55479_.getValue(LIT)) {
-         spawnParticles(p_55480_, p_55481_);
-      }
+    private static void spawnParticles(Level pLevel, BlockPos pLevelConflicting)
+    {
+        double d0 = 0.5625D;
+        Random random = pLevel.random;
 
-   }
+        for (Direction direction : Direction.values())
+        {
+            BlockPos blockpos = pLevelConflicting.relative(direction);
 
-   private static void spawnParticles(Level p_55455_, BlockPos p_55456_) {
-      double d0 = 0.5625D;
-      Random random = p_55455_.random;
+            if (!pLevel.getBlockState(blockpos).isSolidRender(pLevel, blockpos))
+            {
+                Direction.Axis direction$axis = direction.getAxis();
+                double d1 = direction$axis == Direction.Axis.X ? 0.5D + 0.5625D * (double)direction.getStepX() : (double)random.nextFloat();
+                double d2 = direction$axis == Direction.Axis.Y ? 0.5D + 0.5625D * (double)direction.getStepY() : (double)random.nextFloat();
+                double d3 = direction$axis == Direction.Axis.Z ? 0.5D + 0.5625D * (double)direction.getStepZ() : (double)random.nextFloat();
+                pLevel.addParticle(DustParticleOptions.REDSTONE, (double)pLevelConflicting.getX() + d1, (double)pLevelConflicting.getY() + d2, (double)pLevelConflicting.getZ() + d3, 0.0D, 0.0D, 0.0D);
+            }
+        }
+    }
 
-      for(Direction direction : Direction.values()) {
-         BlockPos blockpos = p_55456_.relative(direction);
-         if (!p_55455_.getBlockState(blockpos).isSolidRender(p_55455_, blockpos)) {
-            Direction.Axis direction$axis = direction.getAxis();
-            double d1 = direction$axis == Direction.Axis.X ? 0.5D + 0.5625D * (double)direction.getStepX() : (double)random.nextFloat();
-            double d2 = direction$axis == Direction.Axis.Y ? 0.5D + 0.5625D * (double)direction.getStepY() : (double)random.nextFloat();
-            double d3 = direction$axis == Direction.Axis.Z ? 0.5D + 0.5625D * (double)direction.getStepZ() : (double)random.nextFloat();
-            p_55455_.addParticle(DustParticleOptions.REDSTONE, (double)p_55456_.getX() + d1, (double)p_55456_.getY() + d2, (double)p_55456_.getZ() + d3, 0.0D, 0.0D, 0.0D);
-         }
-      }
-
-   }
-
-   protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> p_55484_) {
-      p_55484_.add(LIT);
-   }
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder)
+    {
+        pBuilder.m_61104_(LIT);
+    }
 }

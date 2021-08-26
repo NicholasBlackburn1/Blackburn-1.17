@@ -8,76 +8,101 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
-public class ShieldDecorationRecipe extends CustomRecipe {
-   public ShieldDecorationRecipe(ResourceLocation p_44296_) {
-      super(p_44296_);
-   }
+public class ShieldDecorationRecipe extends CustomRecipe
+{
+    public ShieldDecorationRecipe(ResourceLocation p_44296_)
+    {
+        super(p_44296_);
+    }
 
-   public boolean matches(CraftingContainer p_44308_, Level p_44309_) {
-      ItemStack itemstack = ItemStack.EMPTY;
-      ItemStack itemstack1 = ItemStack.EMPTY;
+    public boolean matches(CraftingContainer pInv, Level pLevel)
+    {
+        ItemStack itemstack = ItemStack.EMPTY;
+        ItemStack itemstack1 = ItemStack.EMPTY;
 
-      for(int i = 0; i < p_44308_.getContainerSize(); ++i) {
-         ItemStack itemstack2 = p_44308_.getItem(i);
-         if (!itemstack2.isEmpty()) {
-            if (itemstack2.getItem() instanceof BannerItem) {
-               if (!itemstack1.isEmpty()) {
-                  return false;
-               }
+        for (int i = 0; i < pInv.getContainerSize(); ++i)
+        {
+            ItemStack itemstack2 = pInv.getItem(i);
 
-               itemstack1 = itemstack2;
-            } else {
-               if (!itemstack2.is(Items.SHIELD)) {
-                  return false;
-               }
+            if (!itemstack2.isEmpty())
+            {
+                if (itemstack2.getItem() instanceof BannerItem)
+                {
+                    if (!itemstack1.isEmpty())
+                    {
+                        return false;
+                    }
 
-               if (!itemstack.isEmpty()) {
-                  return false;
-               }
+                    itemstack1 = itemstack2;
+                }
+                else
+                {
+                    if (!itemstack2.is(Items.SHIELD))
+                    {
+                        return false;
+                    }
 
-               if (itemstack2.getTagElement("BlockEntityTag") != null) {
-                  return false;
-               }
+                    if (!itemstack.isEmpty())
+                    {
+                        return false;
+                    }
 
-               itemstack = itemstack2;
+                    if (itemstack2.getTagElement("BlockEntityTag") != null)
+                    {
+                        return false;
+                    }
+
+                    itemstack = itemstack2;
+                }
             }
-         }
-      }
+        }
 
-      return !itemstack.isEmpty() && !itemstack1.isEmpty();
-   }
+        return !itemstack.isEmpty() && !itemstack1.isEmpty();
+    }
 
-   public ItemStack assemble(CraftingContainer p_44306_) {
-      ItemStack itemstack = ItemStack.EMPTY;
-      ItemStack itemstack1 = ItemStack.EMPTY;
+    public ItemStack assemble(CraftingContainer pInv)
+    {
+        ItemStack itemstack = ItemStack.EMPTY;
+        ItemStack itemstack1 = ItemStack.EMPTY;
 
-      for(int i = 0; i < p_44306_.getContainerSize(); ++i) {
-         ItemStack itemstack2 = p_44306_.getItem(i);
-         if (!itemstack2.isEmpty()) {
-            if (itemstack2.getItem() instanceof BannerItem) {
-               itemstack = itemstack2;
-            } else if (itemstack2.is(Items.SHIELD)) {
-               itemstack1 = itemstack2.copy();
+        for (int i = 0; i < pInv.getContainerSize(); ++i)
+        {
+            ItemStack itemstack2 = pInv.getItem(i);
+
+            if (!itemstack2.isEmpty())
+            {
+                if (itemstack2.getItem() instanceof BannerItem)
+                {
+                    itemstack = itemstack2;
+                }
+                else if (itemstack2.is(Items.SHIELD))
+                {
+                    itemstack1 = itemstack2.copy();
+                }
             }
-         }
-      }
+        }
 
-      if (itemstack1.isEmpty()) {
-         return itemstack1;
-      } else {
-         CompoundTag compoundtag = itemstack.getTagElement("BlockEntityTag");
-         CompoundTag compoundtag1 = compoundtag == null ? new CompoundTag() : compoundtag.copy();
-         compoundtag1.putInt("Base", ((BannerItem)itemstack.getItem()).getColor().getId());
-         itemstack1.addTagElement("BlockEntityTag", compoundtag1);
-         return itemstack1;
-      }
-   }
+        if (itemstack1.isEmpty())
+        {
+            return itemstack1;
+        }
+        else
+        {
+            CompoundTag compoundtag = itemstack.getTagElement("BlockEntityTag");
+            CompoundTag compoundtag1 = compoundtag == null ? new CompoundTag() : compoundtag.copy();
+            compoundtag1.putInt("Base", ((BannerItem)itemstack.getItem()).getColor().getId());
+            itemstack1.addTagElement("BlockEntityTag", compoundtag1);
+            return itemstack1;
+        }
+    }
 
-   public boolean canCraftInDimensions(int p_44298_, int p_44299_) {
-      return p_44298_ * p_44299_ >= 2;
-   }
+    public boolean canCraftInDimensions(int pWidth, int pHeight)
+    {
+        return pWidth * pHeight >= 2;
+    }
 
-   public RecipeSerializer<?> getSerializer() {
-      return RecipeSerializer.SHIELD_DECORATION;
-   }
+    public RecipeSerializer<?> getSerializer()
+    {
+        return RecipeSerializer.SHIELD_DECORATION;
+    }
 }

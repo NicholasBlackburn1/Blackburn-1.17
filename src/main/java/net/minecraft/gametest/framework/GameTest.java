@@ -5,22 +5,24 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.METHOD})
+@Target( {ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface GameTest {
-   int timeoutTicks() default 100;
+public @interface GameTest
+{
 
-   String batch() default "defaultBatch";
+int timeoutTicks() default 100;
 
-   int rotationSteps() default 0;
+String batch() default "defaultBatch";
 
-   boolean required() default true;
+int rotationSteps() default 0;
 
-   String template() default "";
+boolean required() default true;
 
-   long setupTicks() default 0L;
+String template() default "";
 
-   int attempts() default 1;
+long setupTicks() default 0L;
 
-   int requiredSuccesses() default 1;
+int attempts() default 1;
+
+int requiredSuccesses() default 1;
 }

@@ -6,59 +6,82 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
-public class IntegerProperty extends Property<Integer> {
-   private final ImmutableSet<Integer> values;
+public class IntegerProperty extends Property<Integer>
+{
+    private final ImmutableSet<Integer> values;
 
-   protected IntegerProperty(String p_61623_, int p_61624_, int p_61625_) {
-      super(p_61623_, Integer.class);
-      if (p_61624_ < 0) {
-         throw new IllegalArgumentException("Min value of " + p_61623_ + " must be 0 or greater");
-      } else if (p_61625_ <= p_61624_) {
-         throw new IllegalArgumentException("Max value of " + p_61623_ + " must be greater than min (" + p_61624_ + ")");
-      } else {
-         Set<Integer> set = Sets.newHashSet();
+    protected IntegerProperty(String p_61623_, int p_61624_, int p_61625_)
+    {
+        super(p_61623_, Integer.class);
 
-         for(int i = p_61624_; i <= p_61625_; ++i) {
-            set.add(i);
-         }
+        if (p_61624_ < 0)
+        {
+            throw new IllegalArgumentException("Min value of " + p_61623_ + " must be 0 or greater");
+        }
+        else if (p_61625_ <= p_61624_)
+        {
+            throw new IllegalArgumentException("Max value of " + p_61623_ + " must be greater than min (" + p_61624_ + ")");
+        }
+        else
+        {
+            Set<Integer> set = Sets.newHashSet();
 
-         this.values = ImmutableSet.copyOf(set);
-      }
-   }
+            for (int i = p_61624_; i <= p_61625_; ++i)
+            {
+                set.add(i);
+            }
 
-   public Collection<Integer> getPossibleValues() {
-      return this.values;
-   }
+            this.values = ImmutableSet.copyOf(set);
+        }
+    }
 
-   public boolean equals(Object p_61639_) {
-      if (this == p_61639_) {
-         return true;
-      } else if (p_61639_ instanceof IntegerProperty && super.equals(p_61639_)) {
-         IntegerProperty integerproperty = (IntegerProperty)p_61639_;
-         return this.values.equals(integerproperty.values);
-      } else {
-         return false;
-      }
-   }
+    public Collection<Integer> getPossibleValues()
+    {
+        return this.values;
+    }
 
-   public int generateHashCode() {
-      return 31 * super.generateHashCode() + this.values.hashCode();
-   }
+    public boolean equals(Object p_61639_)
+    {
+        if (this == p_61639_)
+        {
+            return true;
+        }
+        else if (p_61639_ instanceof IntegerProperty && super.equals(p_61639_))
+        {
+            IntegerProperty integerproperty = (IntegerProperty)p_61639_;
+            return this.values.equals(integerproperty.values);
+        }
+        else
+        {
+            return false;
+        }
+    }
 
-   public static IntegerProperty create(String p_61632_, int p_61633_, int p_61634_) {
-      return new IntegerProperty(p_61632_, p_61633_, p_61634_);
-   }
+    public int generateHashCode()
+    {
+        return 31 * super.generateHashCode() + this.values.hashCode();
+    }
 
-   public Optional<Integer> getValue(String p_61637_) {
-      try {
-         Integer integer = Integer.valueOf(p_61637_);
-         return this.values.contains(integer) ? Optional.of(integer) : Optional.empty();
-      } catch (NumberFormatException numberformatexception) {
-         return Optional.empty();
-      }
-   }
+    public static IntegerProperty create(String pName, int pMin, int pMax)
+    {
+        return new IntegerProperty(pName, pMin, pMax);
+    }
 
-   public String getName(Integer p_61630_) {
-      return p_61630_.toString();
-   }
+    public Optional<Integer> getValue(String pValue)
+    {
+        try
+        {
+            Integer integer = Integer.valueOf(pValue);
+            return this.values.contains(integer) ? Optional.of(integer) : Optional.empty();
+        }
+        catch (NumberFormatException numberformatexception)
+        {
+            return Optional.empty();
+        }
+    }
+
+    public String getName(Integer pValue)
+    {
+        return pValue.toString();
+    }
 }

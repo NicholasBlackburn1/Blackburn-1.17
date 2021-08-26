@@ -14,90 +14,109 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
-public abstract class NetherCappedSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfiguration> {
-   private long seed;
-   private ImmutableMap<BlockState, PerlinNoise> floorNoises = ImmutableMap.of();
-   private ImmutableMap<BlockState, PerlinNoise> ceilingNoises = ImmutableMap.of();
-   private PerlinNoise patchNoise;
+public abstract class NetherCappedSurfaceBuilder extends SurfaceBuilder<SurfaceBuilderBaseConfiguration>
+{
+    private long seed;
+    private ImmutableMap<BlockState, PerlinNoise> floorNoises = ImmutableMap.of();
+    private ImmutableMap<BlockState, PerlinNoise> ceilingNoises = ImmutableMap.of();
+    private PerlinNoise patchNoise;
 
-   public NetherCappedSurfaceBuilder(Codec<SurfaceBuilderBaseConfiguration> p_74989_) {
-      super(p_74989_);
-   }
+    public NetherCappedSurfaceBuilder(Codec<SurfaceBuilderBaseConfiguration> p_74989_)
+    {
+        super(p_74989_);
+    }
 
-   public void apply(Random p_164074_, ChunkAccess p_164075_, Biome p_164076_, int p_164077_, int p_164078_, int p_164079_, double p_164080_, BlockState p_164081_, BlockState p_164082_, int p_164083_, int p_164084_, long p_164085_, SurfaceBuilderBaseConfiguration p_164086_) {
-      int i = p_164083_ + 1;
-      int j = p_164077_ & 15;
-      int k = p_164078_ & 15;
-      int l = (int)(p_164080_ / 3.0D + 3.0D + p_164074_.nextDouble() * 0.25D);
-      int i1 = (int)(p_164080_ / 3.0D + 3.0D + p_164074_.nextDouble() * 0.25D);
-      double d0 = 0.03125D;
-      boolean flag = this.patchNoise.getValue((double)p_164077_ * 0.03125D, 109.0D, (double)p_164078_ * 0.03125D) * 75.0D + p_164074_.nextDouble() > 0.0D;
-      BlockState blockstate = this.ceilingNoises.entrySet().stream().max(Comparator.comparing((p_75030_) -> {
-         return p_75030_.getValue().getValue((double)p_164077_, (double)p_164083_, (double)p_164078_);
-      })).get().getKey();
-      BlockState blockstate1 = this.floorNoises.entrySet().stream().max(Comparator.comparing((p_74994_) -> {
-         return p_74994_.getValue().getValue((double)p_164077_, (double)p_164083_, (double)p_164078_);
-      })).get().getKey();
-      BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
-      BlockState blockstate2 = p_164075_.getBlockState(blockpos$mutableblockpos.set(j, 128, k));
+    public void apply(Random p_164074_, ChunkAccess p_164075_, Biome p_164076_, int p_164077_, int p_164078_, int p_164079_, double p_164080_, BlockState p_164081_, BlockState p_164082_, int p_164083_, int p_164084_, long p_164085_, SurfaceBuilderBaseConfiguration p_164086_)
+    {
+        int i = p_164083_ + 1;
+        int j = p_164077_ & 15;
+        int k = p_164078_ & 15;
+        int l = (int)(p_164080_ / 3.0D + 3.0D + p_164074_.nextDouble() * 0.25D);
+        int i1 = (int)(p_164080_ / 3.0D + 3.0D + p_164074_.nextDouble() * 0.25D);
+        double d0 = 0.03125D;
+        boolean flag = this.patchNoise.getValue((double)p_164077_ * 0.03125D, 109.0D, (double)p_164078_ * 0.03125D) * 75.0D + p_164074_.nextDouble() > 0.0D;
+        BlockState blockstate = this.ceilingNoises.entrySet().stream().max(Comparator.comparing((p_75030_) ->
+        {
+            return p_75030_.getValue().getValue((double)p_164077_, (double)p_164083_, (double)p_164078_);
+        })).get().getKey();
+        BlockState blockstate1 = this.floorNoises.entrySet().stream().max(Comparator.comparing((p_74994_) ->
+        {
+            return p_74994_.getValue().getValue((double)p_164077_, (double)p_164083_, (double)p_164078_);
+        })).get().getKey();
+        BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
+        BlockState blockstate2 = p_164075_.getBlockState(blockpos$mutableblockpos.set(j, 128, k));
 
-      for(int j1 = 127; j1 >= p_164084_; --j1) {
-         blockpos$mutableblockpos.set(j, j1, k);
-         BlockState blockstate3 = p_164075_.getBlockState(blockpos$mutableblockpos);
-         if (blockstate2.is(p_164081_.getBlock()) && (blockstate3.isAir() || blockstate3 == p_164082_)) {
-            for(int k1 = 0; k1 < l; ++k1) {
-               blockpos$mutableblockpos.move(Direction.UP);
-               if (!p_164075_.getBlockState(blockpos$mutableblockpos).is(p_164081_.getBlock())) {
-                  break;
-               }
-
-               p_164075_.setBlockState(blockpos$mutableblockpos, blockstate, false);
-            }
-
+        for (int j1 = 127; j1 >= p_164084_; --j1)
+        {
             blockpos$mutableblockpos.set(j, j1, k);
-         }
+            BlockState blockstate3 = p_164075_.getBlockState(blockpos$mutableblockpos);
 
-         if ((blockstate2.isAir() || blockstate2 == p_164082_) && blockstate3.is(p_164081_.getBlock())) {
-            for(int l1 = 0; l1 < i1 && p_164075_.getBlockState(blockpos$mutableblockpos).is(p_164081_.getBlock()); ++l1) {
-               if (flag && j1 >= i - 4 && j1 <= i + 1) {
-                  p_164075_.setBlockState(blockpos$mutableblockpos, this.getPatchBlockState(), false);
-               } else {
-                  p_164075_.setBlockState(blockpos$mutableblockpos, blockstate1, false);
-               }
+            if (blockstate2.is(p_164081_.getBlock()) && (blockstate3.isAir() || blockstate3 == p_164082_))
+            {
+                for (int k1 = 0; k1 < l; ++k1)
+                {
+                    blockpos$mutableblockpos.move(Direction.UP);
 
-               blockpos$mutableblockpos.move(Direction.DOWN);
+                    if (!p_164075_.getBlockState(blockpos$mutableblockpos).is(p_164081_.getBlock()))
+                    {
+                        break;
+                    }
+
+                    p_164075_.setBlockState(blockpos$mutableblockpos, blockstate, false);
+                }
+
+                blockpos$mutableblockpos.set(j, j1, k);
             }
-         }
 
-         blockstate2 = blockstate3;
-      }
+            if ((blockstate2.isAir() || blockstate2 == p_164082_) && blockstate3.is(p_164081_.getBlock()))
+            {
+                for (int l1 = 0; l1 < i1 && p_164075_.getBlockState(blockpos$mutableblockpos).is(p_164081_.getBlock()); ++l1)
+                {
+                    if (flag && j1 >= i - 4 && j1 <= i + 1)
+                    {
+                        p_164075_.setBlockState(blockpos$mutableblockpos, this.getPatchBlockState(), false);
+                    }
+                    else
+                    {
+                        p_164075_.setBlockState(blockpos$mutableblockpos, blockstate1, false);
+                    }
 
-   }
+                    blockpos$mutableblockpos.move(Direction.DOWN);
+                }
+            }
 
-   public void initNoise(long p_74996_) {
-      if (this.seed != p_74996_ || this.patchNoise == null || this.floorNoises.isEmpty() || this.ceilingNoises.isEmpty()) {
-         this.floorNoises = initPerlinNoises(this.getFloorBlockStates(), p_74996_);
-         this.ceilingNoises = initPerlinNoises(this.getCeilingBlockStates(), p_74996_ + (long)this.floorNoises.size());
-         this.patchNoise = new PerlinNoise(new WorldgenRandom(p_74996_ + (long)this.floorNoises.size() + (long)this.ceilingNoises.size()), ImmutableList.of(0));
-      }
+            blockstate2 = blockstate3;
+        }
+    }
 
-      this.seed = p_74996_;
-   }
+    public void initNoise(long pSeed)
+    {
+        if (this.seed != pSeed || this.patchNoise == null || this.floorNoises.isEmpty() || this.ceilingNoises.isEmpty())
+        {
+            this.floorNoises = initPerlinNoises(this.getFloorBlockStates(), pSeed);
+            this.ceilingNoises = initPerlinNoises(this.getCeilingBlockStates(), pSeed + (long)this.floorNoises.size());
+            this.patchNoise = new PerlinNoise(new WorldgenRandom(pSeed + (long)this.floorNoises.size() + (long)this.ceilingNoises.size()), ImmutableList.of(0));
+        }
 
-   private static ImmutableMap<BlockState, PerlinNoise> initPerlinNoises(ImmutableList<BlockState> p_74998_, long p_74999_) {
-      Builder<BlockState, PerlinNoise> builder = new Builder<>();
+        this.seed = pSeed;
+    }
 
-      for(BlockState blockstate : p_74998_) {
-         builder.put(blockstate, new PerlinNoise(new WorldgenRandom(p_74999_), ImmutableList.of(-4)));
-         ++p_74999_;
-      }
+    private static ImmutableMap<BlockState, PerlinNoise> initPerlinNoises(ImmutableList<BlockState> p_74998_, long p_74999_)
+    {
+        Builder<BlockState, PerlinNoise> builder = new Builder<>();
 
-      return builder.build();
-   }
+        for (BlockState blockstate : p_74998_)
+        {
+            builder.put(blockstate, new PerlinNoise(new WorldgenRandom(p_74999_), ImmutableList.of(-4)));
+            ++p_74999_;
+        }
 
-   protected abstract ImmutableList<BlockState> getFloorBlockStates();
+        return builder.build();
+    }
 
-   protected abstract ImmutableList<BlockState> getCeilingBlockStates();
+    protected abstract ImmutableList<BlockState> getFloorBlockStates();
 
-   protected abstract BlockState getPatchBlockState();
+    protected abstract ImmutableList<BlockState> getCeilingBlockStates();
+
+    protected abstract BlockState getPatchBlockState();
 }

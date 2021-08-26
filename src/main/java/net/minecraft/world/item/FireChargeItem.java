@@ -16,41 +16,54 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.gameevent.GameEvent;
 
-public class FireChargeItem extends Item {
-   public FireChargeItem(Item.Properties p_41202_) {
-      super(p_41202_);
-   }
+public class FireChargeItem extends Item
+{
+    public FireChargeItem(Item.Properties p_41202_)
+    {
+        super(p_41202_);
+    }
 
-   public InteractionResult useOn(UseOnContext p_41204_) {
-      Level level = p_41204_.getLevel();
-      BlockPos blockpos = p_41204_.getClickedPos();
-      BlockState blockstate = level.getBlockState(blockpos);
-      boolean flag = false;
-      if (!CampfireBlock.canLight(blockstate) && !CandleBlock.canLight(blockstate) && !CandleCakeBlock.canLight(blockstate)) {
-         blockpos = blockpos.relative(p_41204_.getClickedFace());
-         if (BaseFireBlock.canBePlacedAt(level, blockpos, p_41204_.getHorizontalDirection())) {
+    public InteractionResult useOn(UseOnContext pContext)
+    {
+        Level level = pContext.getLevel();
+        BlockPos blockpos = pContext.getClickedPos();
+        BlockState blockstate = level.getBlockState(blockpos);
+        boolean flag = false;
+
+        if (!CampfireBlock.canLight(blockstate) && !CandleBlock.canLight(blockstate) && !CandleCakeBlock.canLight(blockstate))
+        {
+            blockpos = blockpos.relative(pContext.getClickedFace());
+
+            if (BaseFireBlock.canBePlacedAt(level, blockpos, pContext.getHorizontalDirection()))
+            {
+                this.playSound(level, blockpos);
+                level.setBlockAndUpdate(blockpos, BaseFireBlock.getState(level, blockpos));
+                level.gameEvent(pContext.getPlayer(), GameEvent.BLOCK_PLACE, blockpos);
+                flag = true;
+            }
+        }
+        else
+        {
             this.playSound(level, blockpos);
-            level.setBlockAndUpdate(blockpos, BaseFireBlock.getState(level, blockpos));
-            level.gameEvent(p_41204_.getPlayer(), GameEvent.BLOCK_PLACE, blockpos);
+            level.setBlockAndUpdate(blockpos, blockstate.setValue(BlockStateProperties.LIT, Boolean.valueOf(true)));
+            level.gameEvent(pContext.getPlayer(), GameEvent.BLOCK_PLACE, blockpos);
             flag = true;
-         }
-      } else {
-         this.playSound(level, blockpos);
-         level.setBlockAndUpdate(blockpos, blockstate.setValue(BlockStateProperties.LIT, Boolean.valueOf(true)));
-         level.gameEvent(p_41204_.getPlayer(), GameEvent.BLOCK_PLACE, blockpos);
-         flag = true;
-      }
+        }
 
-      if (flag) {
-         p_41204_.getItemInHand().shrink(1);
-         return InteractionResult.sidedSuccess(level.isClientSide);
-      } else {
-         return InteractionResult.FAIL;
-      }
-   }
+        if (flag)
+        {
+            pContext.getItemInHand().shrink(1);
+            return InteractionResult.sidedSuccess(level.isClientSide);
+        }
+        else
+        {
+            return InteractionResult.FAIL;
+        }
+    }
 
-   private void playSound(Level p_41206_, BlockPos p_41207_) {
-      Random random = p_41206_.getRandom();
-      p_41206_.playSound((Player)null, p_41207_, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS, 1.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F);
-   }
+    private void playSound(Level pLevel, BlockPos pPos)
+    {
+        Random random = pLevel.getRandom();
+        pLevel.playSound((Player)null, pPos, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS, 1.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F);
+    }
 }

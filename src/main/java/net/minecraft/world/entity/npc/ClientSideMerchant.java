@@ -10,54 +10,67 @@ import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.Level;
 
-public class ClientSideMerchant implements Merchant {
-   private final Player source;
-   private MerchantOffers offers = new MerchantOffers();
-   private int xp;
+public class ClientSideMerchant implements Merchant
+{
+    private final Player source;
+    private MerchantOffers offers = new MerchantOffers();
+    private int xp;
 
-   public ClientSideMerchant(Player p_35344_) {
-      this.source = p_35344_;
-   }
+    public ClientSideMerchant(Player p_35344_)
+    {
+        this.source = p_35344_;
+    }
 
-   public Player getTradingPlayer() {
-      return this.source;
-   }
+    public Player getTradingPlayer()
+    {
+        return this.source;
+    }
 
-   public void setTradingPlayer(@Nullable Player p_35356_) {
-   }
+    public void setTradingPlayer(@Nullable Player pPlayer)
+    {
+    }
 
-   public MerchantOffers getOffers() {
-      return this.offers;
-   }
+    public MerchantOffers getOffers()
+    {
+        return this.offers;
+    }
 
-   public void overrideOffers(MerchantOffers p_35348_) {
-      this.offers = p_35348_;
-   }
+    public void overrideOffers(MerchantOffers pOffers)
+    {
+        this.offers = pOffers;
+    }
 
-   public void notifyTrade(MerchantOffer p_35346_) {
-      p_35346_.increaseUses();
-   }
+    public void notifyTrade(MerchantOffer pOffer)
+    {
+        pOffer.increaseUses();
+    }
 
-   public void notifyTradeUpdated(ItemStack p_35358_) {
-   }
+    public void notifyTradeUpdated(ItemStack pStack)
+    {
+    }
 
-   public Level getLevel() {
-      return this.source.level;
-   }
+    public Level getLevel()
+    {
+        return this.source.level;
+    }
 
-   public int getVillagerXp() {
-      return this.xp;
-   }
+    public int getVillagerXp()
+    {
+        return this.xp;
+    }
 
-   public void overrideXp(int p_35360_) {
-      this.xp = p_35360_;
-   }
+    public void overrideXp(int pXp)
+    {
+        this.xp = pXp;
+    }
 
-   public boolean showProgressBar() {
-      return true;
-   }
+    public boolean showProgressBar()
+    {
+        return true;
+    }
 
-   public SoundEvent getNotifyTradeSound() {
-      return SoundEvents.VILLAGER_YES;
-   }
+    public SoundEvent getNotifyTradeSound()
+    {
+        return SoundEvents.VILLAGER_YES;
+    }
 }

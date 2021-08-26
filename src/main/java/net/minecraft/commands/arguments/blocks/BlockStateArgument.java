@@ -12,36 +12,45 @@ import java.util.concurrent.CompletableFuture;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.tags.BlockTags;
 
-public class BlockStateArgument implements ArgumentType<BlockInput> {
-   private static final Collection<String> EXAMPLES = Arrays.asList("stone", "minecraft:stone", "stone[foo=bar]", "foo{bar=baz}");
+public class BlockStateArgument implements ArgumentType<BlockInput>
+{
+    private static final Collection<String> EXAMPLES = Arrays.asList("stone", "minecraft:stone", "stone[foo=bar]", "foo{bar=baz}");
 
-   public static BlockStateArgument block() {
-      return new BlockStateArgument();
-   }
+    public static BlockStateArgument block()
+    {
+        return new BlockStateArgument();
+    }
 
-   public BlockInput parse(StringReader p_116122_) throws CommandSyntaxException {
-      BlockStateParser blockstateparser = (new BlockStateParser(p_116122_, false)).parse(true);
-      return new BlockInput(blockstateparser.getState(), blockstateparser.getProperties().keySet(), blockstateparser.getNbt());
-   }
+    public BlockInput parse(StringReader p_116122_) throws CommandSyntaxException
+    {
+        BlockStateParser blockstateparser = (new BlockStateParser(p_116122_, false)).parse(true);
+        return new BlockInput(blockstateparser.getState(), blockstateparser.getProperties().keySet(), blockstateparser.getNbt());
+    }
 
-   public static BlockInput getBlock(CommandContext<CommandSourceStack> p_116124_, String p_116125_) {
-      return p_116124_.getArgument(p_116125_, BlockInput.class);
-   }
+    public static BlockInput getBlock(CommandContext<CommandSourceStack> pContext, String pName)
+    {
+        return pContext.getArgument(pName, BlockInput.class);
+    }
 
-   public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> p_116128_, SuggestionsBuilder p_116129_) {
-      StringReader stringreader = new StringReader(p_116129_.getInput());
-      stringreader.setCursor(p_116129_.getStart());
-      BlockStateParser blockstateparser = new BlockStateParser(stringreader, false);
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> p_116128_, SuggestionsBuilder p_116129_)
+    {
+        StringReader stringreader = new StringReader(p_116129_.getInput());
+        stringreader.setCursor(p_116129_.getStart());
+        BlockStateParser blockstateparser = new BlockStateParser(stringreader, false);
 
-      try {
-         blockstateparser.parse(true);
-      } catch (CommandSyntaxException commandsyntaxexception) {
-      }
+        try
+        {
+            blockstateparser.parse(true);
+        }
+        catch (CommandSyntaxException commandsyntaxexception)
+        {
+        }
 
-      return blockstateparser.fillSuggestions(p_116129_, BlockTags.getAllTags());
-   }
+        return blockstateparser.fillSuggestions(p_116129_, BlockTags.getAllTags());
+    }
 
-   public Collection<String> getExamples() {
-      return EXAMPLES;
-   }
+    public Collection<String> getExamples()
+    {
+        return EXAMPLES;
+    }
 }

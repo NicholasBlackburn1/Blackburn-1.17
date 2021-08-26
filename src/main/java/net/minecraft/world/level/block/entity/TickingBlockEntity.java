@@ -2,12 +2,13 @@ package net.minecraft.world.level.block.entity;
 
 import net.minecraft.core.BlockPos;
 
-public interface TickingBlockEntity {
-   void tick();
+public interface TickingBlockEntity
+{
+    void tick();
 
-   boolean isRemoved();
+    boolean isRemoved();
 
-   BlockPos getPos();
+    BlockPos getPos();
 
-   String getType();
+    String getType();
 }

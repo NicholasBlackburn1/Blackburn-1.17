@@ -12,72 +12,90 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.animal.Squid;
 import net.minecraft.world.level.Level;
 
-public class GlowSquid extends Squid {
-   private static final EntityDataAccessor<Integer> DATA_DARK_TICKS_REMAINING = SynchedEntityData.defineId(GlowSquid.class, EntityDataSerializers.INT);
+public class GlowSquid extends Squid
+{
+    private static final EntityDataAccessor<Integer> DATA_DARK_TICKS_REMAINING = SynchedEntityData.defineId(GlowSquid.class, EntityDataSerializers.INT);
 
-   public GlowSquid(EntityType<? extends GlowSquid> p_147111_, Level p_147112_) {
-      super(p_147111_, p_147112_);
-   }
+    public GlowSquid(EntityType <? extends GlowSquid > p_147111_, Level p_147112_)
+    {
+        super(p_147111_, p_147112_);
+    }
 
-   protected ParticleOptions getInkParticle() {
-      return ParticleTypes.GLOW_SQUID_INK;
-   }
+    protected ParticleOptions getInkParticle()
+    {
+        return ParticleTypes.GLOW_SQUID_INK;
+    }
 
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.entityData.define(DATA_DARK_TICKS_REMAINING, 0);
-   }
+    protected void defineSynchedData()
+    {
+        super.defineSynchedData();
+        this.entityData.define(DATA_DARK_TICKS_REMAINING, 0);
+    }
 
-   protected SoundEvent getSquirtSound() {
-      return SoundEvents.GLOW_SQUID_SQUIRT;
-   }
+    protected SoundEvent getSquirtSound()
+    {
+        return SoundEvents.GLOW_SQUID_SQUIRT;
+    }
 
-   protected SoundEvent getAmbientSound() {
-      return SoundEvents.GLOW_SQUID_AMBIENT;
-   }
+    protected SoundEvent getAmbientSound()
+    {
+        return SoundEvents.GLOW_SQUID_AMBIENT;
+    }
 
-   protected SoundEvent getHurtSound(DamageSource p_147124_) {
-      return SoundEvents.GLOW_SQUID_HURT;
-   }
+    protected SoundEvent getHurtSound(DamageSource p_147124_)
+    {
+        return SoundEvents.GLOW_SQUID_HURT;
+    }
 
-   protected SoundEvent getDeathSound() {
-      return SoundEvents.GLOW_SQUID_DEATH;
-   }
+    protected SoundEvent getDeathSound()
+    {
+        return SoundEvents.GLOW_SQUID_DEATH;
+    }
 
-   public void addAdditionalSaveData(CompoundTag p_147122_) {
-      super.addAdditionalSaveData(p_147122_);
-      p_147122_.putInt("DarkTicksRemaining", this.getDarkTicksRemaining());
-   }
+    public void addAdditionalSaveData(CompoundTag p_147122_)
+    {
+        super.addAdditionalSaveData(p_147122_);
+        p_147122_.putInt("DarkTicksRemaining", this.getDarkTicksRemaining());
+    }
 
-   public void readAdditionalSaveData(CompoundTag p_147117_) {
-      super.readAdditionalSaveData(p_147117_);
-      this.setDarkTicks(p_147117_.getInt("DarkTicksRemaining"));
-   }
+    public void readAdditionalSaveData(CompoundTag p_147117_)
+    {
+        super.readAdditionalSaveData(p_147117_);
+        this.setDarkTicks(p_147117_.getInt("DarkTicksRemaining"));
+    }
 
-   public void aiStep() {
-      super.aiStep();
-      int i = this.getDarkTicksRemaining();
-      if (i > 0) {
-         this.setDarkTicks(i - 1);
-      }
+    public void aiStep()
+    {
+        super.aiStep();
+        int i = this.getDarkTicksRemaining();
 
-      this.level.addParticle(ParticleTypes.GLOW, this.getRandomX(0.6D), this.getRandomY(), this.getRandomZ(0.6D), 0.0D, 0.0D, 0.0D);
-   }
+        if (i > 0)
+        {
+            this.setDarkTicks(i - 1);
+        }
 
-   public boolean hurt(DamageSource p_147114_, float p_147115_) {
-      boolean flag = super.hurt(p_147114_, p_147115_);
-      if (flag) {
-         this.setDarkTicks(100);
-      }
+        this.level.addParticle(ParticleTypes.GLOW, this.getRandomX(0.6D), this.getRandomY(), this.getRandomZ(0.6D), 0.0D, 0.0D, 0.0D);
+    }
 
-      return flag;
-   }
+    public boolean hurt(DamageSource p_147114_, float p_147115_)
+    {
+        boolean flag = super.hurt(p_147114_, p_147115_);
 
-   private void setDarkTicks(int p_147120_) {
-      this.entityData.set(DATA_DARK_TICKS_REMAINING, p_147120_);
-   }
+        if (flag)
+        {
+            this.setDarkTicks(100);
+        }
 
-   public int getDarkTicksRemaining() {
-      return this.entityData.get(DATA_DARK_TICKS_REMAINING);
-   }
+        return flag;
+    }
+
+    private void setDarkTicks(int p_147120_)
+    {
+        this.entityData.set(DATA_DARK_TICKS_REMAINING, p_147120_);
+    }
+
+    public int getDarkTicksRemaining()
+    {
+        return this.entityData.get(DATA_DARK_TICKS_REMAINING);
+    }
 }

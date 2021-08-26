@@ -10,92 +10,106 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
-public abstract class Team {
-   public boolean isAlliedTo(@Nullable Team p_83537_) {
-      if (p_83537_ == null) {
-         return false;
-      } else {
-         return this == p_83537_;
-      }
-   }
+public abstract class Team
+{
+    public boolean isAlliedTo(@Nullable Team pOther)
+    {
+        if (pOther == null)
+        {
+            return false;
+        }
+        else
+        {
+            return this == pOther;
+        }
+    }
 
-   public abstract String getName();
+    public abstract String getName();
 
-   public abstract MutableComponent getFormattedName(Component p_83538_);
+    public abstract MutableComponent getFormattedName(Component p_83538_);
 
-   public abstract boolean canSeeFriendlyInvisibles();
+    public abstract boolean canSeeFriendlyInvisibles();
 
-   public abstract boolean isAllowFriendlyFire();
+    public abstract boolean isAllowFriendlyFire();
 
-   public abstract Team.Visibility getNameTagVisibility();
+    public abstract Team.Visibility getNameTagVisibility();
 
-   public abstract ChatFormatting getColor();
+    public abstract ChatFormatting getColor();
 
-   public abstract Collection<String> getPlayers();
+    public abstract Collection<String> getPlayers();
 
-   public abstract Team.Visibility getDeathMessageVisibility();
+    public abstract Team.Visibility getDeathMessageVisibility();
 
-   public abstract Team.CollisionRule getCollisionRule();
+    public abstract Team.CollisionRule getCollisionRule();
 
-   public static enum CollisionRule {
-      ALWAYS("always", 0),
-      NEVER("never", 1),
-      PUSH_OTHER_TEAMS("pushOtherTeams", 2),
-      PUSH_OWN_TEAM("pushOwnTeam", 3);
+    public static enum CollisionRule
+    {
+        ALWAYS("always", 0),
+        NEVER("never", 1),
+        PUSH_OTHER_TEAMS("pushOtherTeams", 2),
+        PUSH_OWN_TEAM("pushOwnTeam", 3);
 
-      private static final Map<String, Team.CollisionRule> BY_NAME = Arrays.stream(values()).collect(Collectors.toMap((p_83559_) -> {
-         return p_83559_.name;
-      }, (p_83554_) -> {
-         return p_83554_;
-      }));
-      public final String name;
-      public final int id;
+        private static final Map<String, Team.CollisionRule> BY_NAME = Arrays.stream(values()).collect(Collectors.toMap((p_83559_) -> {
+            return p_83559_.name;
+        }, (p_83554_) -> {
+            return p_83554_;
+        }));
+        public final String name;
+        public final int id;
 
-      @Nullable
-      public static Team.CollisionRule byName(String p_83556_) {
-         return BY_NAME.get(p_83556_);
-      }
+        @Nullable
+        public static Team.CollisionRule byName(String pName)
+        {
+            return BY_NAME.get(pName);
+        }
 
-      private CollisionRule(String p_83551_, int p_83552_) {
-         this.name = p_83551_;
-         this.id = p_83552_;
-      }
+        private CollisionRule(String p_83551_, int p_83552_)
+        {
+            this.name = p_83551_;
+            this.id = p_83552_;
+        }
 
-      public Component getDisplayName() {
-         return new TranslatableComponent("team.collision." + this.name);
-      }
-   }
+        public Component getDisplayName()
+        {
+            return new TranslatableComponent("team.collision." + this.name);
+        }
+    }
 
-   public static enum Visibility {
-      ALWAYS("always", 0),
-      NEVER("never", 1),
-      HIDE_FOR_OTHER_TEAMS("hideForOtherTeams", 2),
-      HIDE_FOR_OWN_TEAM("hideForOwnTeam", 3);
+    public static enum Visibility
+    {
+        ALWAYS("always", 0),
+        NEVER("never", 1),
+        HIDE_FOR_OTHER_TEAMS("hideForOtherTeams", 2),
+        HIDE_FOR_OWN_TEAM("hideForOwnTeam", 3);
 
-      private static final Map<String, Team.Visibility> BY_NAME = Arrays.stream(values()).collect(Collectors.toMap((p_83583_) -> {
-         return p_83583_.name;
-      }, (p_83578_) -> {
-         return p_83578_;
-      }));
-      public final String name;
-      public final int id;
+        private static final Map<String, Team.Visibility> BY_NAME = Arrays.stream(values()).collect(Collectors.toMap((p_83583_) -> {
+            return p_83583_.name;
+        }, (p_83578_) -> {
+            return p_83578_;
+        }));
+        public final String name;
+        public final int id;
 
-      public static String[] getAllNames() {
-         return BY_NAME.keySet().toArray(new String[BY_NAME.size()]);
-      }
+        public static String[] getAllNames()
+        {
+            return BY_NAME.keySet().toArray(new String[BY_NAME.size()]);
+        }
 
-      @Nullable
-      public static Team.Visibility byName(String p_83580_) {
-         return BY_NAME.get(p_83580_);
-      }
+        @Nullable
+        public static Team.Visibility byName(String pName)
+        {
+            return BY_NAME.get(pName);
+        }
 
-      private Visibility(String p_83575_, int p_83576_) {
-         this.name = p_83575_;
-         this.id = p_83576_;
-      }
+        private Visibility(String p_83575_, int p_83576_)
+        {
+            this.name = p_83575_;
+            this.id = p_83576_;
+        }
 
-      public Component getDisplayName() {
-         return new TranslatableComponent("team.visibility." + this.name);
-      }
-   }
+        public Component getDisplayName()
+        {
+            return new TranslatableComponent("team.visibility." + this.name);
+        }
+    }
 }

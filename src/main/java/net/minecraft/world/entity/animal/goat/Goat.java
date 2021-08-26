@@ -47,211 +47,264 @@ import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 
-public class Goat extends Animal {
-   public static final EntityDimensions LONG_JUMPING_DIMENSIONS = EntityDimensions.scalable(0.9F, 1.3F).scale(0.7F);
-   private static final int ADULT_ATTACK_DAMAGE = 2;
-   private static final int BABY_ATTACK_DAMAGE = 1;
-   protected static final ImmutableList<SensorType<? extends Sensor<? super Goat>>> SENSOR_TYPES = ImmutableList.of(SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.NEAREST_ADULT, SensorType.HURT_BY, SensorType.GOAT_TEMPTATIONS);
-   protected static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(MemoryModuleType.LOOK_TARGET, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.PATH, MemoryModuleType.ATE_RECENTLY, MemoryModuleType.BREED_TARGET, MemoryModuleType.LONG_JUMP_COOLDOWN_TICKS, MemoryModuleType.LONG_JUMP_MID_JUMP, MemoryModuleType.TEMPTING_PLAYER, MemoryModuleType.NEAREST_VISIBLE_ADULT, MemoryModuleType.TEMPTATION_COOLDOWN_TICKS, MemoryModuleType.IS_TEMPTED, MemoryModuleType.RAM_COOLDOWN_TICKS, MemoryModuleType.RAM_TARGET);
-   public static final int GOAT_FALL_DAMAGE_REDUCTION = 10;
-   public static final double GOAT_SCREAMING_CHANCE = 0.02D;
-   private static final EntityDataAccessor<Boolean> DATA_IS_SCREAMING_GOAT = SynchedEntityData.defineId(Goat.class, EntityDataSerializers.BOOLEAN);
-   private boolean isLoweringHead;
-   private int lowerHeadTick;
+public class Goat extends Animal
+{
+    public static final EntityDimensions LONG_JUMPING_DIMENSIONS = EntityDimensions.scalable(0.9F, 1.3F).scale(0.7F);
+    private static final int f_182382_ = 2;
+    private static final int f_182383_ = 1;
+    protected static final ImmutableList < SensorType <? extends Sensor <? super Goat >>> SENSOR_TYPES = ImmutableList.of(SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.NEAREST_ADULT, SensorType.HURT_BY, SensorType.GOAT_TEMPTATIONS);
+    protected static final ImmutableList < MemoryModuleType<? >> MEMORY_TYPES = ImmutableList.of(MemoryModuleType.LOOK_TARGET, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.PATH, MemoryModuleType.ATE_RECENTLY, MemoryModuleType.BREED_TARGET, MemoryModuleType.LONG_JUMP_COOLDOWN_TICKS, MemoryModuleType.LONG_JUMP_MID_JUMP, MemoryModuleType.TEMPTING_PLAYER, MemoryModuleType.NEAREST_VISIBLE_ADULT, MemoryModuleType.TEMPTATION_COOLDOWN_TICKS, MemoryModuleType.IS_TEMPTED, MemoryModuleType.RAM_COOLDOWN_TICKS, MemoryModuleType.RAM_TARGET);
+    public static final int GOAT_FALL_DAMAGE_REDUCTION = 10;
+    public static final double GOAT_SCREAMING_CHANCE = 0.02D;
+    private static final EntityDataAccessor<Boolean> DATA_IS_SCREAMING_GOAT = SynchedEntityData.defineId(Goat.class, EntityDataSerializers.BOOLEAN);
+    private boolean isLoweringHead;
+    private int lowerHeadTick;
 
-   public Goat(EntityType<? extends Goat> p_149352_, Level p_149353_) {
-      super(p_149352_, p_149353_);
-      this.getNavigation().setCanFloat(true);
-   }
+    public Goat(EntityType <? extends Goat > p_149352_, Level p_149353_)
+    {
+        super(p_149352_, p_149353_);
+        this.getNavigation().setCanFloat(true);
+    }
 
-   protected Brain.Provider<Goat> brainProvider() {
-      return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
-   }
+    protected Brain.Provider<Goat> brainProvider()
+    {
+        return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
+    }
 
-   protected Brain<?> makeBrain(Dynamic<?> p_149371_) {
-      return GoatAi.makeBrain(this.brainProvider().makeBrain(p_149371_));
-   }
+    protected Brain<?> makeBrain(Dynamic<?> p_149371_)
+    {
+        return GoatAi.makeBrain(this.brainProvider().makeBrain(p_149371_));
+    }
 
-   public static AttributeSupplier.Builder createAttributes() {
-      return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.MOVEMENT_SPEED, (double)0.2F).add(Attributes.ATTACK_DAMAGE, 2.0D);
-   }
+    public static AttributeSupplier.Builder createAttributes()
+    {
+        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.MOVEMENT_SPEED, (double)0.2F).add(Attributes.ATTACK_DAMAGE, 2.0D);
+    }
 
-   protected void ageBoundaryReached() {
-      if (this.isBaby()) {
-         this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(1.0D);
-      } else {
-         this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(2.0D);
-      }
+    protected void ageBoundaryReached()
+    {
+        if (this.isBaby())
+        {
+            this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(1.0D);
+        }
+        else
+        {
+            this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(2.0D);
+        }
+    }
 
-   }
+    protected int calculateFallDamage(float p_149389_, float p_149390_)
+    {
+        return super.calculateFallDamage(p_149389_, p_149390_) - 10;
+    }
 
-   protected int calculateFallDamage(float p_149389_, float p_149390_) {
-      return super.calculateFallDamage(p_149389_, p_149390_) - 10;
-   }
+    protected SoundEvent getAmbientSound()
+    {
+        return this.isScreamingGoat() ? SoundEvents.GOAT_SCREAMING_AMBIENT : SoundEvents.GOAT_AMBIENT;
+    }
 
-   protected SoundEvent getAmbientSound() {
-      return this.isScreamingGoat() ? SoundEvents.GOAT_SCREAMING_AMBIENT : SoundEvents.GOAT_AMBIENT;
-   }
+    protected SoundEvent getHurtSound(DamageSource p_149387_)
+    {
+        return this.isScreamingGoat() ? SoundEvents.GOAT_SCREAMING_HURT : SoundEvents.GOAT_HURT;
+    }
 
-   protected SoundEvent getHurtSound(DamageSource p_149387_) {
-      return this.isScreamingGoat() ? SoundEvents.GOAT_SCREAMING_HURT : SoundEvents.GOAT_HURT;
-   }
+    protected SoundEvent getDeathSound()
+    {
+        return this.isScreamingGoat() ? SoundEvents.GOAT_SCREAMING_DEATH : SoundEvents.GOAT_DEATH;
+    }
 
-   protected SoundEvent getDeathSound() {
-      return this.isScreamingGoat() ? SoundEvents.GOAT_SCREAMING_DEATH : SoundEvents.GOAT_DEATH;
-   }
+    protected void playStepSound(BlockPos p_149382_, BlockState p_149383_)
+    {
+        this.playSound(SoundEvents.GOAT_STEP, 0.15F, 1.0F);
+    }
 
-   protected void playStepSound(BlockPos p_149382_, BlockState p_149383_) {
-      this.playSound(SoundEvents.GOAT_STEP, 0.15F, 1.0F);
-   }
+    protected SoundEvent getMilkingSound()
+    {
+        return this.isScreamingGoat() ? SoundEvents.GOAT_SCREAMING_MILK : SoundEvents.GOAT_MILK;
+    }
 
-   protected SoundEvent getMilkingSound() {
-      return this.isScreamingGoat() ? SoundEvents.GOAT_SCREAMING_MILK : SoundEvents.GOAT_MILK;
-   }
+    public Goat getBreedOffspring(ServerLevel p_149376_, AgeableMob p_149377_)
+    {
+        Goat goat = EntityType.GOAT.create(p_149376_);
 
-   public Goat getBreedOffspring(ServerLevel p_149376_, AgeableMob p_149377_) {
-      Goat goat = EntityType.GOAT.create(p_149376_);
-      if (goat != null) {
-         GoatAi.initMemories(goat);
-         boolean flag = p_149377_ instanceof Goat && ((Goat)p_149377_).isScreamingGoat();
-         goat.setScreamingGoat(flag || p_149376_.getRandom().nextDouble() < 0.02D);
-      }
+        if (goat != null)
+        {
+            GoatAi.initMemories(goat);
+            boolean flag = p_149377_ instanceof Goat && ((Goat)p_149377_).isScreamingGoat();
+            goat.setScreamingGoat(flag || p_149376_.getRandom().nextDouble() < 0.02D);
+        }
 
-      return goat;
-   }
+        return goat;
+    }
 
-   public Brain<Goat> getBrain() {
-      return (Brain<Goat>)super.getBrain();
-   }
+    public Brain<Goat> getBrain()
+    {
+        return (Brain<Goat>)super.getBrain();
+    }
 
-   protected void customServerAiStep() {
-      this.level.getProfiler().push("goatBrain");
-      this.getBrain().tick((ServerLevel)this.level, this);
-      this.level.getProfiler().pop();
-      this.level.getProfiler().push("goatActivityUpdate");
-      GoatAi.updateActivity(this);
-      this.level.getProfiler().pop();
-      super.customServerAiStep();
-   }
+    protected void customServerAiStep()
+    {
+        this.level.getProfiler().push("goatBrain");
+        this.getBrain().tick((ServerLevel)this.level, this);
+        this.level.getProfiler().pop();
+        this.level.getProfiler().push("goatActivityUpdate");
+        GoatAi.updateActivity(this);
+        this.level.getProfiler().pop();
+        super.customServerAiStep();
+    }
 
-   public int getMaxHeadYRot() {
-      return 15;
-   }
+    public int getMaxHeadYRot()
+    {
+        return 15;
+    }
 
-   public void setYHeadRot(float p_149400_) {
-      int i = this.getMaxHeadYRot();
-      float f = Mth.degreesDifference(this.yBodyRot, p_149400_);
-      float f1 = Mth.clamp(f, (float)(-i), (float)i);
-      super.setYHeadRot(this.yBodyRot + f1);
-   }
+    public void setYHeadRot(float p_149400_)
+    {
+        int i = this.getMaxHeadYRot();
+        float f = Mth.degreesDifference(this.yBodyRot, p_149400_);
+        float f1 = Mth.clamp(f, (float)(-i), (float)i);
+        super.setYHeadRot(this.yBodyRot + f1);
+    }
 
-   public SoundEvent getEatingSound(ItemStack p_149394_) {
-      return this.isScreamingGoat() ? SoundEvents.GOAT_SCREAMING_EAT : SoundEvents.GOAT_EAT;
-   }
+    public SoundEvent getEatingSound(ItemStack p_149394_)
+    {
+        return this.isScreamingGoat() ? SoundEvents.GOAT_SCREAMING_EAT : SoundEvents.GOAT_EAT;
+    }
 
-   public InteractionResult mobInteract(Player p_149379_, InteractionHand p_149380_) {
-      ItemStack itemstack = p_149379_.getItemInHand(p_149380_);
-      if (itemstack.is(Items.BUCKET) && !this.isBaby()) {
-         p_149379_.playSound(this.getMilkingSound(), 1.0F, 1.0F);
-         ItemStack itemstack1 = ItemUtils.createFilledResult(itemstack, p_149379_, Items.MILK_BUCKET.getDefaultInstance());
-         p_149379_.setItemInHand(p_149380_, itemstack1);
-         return InteractionResult.sidedSuccess(this.level.isClientSide);
-      } else {
-         InteractionResult interactionresult = super.mobInteract(p_149379_, p_149380_);
-         if (interactionresult.consumesAction() && this.isFood(itemstack)) {
-            this.level.playSound((Player)null, this, this.getEatingSound(itemstack), SoundSource.NEUTRAL, 1.0F, Mth.randomBetween(this.level.random, 0.8F, 1.2F));
-         }
+    public InteractionResult mobInteract(Player p_149379_, InteractionHand p_149380_)
+    {
+        ItemStack itemstack = p_149379_.getItemInHand(p_149380_);
 
-         return interactionresult;
-      }
-   }
+        if (itemstack.is(Items.BUCKET) && !this.isBaby())
+        {
+            p_149379_.playSound(this.getMilkingSound(), 1.0F, 1.0F);
+            ItemStack itemstack1 = ItemUtils.createFilledResult(itemstack, p_149379_, Items.MILK_BUCKET.getDefaultInstance());
+            p_149379_.setItemInHand(p_149380_, itemstack1);
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
+        }
+        else
+        {
+            InteractionResult interactionresult = super.mobInteract(p_149379_, p_149380_);
 
-   public SpawnGroupData finalizeSpawn(ServerLevelAccessor p_149365_, DifficultyInstance p_149366_, MobSpawnType p_149367_, @Nullable SpawnGroupData p_149368_, @Nullable CompoundTag p_149369_) {
-      GoatAi.initMemories(this);
-      this.setScreamingGoat(p_149365_.getRandom().nextDouble() < 0.02D);
-      return super.finalizeSpawn(p_149365_, p_149366_, p_149367_, p_149368_, p_149369_);
-   }
+            if (interactionresult.consumesAction() && this.isFood(itemstack))
+            {
+                this.level.playSound((Player)null, this, this.getEatingSound(itemstack), SoundSource.NEUTRAL, 1.0F, Mth.randomBetween(this.level.random, 0.8F, 1.2F));
+            }
 
-   protected void sendDebugPackets() {
-      super.sendDebugPackets();
-      DebugPackets.sendEntityBrain(this);
-   }
+            return interactionresult;
+        }
+    }
 
-   public EntityDimensions getDimensions(Pose p_149361_) {
-      return p_149361_ == Pose.LONG_JUMPING ? LONG_JUMPING_DIMENSIONS.scale(this.getScale()) : super.getDimensions(p_149361_);
-   }
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor p_149365_, DifficultyInstance p_149366_, MobSpawnType p_149367_, @Nullable SpawnGroupData p_149368_, @Nullable CompoundTag p_149369_)
+    {
+        GoatAi.initMemories(this);
+        this.setScreamingGoat(p_149365_.getRandom().nextDouble() < 0.02D);
+        return super.finalizeSpawn(p_149365_, p_149366_, p_149367_, p_149368_, p_149369_);
+    }
 
-   public void addAdditionalSaveData(CompoundTag p_149385_) {
-      super.addAdditionalSaveData(p_149385_);
-      p_149385_.putBoolean("IsScreamingGoat", this.isScreamingGoat());
-   }
+    protected void sendDebugPackets()
+    {
+        super.sendDebugPackets();
+        DebugPackets.sendEntityBrain(this);
+    }
 
-   public void readAdditionalSaveData(CompoundTag p_149373_) {
-      super.readAdditionalSaveData(p_149373_);
-      this.setScreamingGoat(p_149373_.getBoolean("IsScreamingGoat"));
-   }
+    public EntityDimensions getDimensions(Pose p_149361_)
+    {
+        return p_149361_ == Pose.LONG_JUMPING ? LONG_JUMPING_DIMENSIONS.scale(this.getScale()) : super.getDimensions(p_149361_);
+    }
 
-   public void handleEntityEvent(byte p_149356_) {
-      if (p_149356_ == 58) {
-         this.isLoweringHead = true;
-      } else if (p_149356_ == 59) {
-         this.isLoweringHead = false;
-      } else {
-         super.handleEntityEvent(p_149356_);
-      }
+    public void addAdditionalSaveData(CompoundTag p_149385_)
+    {
+        super.addAdditionalSaveData(p_149385_);
+        p_149385_.putBoolean("IsScreamingGoat", this.isScreamingGoat());
+    }
 
-   }
+    public void readAdditionalSaveData(CompoundTag p_149373_)
+    {
+        super.readAdditionalSaveData(p_149373_);
+        this.setScreamingGoat(p_149373_.getBoolean("IsScreamingGoat"));
+    }
 
-   public void aiStep() {
-      if (this.isLoweringHead) {
-         ++this.lowerHeadTick;
-      } else {
-         this.lowerHeadTick -= 2;
-      }
+    public void handleEntityEvent(byte p_149356_)
+    {
+        if (p_149356_ == 58)
+        {
+            this.isLoweringHead = true;
+        }
+        else if (p_149356_ == 59)
+        {
+            this.isLoweringHead = false;
+        }
+        else
+        {
+            super.handleEntityEvent(p_149356_);
+        }
+    }
 
-      this.lowerHeadTick = Mth.clamp(this.lowerHeadTick, 0, 20);
-      super.aiStep();
-   }
+    public void aiStep()
+    {
+        if (this.isLoweringHead)
+        {
+            ++this.lowerHeadTick;
+        }
+        else
+        {
+            this.lowerHeadTick -= 2;
+        }
 
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.entityData.define(DATA_IS_SCREAMING_GOAT, false);
-   }
+        this.lowerHeadTick = Mth.clamp(this.lowerHeadTick, 0, 20);
+        super.aiStep();
+    }
 
-   public boolean isScreamingGoat() {
-      return this.entityData.get(DATA_IS_SCREAMING_GOAT);
-   }
+    protected void defineSynchedData()
+    {
+        super.defineSynchedData();
+        this.entityData.define(DATA_IS_SCREAMING_GOAT, false);
+    }
 
-   public void setScreamingGoat(boolean p_149406_) {
-      this.entityData.set(DATA_IS_SCREAMING_GOAT, p_149406_);
-   }
+    public boolean isScreamingGoat()
+    {
+        return this.entityData.get(DATA_IS_SCREAMING_GOAT);
+    }
 
-   public float getRammingXHeadRot() {
-      return (float)this.lowerHeadTick / 20.0F * 30.0F * ((float)Math.PI / 180F);
-   }
+    public void setScreamingGoat(boolean p_149406_)
+    {
+        this.entityData.set(DATA_IS_SCREAMING_GOAT, p_149406_);
+    }
 
-   protected PathNavigation createNavigation(Level p_149363_) {
-      return new Goat.GoatPathNavigation(this, p_149363_);
-   }
+    public float getRammingXHeadRot()
+    {
+        return (float)this.lowerHeadTick / 20.0F * 30.0F * ((float)Math.PI / 180F);
+    }
 
-   static class GoatNodeEvaluator extends WalkNodeEvaluator {
-      private final BlockPos.MutableBlockPos belowPos = new BlockPos.MutableBlockPos();
+    protected PathNavigation createNavigation(Level p_149363_)
+    {
+        return new Goat.GoatPathNavigation(this, p_149363_);
+    }
 
-      public BlockPathTypes getBlockPathType(BlockGetter p_149411_, int p_149412_, int p_149413_, int p_149414_) {
-         this.belowPos.set(p_149412_, p_149413_ - 1, p_149414_);
-         BlockPathTypes blockpathtypes = getBlockPathTypeRaw(p_149411_, this.belowPos);
-         return blockpathtypes == BlockPathTypes.POWDER_SNOW ? BlockPathTypes.BLOCKED : getBlockPathTypeStatic(p_149411_, this.belowPos.move(Direction.UP));
-      }
-   }
+    static class GoatNodeEvaluator extends WalkNodeEvaluator
+    {
+        private final BlockPos.MutableBlockPos belowPos = new BlockPos.MutableBlockPos();
 
-   static class GoatPathNavigation extends GroundPathNavigation {
-      GoatPathNavigation(Goat p_149416_, Level p_149417_) {
-         super(p_149416_, p_149417_);
-      }
+        public BlockPathTypes getBlockPathType(BlockGetter p_149411_, int p_149412_, int p_149413_, int p_149414_)
+        {
+            this.belowPos.set(p_149412_, p_149413_ - 1, p_149414_);
+            BlockPathTypes blockpathtypes = getBlockPathTypeRaw(p_149411_, this.belowPos);
+            return blockpathtypes == BlockPathTypes.POWDER_SNOW ? BlockPathTypes.BLOCKED : getBlockPathTypeStatic(p_149411_, this.belowPos.move(Direction.UP));
+        }
+    }
 
-      protected PathFinder createPathFinder(int p_149419_) {
-         this.nodeEvaluator = new Goat.GoatNodeEvaluator();
-         return new PathFinder(this.nodeEvaluator, p_149419_);
-      }
-   }
+    static class GoatPathNavigation extends GroundPathNavigation
+    {
+        GoatPathNavigation(Goat p_149416_, Level p_149417_)
+        {
+            super(p_149416_, p_149417_);
+        }
+
+        protected PathFinder createPathFinder(int p_149419_)
+        {
+            this.nodeEvaluator = new Goat.GoatNodeEvaluator();
+            return new PathFinder(this.nodeEvaluator, p_149419_);
+        }
+    }
 }

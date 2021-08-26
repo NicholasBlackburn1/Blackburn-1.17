@@ -2,12 +2,13 @@ package net.minecraft.util.profiling;
 
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 
-public interface ProfilerPathEntry {
-   long getDuration();
+public interface ProfilerPathEntry
+{
+    long getDuration();
 
-   long getMaxDuration();
+    long getMaxDuration();
 
-   long getCount();
+    long getCount();
 
-   Object2LongMap<String> getCounters();
+    Object2LongMap<String> getCounters();
 }

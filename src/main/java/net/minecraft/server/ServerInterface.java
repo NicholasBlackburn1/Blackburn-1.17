@@ -2,26 +2,27 @@ package net.minecraft.server;
 
 import net.minecraft.server.dedicated.DedicatedServerProperties;
 
-public interface ServerInterface {
-   DedicatedServerProperties getProperties();
+public interface ServerInterface
+{
+    DedicatedServerProperties getProperties();
 
-   String getServerIp();
+    String getServerIp();
 
-   int getServerPort();
+    int getServerPort();
 
-   String getServerName();
+    String getServerName();
 
-   String getServerVersion();
+    String getServerVersion();
 
-   int getPlayerCount();
+    int getPlayerCount();
 
-   int getMaxPlayers();
+    int getMaxPlayers();
 
-   String[] getPlayerNames();
+    String[] getPlayerNames();
 
-   String getLevelIdName();
+    String getLevelIdName();
 
-   String getPluginNames();
+    String getPluginNames();
 
-   String runCommand(String p_136143_);
+    String runCommand(String pCommand);
 }

@@ -10,66 +10,89 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
 
-public class ShulkerBoxColoring extends CustomRecipe {
-   public ShulkerBoxColoring(ResourceLocation p_44312_) {
-      super(p_44312_);
-   }
+public class ShulkerBoxColoring extends CustomRecipe
+{
+    public ShulkerBoxColoring(ResourceLocation p_44312_)
+    {
+        super(p_44312_);
+    }
 
-   public boolean matches(CraftingContainer p_44324_, Level p_44325_) {
-      int i = 0;
-      int j = 0;
+    public boolean matches(CraftingContainer pInv, Level pLevel)
+    {
+        int i = 0;
+        int j = 0;
 
-      for(int k = 0; k < p_44324_.getContainerSize(); ++k) {
-         ItemStack itemstack = p_44324_.getItem(k);
-         if (!itemstack.isEmpty()) {
-            if (Block.byItem(itemstack.getItem()) instanceof ShulkerBoxBlock) {
-               ++i;
-            } else {
-               if (!(itemstack.getItem() instanceof DyeItem)) {
-                  return false;
-               }
+        for (int k = 0; k < pInv.getContainerSize(); ++k)
+        {
+            ItemStack itemstack = pInv.getItem(k);
 
-               ++j;
+            if (!itemstack.isEmpty())
+            {
+                if (Block.byItem(itemstack.getItem()) instanceof ShulkerBoxBlock)
+                {
+                    ++i;
+                }
+                else
+                {
+                    if (!(itemstack.getItem() instanceof DyeItem))
+                    {
+                        return false;
+                    }
+
+                    ++j;
+                }
+
+                if (j > 1 || i > 1)
+                {
+                    return false;
+                }
             }
+        }
 
-            if (j > 1 || i > 1) {
-               return false;
+        return i == 1 && j == 1;
+    }
+
+    public ItemStack assemble(CraftingContainer pInv)
+    {
+        ItemStack itemstack = ItemStack.EMPTY;
+        DyeItem dyeitem = (DyeItem)Items.WHITE_DYE;
+
+        for (int i = 0; i < pInv.getContainerSize(); ++i)
+        {
+            ItemStack itemstack1 = pInv.getItem(i);
+
+            if (!itemstack1.isEmpty())
+            {
+                Item item = itemstack1.getItem();
+
+                if (Block.byItem(item) instanceof ShulkerBoxBlock)
+                {
+                    itemstack = itemstack1;
+                }
+                else if (item instanceof DyeItem)
+                {
+                    dyeitem = (DyeItem)item;
+                }
             }
-         }
-      }
+        }
 
-      return i == 1 && j == 1;
-   }
+        ItemStack itemstack2 = ShulkerBoxBlock.getColoredItemStack(dyeitem.getDyeColor());
 
-   public ItemStack assemble(CraftingContainer p_44322_) {
-      ItemStack itemstack = ItemStack.EMPTY;
-      DyeItem dyeitem = (DyeItem)Items.WHITE_DYE;
+        if (itemstack.hasTag())
+        {
+            itemstack2.setTag(itemstack.getTag().copy());
+        }
 
-      for(int i = 0; i < p_44322_.getContainerSize(); ++i) {
-         ItemStack itemstack1 = p_44322_.getItem(i);
-         if (!itemstack1.isEmpty()) {
-            Item item = itemstack1.getItem();
-            if (Block.byItem(item) instanceof ShulkerBoxBlock) {
-               itemstack = itemstack1;
-            } else if (item instanceof DyeItem) {
-               dyeitem = (DyeItem)item;
-            }
-         }
-      }
+        return itemstack2;
+    }
 
-      ItemStack itemstack2 = ShulkerBoxBlock.getColoredItemStack(dyeitem.getDyeColor());
-      if (itemstack.hasTag()) {
-         itemstack2.setTag(itemstack.getTag().copy());
-      }
+    public boolean canCraftInDimensions(int pWidth, int pHeight)
+    {
+        return pWidth * pHeight >= 2;
+    }
 
-      return itemstack2;
-   }
-
-   public boolean canCraftInDimensions(int p_44314_, int p_44315_) {
-      return p_44314_ * p_44315_ >= 2;
-   }
-
-   public RecipeSerializer<?> getSerializer() {
-      return RecipeSerializer.SHULKER_BOX_COLORING;
-   }
+    public RecipeSerializer<?> getSerializer()
+    {
+        return RecipeSerializer.SHULKER_BOX_COLORING;
+    }
 }

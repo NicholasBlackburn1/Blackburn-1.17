@@ -1,13 +1,10 @@
 package net.minecraft.client.sounds;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+public interface Weighted<T>
+{
+    int getWeight();
 
-@OnlyIn(Dist.CLIENT)
-public interface Weighted<T> {
-   int getWeight();
+    T getSound();
 
-   T getSound();
-
-   void preloadIfRequired(SoundEngine p_120456_);
+    void preloadIfRequired(SoundEngine pEngine);
 }

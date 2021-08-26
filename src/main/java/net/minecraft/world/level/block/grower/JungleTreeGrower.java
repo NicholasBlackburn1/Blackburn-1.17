@@ -6,14 +6,17 @@ import net.minecraft.data.worldgen.Features;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 
-public class JungleTreeGrower extends AbstractMegaTreeGrower {
-   @Nullable
-   protected ConfiguredFeature<TreeConfiguration, ?> getConfiguredFeature(Random p_60034_, boolean p_60035_) {
-      return Features.JUNGLE_TREE_NO_VINE;
-   }
+public class JungleTreeGrower extends AbstractMegaTreeGrower
+{
+    @Nullable
+    protected ConfiguredFeature < TreeConfiguration, ? > getConfiguredFeature(Random pRandom, boolean pLargeHive)
+    {
+        return Features.JUNGLE_TREE_NO_VINE;
+    }
 
-   @Nullable
-   protected ConfiguredFeature<TreeConfiguration, ?> getConfiguredMegaFeature(Random p_60032_) {
-      return Features.MEGA_JUNGLE_TREE;
-   }
+    @Nullable
+    protected ConfiguredFeature < TreeConfiguration, ? > getConfiguredMegaFeature(Random pRand)
+    {
+        return Features.MEGA_JUNGLE_TREE;
+    }
 }

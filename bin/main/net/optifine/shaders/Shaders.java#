@@ -1,0 +1,16 @@
+***************
+*** 130,135 ****
+  import net.optifine.util.WorldUtils;
+  import org.apache.commons.io.IOUtils;
+  import org.lwjgl.BufferUtils;
+  import org.lwjgl.opengl.ARBGeometryShader4;
+  import org.lwjgl.opengl.ARBShaderObjects;
+  import org.lwjgl.opengl.ARBVertexShader;
+--- 130,136 ----
+  import net.optifine.util.WorldUtils;
+  import org.apache.commons.io.IOUtils;
+  import org.lwjgl.BufferUtils;
++ import org.lwjgl.opengl.ARBFragmentShader;
+  import org.lwjgl.opengl.ARBGeometryShader4;
+  import org.lwjgl.opengl.ARBShaderObjects;
+  import org.lwjgl.opengl.ARBVertexShader;

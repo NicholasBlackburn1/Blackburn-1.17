@@ -9,46 +9,57 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class BlockParticleOption implements ParticleOptions {
-   public static final ParticleOptions.Deserializer<BlockParticleOption> DESERIALIZER = new ParticleOptions.Deserializer<BlockParticleOption>() {
-      public BlockParticleOption fromCommand(ParticleType<BlockParticleOption> p_123645_, StringReader p_123646_) throws CommandSyntaxException {
-         p_123646_.expect(' ');
-         return new BlockParticleOption(p_123645_, (new BlockStateParser(p_123646_, false)).parse(false).getState());
-      }
+public class BlockParticleOption implements ParticleOptions
+{
+    public static final ParticleOptions.Deserializer<BlockParticleOption> DESERIALIZER = new ParticleOptions.Deserializer<BlockParticleOption>()
+    {
+        public BlockParticleOption fromCommand(ParticleType<BlockParticleOption> pParticleType, StringReader pReader) throws CommandSyntaxException
+        {
+            pReader.expect(' ');
+            return new BlockParticleOption(pParticleType, (new BlockStateParser(pReader, false)).parse(false).getState());
+        }
+        public BlockParticleOption fromNetwork(ParticleType<BlockParticleOption> pParticleType, FriendlyByteBuf pBuffer)
+        {
+            return new BlockParticleOption(pParticleType, Block.BLOCK_STATE_REGISTRY.byId(pBuffer.readVarInt()));
+        }
+    };
+    private final ParticleType<BlockParticleOption> type;
+    private final BlockState state;
 
-      public BlockParticleOption fromNetwork(ParticleType<BlockParticleOption> p_123648_, FriendlyByteBuf p_123649_) {
-         return new BlockParticleOption(p_123648_, Block.BLOCK_STATE_REGISTRY.byId(p_123649_.readVarInt()));
-      }
-   };
-   private final ParticleType<BlockParticleOption> type;
-   private final BlockState state;
+    public static Codec<BlockParticleOption> codec(ParticleType<BlockParticleOption> p_123635_)
+    {
+        return BlockState.CODEC.xmap((p_123638_) ->
+        {
+            return new BlockParticleOption(p_123635_, p_123638_);
+        }, (p_123633_) ->
+        {
+            return p_123633_.state;
+        });
+    }
 
-   public static Codec<BlockParticleOption> codec(ParticleType<BlockParticleOption> p_123635_) {
-      return BlockState.CODEC.xmap((p_123638_) -> {
-         return new BlockParticleOption(p_123635_, p_123638_);
-      }, (p_123633_) -> {
-         return p_123633_.state;
-      });
-   }
+    public BlockParticleOption(ParticleType<BlockParticleOption> p_123629_, BlockState p_123630_)
+    {
+        this.type = p_123629_;
+        this.state = p_123630_;
+    }
 
-   public BlockParticleOption(ParticleType<BlockParticleOption> p_123629_, BlockState p_123630_) {
-      this.type = p_123629_;
-      this.state = p_123630_;
-   }
+    public void writeToNetwork(FriendlyByteBuf pBuffer)
+    {
+        pBuffer.writeVarInt(Block.BLOCK_STATE_REGISTRY.getId(this.state));
+    }
 
-   public void writeToNetwork(FriendlyByteBuf p_123640_) {
-      p_123640_.writeVarInt(Block.BLOCK_STATE_REGISTRY.getId(this.state));
-   }
+    public String writeToString()
+    {
+        return Registry.PARTICLE_TYPE.getKey(this.getType()) + " " + BlockStateParser.serialize(this.state);
+    }
 
-   public String writeToString() {
-      return Registry.PARTICLE_TYPE.getKey(this.getType()) + " " + BlockStateParser.serialize(this.state);
-   }
+    public ParticleType<BlockParticleOption> getType()
+    {
+        return this.type;
+    }
 
-   public ParticleType<BlockParticleOption> getType() {
-      return this.type;
-   }
-
-   public BlockState getState() {
-      return this.state;
-   }
+    public BlockState getState()
+    {
+        return this.state;
+    }
 }

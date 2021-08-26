@@ -11,51 +11,63 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 
-public class LargeFireball extends Fireball {
-   private int explosionPower = 1;
+public class LargeFireball extends Fireball
+{
+    private int explosionPower = 1;
 
-   public LargeFireball(EntityType<? extends LargeFireball> p_37199_, Level p_37200_) {
-      super(p_37199_, p_37200_);
-   }
+    public LargeFireball(EntityType <? extends LargeFireball > p_37199_, Level p_37200_)
+    {
+        super(p_37199_, p_37200_);
+    }
 
-   public LargeFireball(Level p_181151_, LivingEntity p_181152_, double p_181153_, double p_181154_, double p_181155_, int p_181156_) {
-      super(EntityType.FIREBALL, p_181152_, p_181153_, p_181154_, p_181155_, p_181151_);
-      this.explosionPower = p_181156_;
-   }
+    public LargeFireball(Level p_181151_, LivingEntity p_181152_, double p_181153_, double p_181154_, double p_181155_, int p_181156_)
+    {
+        super(EntityType.FIREBALL, p_181152_, p_181153_, p_181154_, p_181155_, p_181151_);
+        this.explosionPower = p_181156_;
+    }
 
-   protected void onHit(HitResult p_37218_) {
-      super.onHit(p_37218_);
-      if (!this.level.isClientSide) {
-         boolean flag = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
-         this.level.explode((Entity)null, this.getX(), this.getY(), this.getZ(), (float)this.explosionPower, flag, flag ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE);
-         this.discard();
-      }
+    protected void onHit(HitResult pResult)
+    {
+        super.onHit(pResult);
 
-   }
+        if (!this.level.isClientSide)
+        {
+            boolean flag = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
+            this.level.explode((Entity)null, this.getX(), this.getY(), this.getZ(), (float)this.explosionPower, flag, flag ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE);
+            this.discard();
+        }
+    }
 
-   protected void onHitEntity(EntityHitResult p_37216_) {
-      super.onHitEntity(p_37216_);
-      if (!this.level.isClientSide) {
-         Entity entity = p_37216_.getEntity();
-         Entity entity1 = this.getOwner();
-         entity.hurt(DamageSource.fireball(this, entity1), 6.0F);
-         if (entity1 instanceof LivingEntity) {
-            this.doEnchantDamageEffects((LivingEntity)entity1, entity);
-         }
+    protected void onHitEntity(EntityHitResult pResult)
+    {
+        super.onHitEntity(pResult);
 
-      }
-   }
+        if (!this.level.isClientSide)
+        {
+            Entity entity = pResult.getEntity();
+            Entity entity1 = this.getOwner();
+            entity.hurt(DamageSource.fireball(this, entity1), 6.0F);
 
-   public void addAdditionalSaveData(CompoundTag p_37222_) {
-      super.addAdditionalSaveData(p_37222_);
-      p_37222_.putByte("ExplosionPower", (byte)this.explosionPower);
-   }
+            if (entity1 instanceof LivingEntity)
+            {
+                this.doEnchantDamageEffects((LivingEntity)entity1, entity);
+            }
+        }
+    }
 
-   public void readAdditionalSaveData(CompoundTag p_37220_) {
-      super.readAdditionalSaveData(p_37220_);
-      if (p_37220_.contains("ExplosionPower", 99)) {
-         this.explosionPower = p_37220_.getByte("ExplosionPower");
-      }
+    public void addAdditionalSaveData(CompoundTag pCompound)
+    {
+        super.addAdditionalSaveData(pCompound);
+        pCompound.putByte("ExplosionPower", (byte)this.explosionPower);
+    }
 
-   }
+    public void readAdditionalSaveData(CompoundTag pCompound)
+    {
+        super.readAdditionalSaveData(pCompound);
+
+        if (pCompound.contains("ExplosionPower", 99))
+        {
+            this.explosionPower = pCompound.getByte("ExplosionPower");
+        }
+    }
 }

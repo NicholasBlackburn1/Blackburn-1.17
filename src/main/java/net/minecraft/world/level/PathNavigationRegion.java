@@ -19,105 +19,134 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class PathNavigationRegion implements BlockGetter, CollisionGetter {
-   protected final int centerX;
-   protected final int centerZ;
-   protected final ChunkAccess[][] chunks;
-   protected boolean allEmpty;
-   protected final Level level;
+public class PathNavigationRegion implements BlockGetter, CollisionGetter
+{
+    protected final int centerX;
+    protected final int centerZ;
+    protected final ChunkAccess[][] chunks;
+    protected boolean allEmpty;
+    protected final Level level;
 
-   public PathNavigationRegion(Level p_47164_, BlockPos p_47165_, BlockPos p_47166_) {
-      this.level = p_47164_;
-      this.centerX = SectionPos.blockToSectionCoord(p_47165_.getX());
-      this.centerZ = SectionPos.blockToSectionCoord(p_47165_.getZ());
-      int i = SectionPos.blockToSectionCoord(p_47166_.getX());
-      int j = SectionPos.blockToSectionCoord(p_47166_.getZ());
-      this.chunks = new ChunkAccess[i - this.centerX + 1][j - this.centerZ + 1];
-      ChunkSource chunksource = p_47164_.getChunkSource();
-      this.allEmpty = true;
+    public PathNavigationRegion(Level p_47164_, BlockPos p_47165_, BlockPos p_47166_)
+    {
+        this.level = p_47164_;
+        this.centerX = SectionPos.blockToSectionCoord(p_47165_.getX());
+        this.centerZ = SectionPos.blockToSectionCoord(p_47165_.getZ());
+        int i = SectionPos.blockToSectionCoord(p_47166_.getX());
+        int j = SectionPos.blockToSectionCoord(p_47166_.getZ());
+        this.chunks = new ChunkAccess[i - this.centerX + 1][j - this.centerZ + 1];
+        ChunkSource chunksource = p_47164_.getChunkSource();
+        this.allEmpty = true;
 
-      for(int k = this.centerX; k <= i; ++k) {
-         for(int l = this.centerZ; l <= j; ++l) {
-            this.chunks[k - this.centerX][l - this.centerZ] = chunksource.getChunkNow(k, l);
-         }
-      }
-
-      for(int i1 = SectionPos.blockToSectionCoord(p_47165_.getX()); i1 <= SectionPos.blockToSectionCoord(p_47166_.getX()); ++i1) {
-         for(int j1 = SectionPos.blockToSectionCoord(p_47165_.getZ()); j1 <= SectionPos.blockToSectionCoord(p_47166_.getZ()); ++j1) {
-            ChunkAccess chunkaccess = this.chunks[i1 - this.centerX][j1 - this.centerZ];
-            if (chunkaccess != null && !chunkaccess.isYSpaceEmpty(p_47165_.getY(), p_47166_.getY())) {
-               this.allEmpty = false;
-               return;
+        for (int k = this.centerX; k <= i; ++k)
+        {
+            for (int l = this.centerZ; l <= j; ++l)
+            {
+                this.chunks[k - this.centerX][l - this.centerZ] = chunksource.getChunkNow(k, l);
             }
-         }
-      }
+        }
 
-   }
+        for (int i1 = SectionPos.blockToSectionCoord(p_47165_.getX()); i1 <= SectionPos.blockToSectionCoord(p_47166_.getX()); ++i1)
+        {
+            for (int j1 = SectionPos.blockToSectionCoord(p_47165_.getZ()); j1 <= SectionPos.blockToSectionCoord(p_47166_.getZ()); ++j1)
+            {
+                ChunkAccess chunkaccess = this.chunks[i1 - this.centerX][j1 - this.centerZ];
 
-   private ChunkAccess getChunk(BlockPos p_47186_) {
-      return this.getChunk(SectionPos.blockToSectionCoord(p_47186_.getX()), SectionPos.blockToSectionCoord(p_47186_.getZ()));
-   }
+                if (chunkaccess != null && !chunkaccess.isYSpaceEmpty(p_47165_.getY(), p_47166_.getY()))
+                {
+                    this.allEmpty = false;
+                    return;
+                }
+            }
+        }
+    }
 
-   private ChunkAccess getChunk(int p_47168_, int p_47169_) {
-      int i = p_47168_ - this.centerX;
-      int j = p_47169_ - this.centerZ;
-      if (i >= 0 && i < this.chunks.length && j >= 0 && j < this.chunks[i].length) {
-         ChunkAccess chunkaccess = this.chunks[i][j];
-         return (ChunkAccess)(chunkaccess != null ? chunkaccess : new EmptyLevelChunk(this.level, new ChunkPos(p_47168_, p_47169_)));
-      } else {
-         return new EmptyLevelChunk(this.level, new ChunkPos(p_47168_, p_47169_));
-      }
-   }
+    private ChunkAccess getChunk(BlockPos p_47186_)
+    {
+        return this.getChunk(SectionPos.blockToSectionCoord(p_47186_.getX()), SectionPos.blockToSectionCoord(p_47186_.getZ()));
+    }
 
-   public WorldBorder getWorldBorder() {
-      return this.level.getWorldBorder();
-   }
+    private ChunkAccess getChunk(int p_47168_, int p_47169_)
+    {
+        int i = p_47168_ - this.centerX;
+        int j = p_47169_ - this.centerZ;
 
-   public BlockGetter getChunkForCollisions(int p_47173_, int p_47174_) {
-      return this.getChunk(p_47173_, p_47174_);
-   }
+        if (i >= 0 && i < this.chunks.length && j >= 0 && j < this.chunks[i].length)
+        {
+            ChunkAccess chunkaccess = this.chunks[i][j];
+            return (ChunkAccess)(chunkaccess != null ? chunkaccess : new EmptyLevelChunk(this.level, new ChunkPos(p_47168_, p_47169_)));
+        }
+        else
+        {
+            return new EmptyLevelChunk(this.level, new ChunkPos(p_47168_, p_47169_));
+        }
+    }
 
-   @Nullable
-   public BlockEntity getBlockEntity(BlockPos p_47180_) {
-      ChunkAccess chunkaccess = this.getChunk(p_47180_);
-      return chunkaccess.getBlockEntity(p_47180_);
-   }
+    public WorldBorder getWorldBorder()
+    {
+        return this.level.getWorldBorder();
+    }
 
-   public BlockState getBlockState(BlockPos p_47188_) {
-      if (this.isOutsideBuildHeight(p_47188_)) {
-         return Blocks.AIR.defaultBlockState();
-      } else {
-         ChunkAccess chunkaccess = this.getChunk(p_47188_);
-         return chunkaccess.getBlockState(p_47188_);
-      }
-   }
+    public BlockGetter getChunkForCollisions(int pChunkX, int pChunkZ)
+    {
+        return this.getChunk(pChunkX, pChunkZ);
+    }
 
-   public Stream<VoxelShape> getEntityCollisions(@Nullable Entity p_47176_, AABB p_47177_, Predicate<Entity> p_47178_) {
-      return Stream.empty();
-   }
+    @Nullable
+    public BlockEntity getBlockEntity(BlockPos pPos)
+    {
+        ChunkAccess chunkaccess = this.getChunk(pPos);
+        return chunkaccess.getBlockEntity(pPos);
+    }
 
-   public Stream<VoxelShape> getCollisions(@Nullable Entity p_47182_, AABB p_47183_, Predicate<Entity> p_47184_) {
-      return this.getBlockCollisions(p_47182_, p_47183_);
-   }
+    public BlockState getBlockState(BlockPos pPos)
+    {
+        if (this.isOutsideBuildHeight(pPos))
+        {
+            return Blocks.AIR.defaultBlockState();
+        }
+        else
+        {
+            ChunkAccess chunkaccess = this.getChunk(pPos);
+            return chunkaccess.getBlockState(pPos);
+        }
+    }
 
-   public FluidState getFluidState(BlockPos p_47171_) {
-      if (this.isOutsideBuildHeight(p_47171_)) {
-         return Fluids.EMPTY.defaultFluidState();
-      } else {
-         ChunkAccess chunkaccess = this.getChunk(p_47171_);
-         return chunkaccess.getFluidState(p_47171_);
-      }
-   }
+    public Stream<VoxelShape> getEntityCollisions(@Nullable Entity p_47176_, AABB p_47177_, Predicate<Entity> p_47178_)
+    {
+        return Stream.empty();
+    }
 
-   public int getMinBuildHeight() {
-      return this.level.getMinBuildHeight();
-   }
+    public Stream<VoxelShape> getCollisions(@Nullable Entity p_47182_, AABB p_47183_, Predicate<Entity> p_47184_)
+    {
+        return this.getBlockCollisions(p_47182_, p_47183_);
+    }
 
-   public int getHeight() {
-      return this.level.getHeight();
-   }
+    public FluidState getFluidState(BlockPos pPos)
+    {
+        if (this.isOutsideBuildHeight(pPos))
+        {
+            return Fluids.EMPTY.defaultFluidState();
+        }
+        else
+        {
+            ChunkAccess chunkaccess = this.getChunk(pPos);
+            return chunkaccess.getFluidState(pPos);
+        }
+    }
 
-   public ProfilerFiller getProfiler() {
-      return this.level.getProfiler();
-   }
+    public int getMinBuildHeight()
+    {
+        return this.level.getMinBuildHeight();
+    }
+
+    public int getHeight()
+    {
+        return this.level.getHeight();
+    }
+
+    public ProfilerFiller getProfiler()
+    {
+        return this.level.getProfiler();
+    }
 }

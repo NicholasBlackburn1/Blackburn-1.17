@@ -3,20 +3,24 @@ package net.minecraft.world.item;
 import net.minecraft.network.protocol.game.ClientboundCooldownPacket;
 import net.minecraft.server.level.ServerPlayer;
 
-public class ServerItemCooldowns extends ItemCooldowns {
-   private final ServerPlayer player;
+public class ServerItemCooldowns extends ItemCooldowns
+{
+    private final ServerPlayer player;
 
-   public ServerItemCooldowns(ServerPlayer p_43067_) {
-      this.player = p_43067_;
-   }
+    public ServerItemCooldowns(ServerPlayer p_43067_)
+    {
+        this.player = p_43067_;
+    }
 
-   protected void onCooldownStarted(Item p_43069_, int p_43070_) {
-      super.onCooldownStarted(p_43069_, p_43070_);
-      this.player.connection.send(new ClientboundCooldownPacket(p_43069_, p_43070_));
-   }
+    protected void onCooldownStarted(Item pItem, int pTicks)
+    {
+        super.onCooldownStarted(pItem, pTicks);
+        this.player.connection.send(new ClientboundCooldownPacket(pItem, pTicks));
+    }
 
-   protected void onCooldownEnded(Item p_43072_) {
-      super.onCooldownEnded(p_43072_);
-      this.player.connection.send(new ClientboundCooldownPacket(p_43072_, 0));
-   }
+    protected void onCooldownEnded(Item pItem)
+    {
+        super.onCooldownEnded(pItem);
+        this.player.connection.send(new ClientboundCooldownPacket(pItem, 0));
+    }
 }

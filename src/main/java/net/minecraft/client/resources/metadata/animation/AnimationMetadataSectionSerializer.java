@@ -9,69 +9,89 @@ import com.google.gson.JsonParseException;
 import javax.annotation.Nullable;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import net.minecraft.util.GsonHelper;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.Validate;
 
-@OnlyIn(Dist.CLIENT)
-public class AnimationMetadataSectionSerializer implements MetadataSectionSerializer<AnimationMetadataSection> {
-   public AnimationMetadataSection fromJson(JsonObject p_119064_) {
-      Builder<AnimationFrame> builder = ImmutableList.builder();
-      int i = GsonHelper.getAsInt(p_119064_, "frametime", 1);
-      if (i != 1) {
-         Validate.inclusiveBetween(1L, 2147483647L, (long)i, "Invalid default frame time");
-      }
+public class AnimationMetadataSectionSerializer implements MetadataSectionSerializer<AnimationMetadataSection>
+{
+    public AnimationMetadataSection fromJson(JsonObject pJson)
+    {
+        Builder<AnimationFrame> builder = ImmutableList.builder();
+        int i = GsonHelper.getAsInt(pJson, "frametime", 1);
 
-      if (p_119064_.has("frames")) {
-         try {
-            JsonArray jsonarray = GsonHelper.getAsJsonArray(p_119064_, "frames");
+        if (i != 1)
+        {
+            Validate.inclusiveBetween(1L, 2147483647L, (long)i, "Invalid default frame time");
+        }
 
-            for(int j = 0; j < jsonarray.size(); ++j) {
-               JsonElement jsonelement = jsonarray.get(j);
-               AnimationFrame animationframe = this.getFrame(j, jsonelement);
-               if (animationframe != null) {
-                  builder.add(animationframe);
-               }
+        if (pJson.has("frames"))
+        {
+            try
+            {
+                JsonArray jsonarray = GsonHelper.getAsJsonArray(pJson, "frames");
+
+                for (int j = 0; j < jsonarray.size(); ++j)
+                {
+                    JsonElement jsonelement = jsonarray.get(j);
+                    AnimationFrame animationframe = this.getFrame(j, jsonelement);
+
+                    if (animationframe != null)
+                    {
+                        builder.add(animationframe);
+                    }
+                }
             }
-         } catch (ClassCastException classcastexception) {
-            throw new JsonParseException("Invalid animation->frames: expected array, was " + p_119064_.get("frames"), classcastexception);
-         }
-      }
+            catch (ClassCastException classcastexception)
+            {
+                throw new JsonParseException("Invalid animation->frames: expected array, was " + pJson.get("frames"), classcastexception);
+            }
+        }
 
-      int k = GsonHelper.getAsInt(p_119064_, "width", -1);
-      int l = GsonHelper.getAsInt(p_119064_, "height", -1);
-      if (k != -1) {
-         Validate.inclusiveBetween(1L, 2147483647L, (long)k, "Invalid width");
-      }
+        int k = GsonHelper.getAsInt(pJson, "width", -1);
+        int l = GsonHelper.getAsInt(pJson, "height", -1);
 
-      if (l != -1) {
-         Validate.inclusiveBetween(1L, 2147483647L, (long)l, "Invalid height");
-      }
+        if (k != -1)
+        {
+            Validate.inclusiveBetween(1L, 2147483647L, (long)k, "Invalid width");
+        }
 
-      boolean flag = GsonHelper.getAsBoolean(p_119064_, "interpolate", false);
-      return new AnimationMetadataSection(builder.build(), k, l, i, flag);
-   }
+        if (l != -1)
+        {
+            Validate.inclusiveBetween(1L, 2147483647L, (long)l, "Invalid height");
+        }
 
-   @Nullable
-   private AnimationFrame getFrame(int p_119059_, JsonElement p_119060_) {
-      if (p_119060_.isJsonPrimitive()) {
-         return new AnimationFrame(GsonHelper.convertToInt(p_119060_, "frames[" + p_119059_ + "]"));
-      } else if (p_119060_.isJsonObject()) {
-         JsonObject jsonobject = GsonHelper.convertToJsonObject(p_119060_, "frames[" + p_119059_ + "]");
-         int i = GsonHelper.getAsInt(jsonobject, "time", -1);
-         if (jsonobject.has("time")) {
-            Validate.inclusiveBetween(1L, 2147483647L, (long)i, "Invalid frame time");
-         }
+        boolean flag = GsonHelper.getAsBoolean(pJson, "interpolate", false);
+        return new AnimationMetadataSection(builder.build(), k, l, i, flag);
+    }
 
-         int j = GsonHelper.getAsInt(jsonobject, "index");
-         Validate.inclusiveBetween(0L, 2147483647L, (long)j, "Invalid frame index");
-         return new AnimationFrame(j, i);
-      } else {
-         return null;
-      }
-   }
+    @Nullable
+    private AnimationFrame getFrame(int pFrame, JsonElement pElement)
+    {
+        if (pElement.isJsonPrimitive())
+        {
+            return new AnimationFrame(GsonHelper.convertToInt(pElement, "frames[" + pFrame + "]"));
+        }
+        else if (pElement.isJsonObject())
+        {
+            JsonObject jsonobject = GsonHelper.convertToJsonObject(pElement, "frames[" + pFrame + "]");
+            int i = GsonHelper.getAsInt(jsonobject, "time", -1);
 
-   public String getMetadataSectionName() {
-      return "animation";
-   }
+            if (jsonobject.has("time"))
+            {
+                Validate.inclusiveBetween(1L, 2147483647L, (long)i, "Invalid frame time");
+            }
+
+            int j = GsonHelper.getAsInt(jsonobject, "index");
+            Validate.inclusiveBetween(0L, 2147483647L, (long)j, "Invalid frame index");
+            return new AnimationFrame(j, i);
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    public String getMetadataSectionName()
+    {
+        return "animation";
+    }
 }

@@ -9,40 +9,49 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
-public class MilkBucketItem extends Item {
-   private static final int DRINK_DURATION = 32;
+public class MilkBucketItem extends Item
+{
+    private static final int DRINK_DURATION = 32;
 
-   public MilkBucketItem(Item.Properties p_42921_) {
-      super(p_42921_);
-   }
+    public MilkBucketItem(Item.Properties p_42921_)
+    {
+        super(p_42921_);
+    }
 
-   public ItemStack finishUsingItem(ItemStack p_42923_, Level p_42924_, LivingEntity p_42925_) {
-      if (p_42925_ instanceof ServerPlayer) {
-         ServerPlayer serverplayer = (ServerPlayer)p_42925_;
-         CriteriaTriggers.CONSUME_ITEM.trigger(serverplayer, p_42923_);
-         serverplayer.awardStat(Stats.ITEM_USED.get(this));
-      }
+    public ItemStack finishUsingItem(ItemStack pStack, Level pLevel, LivingEntity pEntityLiving)
+    {
+        if (pEntityLiving instanceof ServerPlayer)
+        {
+            ServerPlayer serverplayer = (ServerPlayer)pEntityLiving;
+            CriteriaTriggers.CONSUME_ITEM.trigger(serverplayer, pStack);
+            serverplayer.awardStat(Stats.ITEM_USED.get(this));
+        }
 
-      if (p_42925_ instanceof Player && !((Player)p_42925_).getAbilities().instabuild) {
-         p_42923_.shrink(1);
-      }
+        if (pEntityLiving instanceof Player && !((Player)pEntityLiving).getAbilities().instabuild)
+        {
+            pStack.shrink(1);
+        }
 
-      if (!p_42924_.isClientSide) {
-         p_42925_.removeAllEffects();
-      }
+        if (!pLevel.isClientSide)
+        {
+            pEntityLiving.removeAllEffects();
+        }
 
-      return p_42923_.isEmpty() ? new ItemStack(Items.BUCKET) : p_42923_;
-   }
+        return pStack.isEmpty() ? new ItemStack(Items.BUCKET) : pStack;
+    }
 
-   public int getUseDuration(ItemStack p_42933_) {
-      return 32;
-   }
+    public int getUseDuration(ItemStack pStack)
+    {
+        return 32;
+    }
 
-   public UseAnim getUseAnimation(ItemStack p_42931_) {
-      return UseAnim.DRINK;
-   }
+    public UseAnim getUseAnimation(ItemStack pStack)
+    {
+        return UseAnim.DRINK;
+    }
 
-   public InteractionResultHolder<ItemStack> use(Level p_42927_, Player p_42928_, InteractionHand p_42929_) {
-      return ItemUtils.startUsingInstantly(p_42927_, p_42928_, p_42929_);
-   }
+    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand)
+    {
+        return ItemUtils.startUsingInstantly(pLevel, pPlayer, pHand);
+    }
 }

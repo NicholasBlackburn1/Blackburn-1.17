@@ -52,277 +52,353 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class PolarBear extends Animal implements NeutralMob {
-   private static final EntityDataAccessor<Boolean> DATA_STANDING_ID = SynchedEntityData.defineId(PolarBear.class, EntityDataSerializers.BOOLEAN);
-   private static final float STAND_ANIMATION_TICKS = 6.0F;
-   private float clientSideStandAnimationO;
-   private float clientSideStandAnimation;
-   private int warningSoundTicks;
-   private static final UniformInt PERSISTENT_ANGER_TIME = TimeUtil.rangeOfSeconds(20, 39);
-   private int remainingPersistentAngerTime;
-   private UUID persistentAngerTarget;
+public class PolarBear extends Animal implements NeutralMob
+{
+    private static final EntityDataAccessor<Boolean> DATA_STANDING_ID = SynchedEntityData.defineId(PolarBear.class, EntityDataSerializers.BOOLEAN);
+    private static final float STAND_ANIMATION_TICKS = 6.0F;
+    private float clientSideStandAnimationO;
+    private float clientSideStandAnimation;
+    private int warningSoundTicks;
+    private static final UniformInt PERSISTENT_ANGER_TIME = TimeUtil.rangeOfSeconds(20, 39);
+    private int remainingPersistentAngerTime;
+    private UUID persistentAngerTarget;
 
-   public PolarBear(EntityType<? extends PolarBear> p_29519_, Level p_29520_) {
-      super(p_29519_, p_29520_);
-   }
+    public PolarBear(EntityType <? extends PolarBear > p_29519_, Level p_29520_)
+    {
+        super(p_29519_, p_29520_);
+    }
 
-   public AgeableMob getBreedOffspring(ServerLevel p_149005_, AgeableMob p_149006_) {
-      return EntityType.POLAR_BEAR.create(p_149005_);
-   }
+    public AgeableMob getBreedOffspring(ServerLevel p_149005_, AgeableMob p_149006_)
+    {
+        return EntityType.POLAR_BEAR.create(p_149005_);
+    }
 
-   public boolean isFood(ItemStack p_29565_) {
-      return false;
-   }
+    public boolean isFood(ItemStack pStack)
+    {
+        return false;
+    }
 
-   protected void registerGoals() {
-      super.registerGoals();
-      this.goalSelector.addGoal(0, new FloatGoal(this));
-      this.goalSelector.addGoal(1, new PolarBear.PolarBearMeleeAttackGoal());
-      this.goalSelector.addGoal(1, new PolarBear.PolarBearPanicGoal());
-      this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.25D));
-      this.goalSelector.addGoal(5, new RandomStrollGoal(this, 1.0D));
-      this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 6.0F));
-      this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
-      this.targetSelector.addGoal(1, new PolarBear.PolarBearHurtByTargetGoal());
-      this.targetSelector.addGoal(2, new PolarBear.PolarBearAttackPlayersGoal());
-      this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, this::isAngryAt));
-      this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, Fox.class, 10, true, true, (Predicate<LivingEntity>)null));
-      this.targetSelector.addGoal(5, new ResetUniversalAngerTargetGoal<>(this, false));
-   }
+    protected void registerGoals()
+    {
+        super.registerGoals();
+        this.goalSelector.addGoal(0, new FloatGoal(this));
+        this.goalSelector.addGoal(1, new PolarBear.PolarBearMeleeAttackGoal());
+        this.goalSelector.addGoal(1, new PolarBear.PolarBearPanicGoal());
+        this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.25D));
+        this.goalSelector.addGoal(5, new RandomStrollGoal(this, 1.0D));
+        this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 6.0F));
+        this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
+        this.targetSelector.addGoal(1, new PolarBear.PolarBearHurtByTargetGoal());
+        this.targetSelector.addGoal(2, new PolarBear.PolarBearAttackPlayersGoal());
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, this::isAngryAt));
+        this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, Fox.class, 10, true, true, (Predicate<LivingEntity>)null));
+        this.targetSelector.addGoal(5, new ResetUniversalAngerTargetGoal<>(this, false));
+    }
 
-   public static AttributeSupplier.Builder createAttributes() {
-      return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 30.0D).add(Attributes.FOLLOW_RANGE, 20.0D).add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_DAMAGE, 6.0D);
-   }
+    public static AttributeSupplier.Builder createAttributes()
+    {
+        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 30.0D).add(Attributes.FOLLOW_RANGE, 20.0D).add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_DAMAGE, 6.0D);
+    }
 
-   public static boolean checkPolarBearSpawnRules(EntityType<PolarBear> p_29550_, LevelAccessor p_29551_, MobSpawnType p_29552_, BlockPos p_29553_, Random p_29554_) {
-      Optional<ResourceKey<Biome>> optional = p_29551_.getBiomeName(p_29553_);
-      if (!Objects.equals(optional, Optional.of(Biomes.FROZEN_OCEAN)) && !Objects.equals(optional, Optional.of(Biomes.DEEP_FROZEN_OCEAN))) {
-         return checkAnimalSpawnRules(p_29550_, p_29551_, p_29552_, p_29553_, p_29554_);
-      } else {
-         return p_29551_.getRawBrightness(p_29553_, 0) > 8 && p_29551_.getBlockState(p_29553_.below()).is(Blocks.ICE);
-      }
-   }
+    public static boolean checkPolarBearSpawnRules(EntityType<PolarBear> p_29550_, LevelAccessor p_29551_, MobSpawnType p_29552_, BlockPos p_29553_, Random p_29554_)
+    {
+        Optional<ResourceKey<Biome>> optional = p_29551_.getBiomeName(p_29553_);
 
-   public void readAdditionalSaveData(CompoundTag p_29541_) {
-      super.readAdditionalSaveData(p_29541_);
-      this.readPersistentAngerSaveData(this.level, p_29541_);
-   }
+        if (!Objects.equals(optional, Optional.of(Biomes.FROZEN_OCEAN)) && !Objects.equals(optional, Optional.of(Biomes.DEEP_FROZEN_OCEAN)))
+        {
+            return checkAnimalSpawnRules(p_29550_, p_29551_, p_29552_, p_29553_, p_29554_);
+        }
+        else
+        {
+            return p_29551_.getRawBrightness(p_29553_, 0) > 8 && p_29551_.getBlockState(p_29553_.below()).is(Blocks.ICE);
+        }
+    }
 
-   public void addAdditionalSaveData(CompoundTag p_29548_) {
-      super.addAdditionalSaveData(p_29548_);
-      this.addPersistentAngerSaveData(p_29548_);
-   }
+    public void readAdditionalSaveData(CompoundTag pCompound)
+    {
+        super.readAdditionalSaveData(pCompound);
+        this.readPersistentAngerSaveData(this.level, pCompound);
+    }
 
-   public void startPersistentAngerTimer() {
-      this.setRemainingPersistentAngerTime(PERSISTENT_ANGER_TIME.sample(this.random));
-   }
+    public void addAdditionalSaveData(CompoundTag pCompound)
+    {
+        super.addAdditionalSaveData(pCompound);
+        this.addPersistentAngerSaveData(pCompound);
+    }
 
-   public void setRemainingPersistentAngerTime(int p_29543_) {
-      this.remainingPersistentAngerTime = p_29543_;
-   }
+    public void startPersistentAngerTimer()
+    {
+        this.setRemainingPersistentAngerTime(PERSISTENT_ANGER_TIME.sample(this.random));
+    }
 
-   public int getRemainingPersistentAngerTime() {
-      return this.remainingPersistentAngerTime;
-   }
+    public void setRemainingPersistentAngerTime(int pTime)
+    {
+        this.remainingPersistentAngerTime = pTime;
+    }
 
-   public void setPersistentAngerTarget(@Nullable UUID p_29539_) {
-      this.persistentAngerTarget = p_29539_;
-   }
+    public int getRemainingPersistentAngerTime()
+    {
+        return this.remainingPersistentAngerTime;
+    }
 
-   public UUID getPersistentAngerTarget() {
-      return this.persistentAngerTarget;
-   }
+    public void setPersistentAngerTarget(@Nullable UUID pTarget)
+    {
+        this.persistentAngerTarget = pTarget;
+    }
 
-   protected SoundEvent getAmbientSound() {
-      return this.isBaby() ? SoundEvents.POLAR_BEAR_AMBIENT_BABY : SoundEvents.POLAR_BEAR_AMBIENT;
-   }
+    public UUID getPersistentAngerTarget()
+    {
+        return this.persistentAngerTarget;
+    }
 
-   protected SoundEvent getHurtSound(DamageSource p_29559_) {
-      return SoundEvents.POLAR_BEAR_HURT;
-   }
+    protected SoundEvent getAmbientSound()
+    {
+        return this.isBaby() ? SoundEvents.POLAR_BEAR_AMBIENT_BABY : SoundEvents.POLAR_BEAR_AMBIENT;
+    }
 
-   protected SoundEvent getDeathSound() {
-      return SoundEvents.POLAR_BEAR_DEATH;
-   }
+    protected SoundEvent getHurtSound(DamageSource pDamageSource)
+    {
+        return SoundEvents.POLAR_BEAR_HURT;
+    }
 
-   protected void playStepSound(BlockPos p_29545_, BlockState p_29546_) {
-      this.playSound(SoundEvents.POLAR_BEAR_STEP, 0.15F, 1.0F);
-   }
+    protected SoundEvent getDeathSound()
+    {
+        return SoundEvents.POLAR_BEAR_DEATH;
+    }
 
-   protected void playWarningSound() {
-      if (this.warningSoundTicks <= 0) {
-         this.playSound(SoundEvents.POLAR_BEAR_WARNING, 1.0F, this.getVoicePitch());
-         this.warningSoundTicks = 40;
-      }
+    protected void playStepSound(BlockPos pPos, BlockState pBlock)
+    {
+        this.playSound(SoundEvents.POLAR_BEAR_STEP, 0.15F, 1.0F);
+    }
 
-   }
+    protected void playWarningSound()
+    {
+        if (this.warningSoundTicks <= 0)
+        {
+            this.playSound(SoundEvents.POLAR_BEAR_WARNING, 1.0F, this.getVoicePitch());
+            this.warningSoundTicks = 40;
+        }
+    }
 
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.entityData.define(DATA_STANDING_ID, false);
-   }
+    protected void defineSynchedData()
+    {
+        super.defineSynchedData();
+        this.entityData.define(DATA_STANDING_ID, false);
+    }
 
-   public void tick() {
-      super.tick();
-      if (this.level.isClientSide) {
-         if (this.clientSideStandAnimation != this.clientSideStandAnimationO) {
-            this.refreshDimensions();
-         }
+    public void tick()
+    {
+        super.tick();
 
-         this.clientSideStandAnimationO = this.clientSideStandAnimation;
-         if (this.isStanding()) {
-            this.clientSideStandAnimation = Mth.clamp(this.clientSideStandAnimation + 1.0F, 0.0F, 6.0F);
-         } else {
-            this.clientSideStandAnimation = Mth.clamp(this.clientSideStandAnimation - 1.0F, 0.0F, 6.0F);
-         }
-      }
-
-      if (this.warningSoundTicks > 0) {
-         --this.warningSoundTicks;
-      }
-
-      if (!this.level.isClientSide) {
-         this.updatePersistentAnger((ServerLevel)this.level, true);
-      }
-
-   }
-
-   public EntityDimensions getDimensions(Pose p_29531_) {
-      if (this.clientSideStandAnimation > 0.0F) {
-         float f = this.clientSideStandAnimation / 6.0F;
-         float f1 = 1.0F + f;
-         return super.getDimensions(p_29531_).scale(1.0F, f1);
-      } else {
-         return super.getDimensions(p_29531_);
-      }
-   }
-
-   public boolean doHurtTarget(Entity p_29522_) {
-      boolean flag = p_29522_.hurt(DamageSource.mobAttack(this), (float)((int)this.getAttributeValue(Attributes.ATTACK_DAMAGE)));
-      if (flag) {
-         this.doEnchantDamageEffects(this, p_29522_);
-      }
-
-      return flag;
-   }
-
-   public boolean isStanding() {
-      return this.entityData.get(DATA_STANDING_ID);
-   }
-
-   public void setStanding(boolean p_29568_) {
-      this.entityData.set(DATA_STANDING_ID, p_29568_);
-   }
-
-   public float getStandingAnimationScale(float p_29570_) {
-      return Mth.lerp(p_29570_, this.clientSideStandAnimationO, this.clientSideStandAnimation) / 6.0F;
-   }
-
-   protected float getWaterSlowDown() {
-      return 0.98F;
-   }
-
-   public SpawnGroupData finalizeSpawn(ServerLevelAccessor p_29533_, DifficultyInstance p_29534_, MobSpawnType p_29535_, @Nullable SpawnGroupData p_29536_, @Nullable CompoundTag p_29537_) {
-      if (p_29536_ == null) {
-         p_29536_ = new AgeableMob.AgeableMobGroupData(1.0F);
-      }
-
-      return super.finalizeSpawn(p_29533_, p_29534_, p_29535_, p_29536_, p_29537_);
-   }
-
-   class PolarBearAttackPlayersGoal extends NearestAttackableTargetGoal<Player> {
-      public PolarBearAttackPlayersGoal() {
-         super(PolarBear.this, Player.class, 20, true, true, (Predicate<LivingEntity>)null);
-      }
-
-      public boolean canUse() {
-         if (PolarBear.this.isBaby()) {
-            return false;
-         } else {
-            if (super.canUse()) {
-               for(PolarBear polarbear : PolarBear.this.level.getEntitiesOfClass(PolarBear.class, PolarBear.this.getBoundingBox().inflate(8.0D, 4.0D, 8.0D))) {
-                  if (polarbear.isBaby()) {
-                     return true;
-                  }
-               }
+        if (this.level.isClientSide)
+        {
+            if (this.clientSideStandAnimation != this.clientSideStandAnimationO)
+            {
+                this.refreshDimensions();
             }
 
-            return false;
-         }
-      }
+            this.clientSideStandAnimationO = this.clientSideStandAnimation;
 
-      protected double getFollowDistance() {
-         return super.getFollowDistance() * 0.5D;
-      }
-   }
+            if (this.isStanding())
+            {
+                this.clientSideStandAnimation = Mth.clamp(this.clientSideStandAnimation + 1.0F, 0.0F, 6.0F);
+            }
+            else
+            {
+                this.clientSideStandAnimation = Mth.clamp(this.clientSideStandAnimation - 1.0F, 0.0F, 6.0F);
+            }
+        }
 
-   class PolarBearHurtByTargetGoal extends HurtByTargetGoal {
-      public PolarBearHurtByTargetGoal() {
-         super(PolarBear.this);
-      }
+        if (this.warningSoundTicks > 0)
+        {
+            --this.warningSoundTicks;
+        }
 
-      public void start() {
-         super.start();
-         if (PolarBear.this.isBaby()) {
-            this.alertOthers();
-            this.stop();
-         }
+        if (!this.level.isClientSide)
+        {
+            this.updatePersistentAnger((ServerLevel)this.level, true);
+        }
+    }
 
-      }
+    public EntityDimensions getDimensions(Pose pPose)
+    {
+        if (this.clientSideStandAnimation > 0.0F)
+        {
+            float f = this.clientSideStandAnimation / 6.0F;
+            float f1 = 1.0F + f;
+            return super.getDimensions(pPose).scale(1.0F, f1);
+        }
+        else
+        {
+            return super.getDimensions(pPose);
+        }
+    }
 
-      protected void alertOther(Mob p_29580_, LivingEntity p_29581_) {
-         if (p_29580_ instanceof PolarBear && !p_29580_.isBaby()) {
-            super.alertOther(p_29580_, p_29581_);
-         }
+    public boolean doHurtTarget(Entity pEntity)
+    {
+        boolean flag = pEntity.hurt(DamageSource.mobAttack(this), (float)((int)this.getAttributeValue(Attributes.ATTACK_DAMAGE)));
 
-      }
-   }
+        if (flag)
+        {
+            this.doEnchantDamageEffects(this, pEntity);
+        }
 
-   class PolarBearMeleeAttackGoal extends MeleeAttackGoal {
-      public PolarBearMeleeAttackGoal() {
-         super(PolarBear.this, 1.25D, true);
-      }
+        return flag;
+    }
 
-      protected void checkAndPerformAttack(LivingEntity p_29589_, double p_29590_) {
-         double d0 = this.getAttackReachSqr(p_29589_);
-         if (p_29590_ <= d0 && this.isTimeToAttack()) {
-            this.resetAttackCooldown();
-            this.mob.doHurtTarget(p_29589_);
+    public boolean isStanding()
+    {
+        return this.entityData.get(DATA_STANDING_ID);
+    }
+
+    public void setStanding(boolean pStanding)
+    {
+        this.entityData.set(DATA_STANDING_ID, pStanding);
+    }
+
+    public float getStandingAnimationScale(float p_29570_)
+    {
+        return Mth.lerp(p_29570_, this.clientSideStandAnimationO, this.clientSideStandAnimation) / 6.0F;
+    }
+
+    protected float getWaterSlowDown()
+    {
+        return 0.98F;
+    }
+
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @Nullable CompoundTag pDataTag)
+    {
+        if (pSpawnData == null)
+        {
+            pSpawnData = new AgeableMob.AgeableMobGroupData(1.0F);
+        }
+
+        return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pDataTag);
+    }
+
+    class PolarBearAttackPlayersGoal extends NearestAttackableTargetGoal<Player>
+    {
+        public PolarBearAttackPlayersGoal()
+        {
+            super(PolarBear.this, Player.class, 20, true, true, (Predicate<LivingEntity>)null);
+        }
+
+        public boolean canUse()
+        {
+            if (PolarBear.this.isBaby())
+            {
+                return false;
+            }
+            else
+            {
+                if (super.canUse())
+                {
+                    for (PolarBear polarbear : PolarBear.this.level.getEntitiesOfClass(PolarBear.class, PolarBear.this.getBoundingBox().inflate(8.0D, 4.0D, 8.0D)))
+                    {
+                        if (polarbear.isBaby())
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        protected double getFollowDistance()
+        {
+            return super.getFollowDistance() * 0.5D;
+        }
+    }
+
+    class PolarBearHurtByTargetGoal extends HurtByTargetGoal
+    {
+        public PolarBearHurtByTargetGoal()
+        {
+            super(PolarBear.this);
+        }
+
+        public void start()
+        {
+            super.start();
+
+            if (PolarBear.this.isBaby())
+            {
+                this.alertOthers();
+                this.stop();
+            }
+        }
+
+        protected void alertOther(Mob pMob, LivingEntity pTarget)
+        {
+            if (pMob instanceof PolarBear && !pMob.isBaby())
+            {
+                super.alertOther(pMob, pTarget);
+            }
+        }
+    }
+
+    class PolarBearMeleeAttackGoal extends MeleeAttackGoal
+    {
+        public PolarBearMeleeAttackGoal()
+        {
+            super(PolarBear.this, 1.25D, true);
+        }
+
+        protected void checkAndPerformAttack(LivingEntity pEnemy, double pDistToEnemySqr)
+        {
+            double d0 = this.getAttackReachSqr(pEnemy);
+
+            if (pDistToEnemySqr <= d0 && this.isTimeToAttack())
+            {
+                this.resetAttackCooldown();
+                this.mob.doHurtTarget(pEnemy);
+                PolarBear.this.setStanding(false);
+            }
+            else if (pDistToEnemySqr <= d0 * 2.0D)
+            {
+                if (this.isTimeToAttack())
+                {
+                    PolarBear.this.setStanding(false);
+                    this.resetAttackCooldown();
+                }
+
+                if (this.getTicksUntilNextAttack() <= 10)
+                {
+                    PolarBear.this.setStanding(true);
+                    PolarBear.this.playWarningSound();
+                }
+            }
+            else
+            {
+                this.resetAttackCooldown();
+                PolarBear.this.setStanding(false);
+            }
+        }
+
+        public void stop()
+        {
             PolarBear.this.setStanding(false);
-         } else if (p_29590_ <= d0 * 2.0D) {
-            if (this.isTimeToAttack()) {
-               PolarBear.this.setStanding(false);
-               this.resetAttackCooldown();
-            }
+            super.stop();
+        }
 
-            if (this.getTicksUntilNextAttack() <= 10) {
-               PolarBear.this.setStanding(true);
-               PolarBear.this.playWarningSound();
-            }
-         } else {
-            this.resetAttackCooldown();
-            PolarBear.this.setStanding(false);
-         }
+        protected double getAttackReachSqr(LivingEntity pAttackTarget)
+        {
+            return (double)(4.0F + pAttackTarget.getBbWidth());
+        }
+    }
 
-      }
+    class PolarBearPanicGoal extends PanicGoal
+    {
+        public PolarBearPanicGoal()
+        {
+            super(PolarBear.this, 2.0D);
+        }
 
-      public void stop() {
-         PolarBear.this.setStanding(false);
-         super.stop();
-      }
-
-      protected double getAttackReachSqr(LivingEntity p_29587_) {
-         return (double)(4.0F + p_29587_.getBbWidth());
-      }
-   }
-
-   class PolarBearPanicGoal extends PanicGoal {
-      public PolarBearPanicGoal() {
-         super(PolarBear.this, 2.0D);
-      }
-
-      public boolean canUse() {
-         return !PolarBear.this.isBaby() && !PolarBear.this.isOnFire() ? false : super.canUse();
-      }
-   }
+        public boolean canUse()
+        {
+            return !PolarBear.this.isBaby() && !PolarBear.this.isOnFire() ? false : super.canUse();
+        }
+    }
 }

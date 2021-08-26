@@ -22,133 +22,172 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 
-public abstract class RandomizableContainerBlockEntity extends BaseContainerBlockEntity {
-   public static final String LOOT_TABLE_TAG = "LootTable";
-   public static final String LOOT_TABLE_SEED_TAG = "LootTableSeed";
-   @Nullable
-   protected ResourceLocation lootTable;
-   protected long lootTableSeed;
+public abstract class RandomizableContainerBlockEntity extends BaseContainerBlockEntity
+{
+    public static final String LOOT_TABLE_TAG = "LootTable";
+    public static final String LOOT_TABLE_SEED_TAG = "LootTableSeed";
+    @Nullable
+    protected ResourceLocation lootTable;
+    protected long lootTableSeed;
 
-   protected RandomizableContainerBlockEntity(BlockEntityType<?> p_155629_, BlockPos p_155630_, BlockState p_155631_) {
-      super(p_155629_, p_155630_, p_155631_);
-   }
+    protected RandomizableContainerBlockEntity(BlockEntityType<?> p_155629_, BlockPos p_155630_, BlockState p_155631_)
+    {
+        super(p_155629_, p_155630_, p_155631_);
+    }
 
-   public static void setLootTable(BlockGetter p_59621_, Random p_59622_, BlockPos p_59623_, ResourceLocation p_59624_) {
-      BlockEntity blockentity = p_59621_.getBlockEntity(p_59623_);
-      if (blockentity instanceof RandomizableContainerBlockEntity) {
-         ((RandomizableContainerBlockEntity)blockentity).setLootTable(p_59624_, p_59622_.nextLong());
-      }
+    public static void setLootTable(BlockGetter p_59621_, Random pLootTable, BlockPos pSeed, ResourceLocation p_59624_)
+    {
+        BlockEntity blockentity = p_59621_.getBlockEntity(pSeed);
 
-   }
+        if (blockentity instanceof RandomizableContainerBlockEntity)
+        {
+            ((RandomizableContainerBlockEntity)blockentity).setLootTable(p_59624_, pLootTable.nextLong());
+        }
+    }
 
-   protected boolean tryLoadLootTable(CompoundTag p_59632_) {
-      if (p_59632_.contains("LootTable", 8)) {
-         this.lootTable = new ResourceLocation(p_59632_.getString("LootTable"));
-         this.lootTableSeed = p_59632_.getLong("LootTableSeed");
-         return true;
-      } else {
-         return false;
-      }
-   }
+    protected boolean tryLoadLootTable(CompoundTag pCompound)
+    {
+        if (pCompound.contains("LootTable", 8))
+        {
+            this.lootTable = new ResourceLocation(pCompound.getString("LootTable"));
+            this.lootTableSeed = pCompound.getLong("LootTableSeed");
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
-   protected boolean trySaveLootTable(CompoundTag p_59635_) {
-      if (this.lootTable == null) {
-         return false;
-      } else {
-         p_59635_.putString("LootTable", this.lootTable.toString());
-         if (this.lootTableSeed != 0L) {
-            p_59635_.putLong("LootTableSeed", this.lootTableSeed);
-         }
+    protected boolean trySaveLootTable(CompoundTag pCompound)
+    {
+        if (this.lootTable == null)
+        {
+            return false;
+        }
+        else
+        {
+            pCompound.putString("LootTable", this.lootTable.toString());
 
-         return true;
-      }
-   }
+            if (this.lootTableSeed != 0L)
+            {
+                pCompound.putLong("LootTableSeed", this.lootTableSeed);
+            }
 
-   public void unpackLootTable(@Nullable Player p_59641_) {
-      if (this.lootTable != null && this.level.getServer() != null) {
-         LootTable loottable = this.level.getServer().getLootTables().get(this.lootTable);
-         if (p_59641_ instanceof ServerPlayer) {
-            CriteriaTriggers.GENERATE_LOOT.trigger((ServerPlayer)p_59641_, this.lootTable);
-         }
+            return true;
+        }
+    }
 
-         this.lootTable = null;
-         LootContext.Builder lootcontext$builder = (new LootContext.Builder((ServerLevel)this.level)).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(this.worldPosition)).withOptionalRandomSeed(this.lootTableSeed);
-         if (p_59641_ != null) {
-            lootcontext$builder.withLuck(p_59641_.getLuck()).withParameter(LootContextParams.THIS_ENTITY, p_59641_);
-         }
+    public void unpackLootTable(@Nullable Player pPlayer)
+    {
+        if (this.lootTable != null && this.level.getServer() != null)
+        {
+            LootTable loottable = this.level.getServer().getLootTables().get(this.lootTable);
 
-         loottable.fill(this, lootcontext$builder.create(LootContextParamSets.CHEST));
-      }
+            if (pPlayer instanceof ServerPlayer)
+            {
+                CriteriaTriggers.GENERATE_LOOT.trigger((ServerPlayer)pPlayer, this.lootTable);
+            }
 
-   }
+            this.lootTable = null;
+            LootContext.Builder lootcontext$builder = (new LootContext.Builder((ServerLevel)this.level)).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(this.worldPosition)).withOptionalRandomSeed(this.lootTableSeed);
 
-   public void setLootTable(ResourceLocation p_59627_, long p_59628_) {
-      this.lootTable = p_59627_;
-      this.lootTableSeed = p_59628_;
-   }
+            if (pPlayer != null)
+            {
+                lootcontext$builder.withLuck(pPlayer.getLuck()).withParameter(LootContextParams.THIS_ENTITY, pPlayer);
+            }
 
-   public boolean isEmpty() {
-      this.unpackLootTable((Player)null);
-      return this.getItems().stream().allMatch(ItemStack::isEmpty);
-   }
+            loottable.fill(this, lootcontext$builder.create(LootContextParamSets.CHEST));
+        }
+    }
 
-   public ItemStack getItem(int p_59611_) {
-      this.unpackLootTable((Player)null);
-      return this.getItems().get(p_59611_);
-   }
+    public void setLootTable(ResourceLocation pLootTable, long pSeed)
+    {
+        this.lootTable = pLootTable;
+        this.lootTableSeed = pSeed;
+    }
 
-   public ItemStack removeItem(int p_59613_, int p_59614_) {
-      this.unpackLootTable((Player)null);
-      ItemStack itemstack = ContainerHelper.removeItem(this.getItems(), p_59613_, p_59614_);
-      if (!itemstack.isEmpty()) {
-         this.setChanged();
-      }
+    public boolean isEmpty()
+    {
+        this.unpackLootTable((Player)null);
+        return this.getItems().stream().allMatch(ItemStack::isEmpty);
+    }
 
-      return itemstack;
-   }
+    public ItemStack getItem(int pIndex)
+    {
+        this.unpackLootTable((Player)null);
+        return this.getItems().get(pIndex);
+    }
 
-   public ItemStack removeItemNoUpdate(int p_59630_) {
-      this.unpackLootTable((Player)null);
-      return ContainerHelper.takeItem(this.getItems(), p_59630_);
-   }
+    public ItemStack removeItem(int pIndex, int pCount)
+    {
+        this.unpackLootTable((Player)null);
+        ItemStack itemstack = ContainerHelper.removeItem(this.getItems(), pIndex, pCount);
 
-   public void setItem(int p_59616_, ItemStack p_59617_) {
-      this.unpackLootTable((Player)null);
-      this.getItems().set(p_59616_, p_59617_);
-      if (p_59617_.getCount() > this.getMaxStackSize()) {
-         p_59617_.setCount(this.getMaxStackSize());
-      }
+        if (!itemstack.isEmpty())
+        {
+            this.setChanged();
+        }
 
-      this.setChanged();
-   }
+        return itemstack;
+    }
 
-   public boolean stillValid(Player p_59619_) {
-      if (this.level.getBlockEntity(this.worldPosition) != this) {
-         return false;
-      } else {
-         return !(p_59619_.distanceToSqr((double)this.worldPosition.getX() + 0.5D, (double)this.worldPosition.getY() + 0.5D, (double)this.worldPosition.getZ() + 0.5D) > 64.0D);
-      }
-   }
+    public ItemStack removeItemNoUpdate(int pIndex)
+    {
+        this.unpackLootTable((Player)null);
+        return ContainerHelper.takeItem(this.getItems(), pIndex);
+    }
 
-   public void clearContent() {
-      this.getItems().clear();
-   }
+    public void setItem(int pIndex, ItemStack pStack)
+    {
+        this.unpackLootTable((Player)null);
+        this.getItems().set(pIndex, pStack);
 
-   protected abstract NonNullList<ItemStack> getItems();
+        if (pStack.getCount() > this.getMaxStackSize())
+        {
+            pStack.setCount(this.getMaxStackSize());
+        }
 
-   protected abstract void setItems(NonNullList<ItemStack> p_59625_);
+        this.setChanged();
+    }
 
-   public boolean canOpen(Player p_59643_) {
-      return super.canOpen(p_59643_) && (this.lootTable == null || !p_59643_.isSpectator());
-   }
+    public boolean stillValid(Player pPlayer)
+    {
+        if (this.level.getBlockEntity(this.worldPosition) != this)
+        {
+            return false;
+        }
+        else
+        {
+            return !(pPlayer.distanceToSqr((double)this.worldPosition.getX() + 0.5D, (double)this.worldPosition.getY() + 0.5D, (double)this.worldPosition.getZ() + 0.5D) > 64.0D);
+        }
+    }
 
-   @Nullable
-   public AbstractContainerMenu createMenu(int p_59637_, Inventory p_59638_, Player p_59639_) {
-      if (this.canOpen(p_59639_)) {
-         this.unpackLootTable(p_59638_.player);
-         return this.createMenu(p_59637_, p_59638_);
-      } else {
-         return null;
-      }
-   }
+    public void clearContent()
+    {
+        this.getItems().clear();
+    }
+
+    protected abstract NonNullList<ItemStack> getItems();
+
+    protected abstract void setItems(NonNullList<ItemStack> pItems);
+
+    public boolean canOpen(Player p_59643_)
+    {
+        return super.canOpen(p_59643_) && (this.lootTable == null || !p_59643_.isSpectator());
+    }
+
+    @Nullable
+    public AbstractContainerMenu createMenu(int p_59637_, Inventory p_59638_, Player p_59639_)
+    {
+        if (this.canOpen(p_59639_))
+        {
+            this.unpackLootTable(p_59638_.player);
+            return this.createMenu(p_59637_, p_59638_);
+        }
+        else
+        {
+            return null;
+        }
+    }
 }

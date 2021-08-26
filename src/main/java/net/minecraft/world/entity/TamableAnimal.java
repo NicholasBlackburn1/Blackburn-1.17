@@ -20,195 +20,255 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.scores.Team;
 
-public abstract class TamableAnimal extends Animal implements OwnableEntity {
-   protected static final EntityDataAccessor<Byte> DATA_FLAGS_ID = SynchedEntityData.defineId(TamableAnimal.class, EntityDataSerializers.BYTE);
-   protected static final EntityDataAccessor<Optional<UUID>> DATA_OWNERUUID_ID = SynchedEntityData.defineId(TamableAnimal.class, EntityDataSerializers.OPTIONAL_UUID);
-   private boolean orderedToSit;
+public abstract class TamableAnimal extends Animal implements OwnableEntity
+{
+    protected static final EntityDataAccessor<Byte> DATA_FLAGS_ID = SynchedEntityData.defineId(TamableAnimal.class, EntityDataSerializers.BYTE);
+    protected static final EntityDataAccessor<Optional<UUID>> DATA_OWNERUUID_ID = SynchedEntityData.defineId(TamableAnimal.class, EntityDataSerializers.OPTIONAL_UUID);
+    private boolean orderedToSit;
 
-   protected TamableAnimal(EntityType<? extends TamableAnimal> p_21803_, Level p_21804_) {
-      super(p_21803_, p_21804_);
-      this.reassessTameGoals();
-   }
+    protected TamableAnimal(EntityType <? extends TamableAnimal > p_21803_, Level p_21804_)
+    {
+        super(p_21803_, p_21804_);
+        this.reassessTameGoals();
+    }
 
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.entityData.define(DATA_FLAGS_ID, (byte)0);
-      this.entityData.define(DATA_OWNERUUID_ID, Optional.empty());
-   }
+    protected void defineSynchedData()
+    {
+        super.defineSynchedData();
+        this.entityData.define(DATA_FLAGS_ID, (byte)0);
+        this.entityData.define(DATA_OWNERUUID_ID, Optional.empty());
+    }
 
-   public void addAdditionalSaveData(CompoundTag p_21819_) {
-      super.addAdditionalSaveData(p_21819_);
-      if (this.getOwnerUUID() != null) {
-         p_21819_.putUUID("Owner", this.getOwnerUUID());
-      }
+    public void addAdditionalSaveData(CompoundTag pCompound)
+    {
+        super.addAdditionalSaveData(pCompound);
 
-      p_21819_.putBoolean("Sitting", this.orderedToSit);
-   }
+        if (this.getOwnerUUID() != null)
+        {
+            pCompound.putUUID("Owner", this.getOwnerUUID());
+        }
 
-   public void readAdditionalSaveData(CompoundTag p_21815_) {
-      super.readAdditionalSaveData(p_21815_);
-      UUID uuid;
-      if (p_21815_.hasUUID("Owner")) {
-         uuid = p_21815_.getUUID("Owner");
-      } else {
-         String s = p_21815_.getString("Owner");
-         uuid = OldUsersConverter.convertMobOwnerIfNecessary(this.getServer(), s);
-      }
+        pCompound.putBoolean("Sitting", this.orderedToSit);
+    }
 
-      if (uuid != null) {
-         try {
-            this.setOwnerUUID(uuid);
-            this.setTame(true);
-         } catch (Throwable throwable) {
-            this.setTame(false);
-         }
-      }
+    public void readAdditionalSaveData(CompoundTag pCompound)
+    {
+        super.readAdditionalSaveData(pCompound);
+        UUID uuid;
 
-      this.orderedToSit = p_21815_.getBoolean("Sitting");
-      this.setInSittingPose(this.orderedToSit);
-   }
+        if (pCompound.hasUUID("Owner"))
+        {
+            uuid = pCompound.getUUID("Owner");
+        }
+        else
+        {
+            String s = pCompound.getString("Owner");
+            uuid = OldUsersConverter.convertMobOwnerIfNecessary(this.getServer(), s);
+        }
 
-   public boolean canBeLeashed(Player p_21813_) {
-      return !this.isLeashed();
-   }
+        if (uuid != null)
+        {
+            try
+            {
+                this.setOwnerUUID(uuid);
+                this.setTame(true);
+            }
+            catch (Throwable throwable)
+            {
+                this.setTame(false);
+            }
+        }
 
-   protected void spawnTamingParticles(boolean p_21835_) {
-      ParticleOptions particleoptions = ParticleTypes.HEART;
-      if (!p_21835_) {
-         particleoptions = ParticleTypes.SMOKE;
-      }
+        this.orderedToSit = pCompound.getBoolean("Sitting");
+        this.setInSittingPose(this.orderedToSit);
+    }
 
-      for(int i = 0; i < 7; ++i) {
-         double d0 = this.random.nextGaussian() * 0.02D;
-         double d1 = this.random.nextGaussian() * 0.02D;
-         double d2 = this.random.nextGaussian() * 0.02D;
-         this.level.addParticle(particleoptions, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), d0, d1, d2);
-      }
+    public boolean canBeLeashed(Player pPlayer)
+    {
+        return !this.isLeashed();
+    }
 
-   }
+    protected void spawnTamingParticles(boolean pPlay)
+    {
+        ParticleOptions particleoptions = ParticleTypes.HEART;
 
-   public void handleEntityEvent(byte p_21807_) {
-      if (p_21807_ == 7) {
-         this.spawnTamingParticles(true);
-      } else if (p_21807_ == 6) {
-         this.spawnTamingParticles(false);
-      } else {
-         super.handleEntityEvent(p_21807_);
-      }
+        if (!pPlay)
+        {
+            particleoptions = ParticleTypes.SMOKE;
+        }
 
-   }
+        for (int i = 0; i < 7; ++i)
+        {
+            double d0 = this.random.nextGaussian() * 0.02D;
+            double d1 = this.random.nextGaussian() * 0.02D;
+            double d2 = this.random.nextGaussian() * 0.02D;
+            this.level.addParticle(particleoptions, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), d0, d1, d2);
+        }
+    }
 
-   public boolean isTame() {
-      return (this.entityData.get(DATA_FLAGS_ID) & 4) != 0;
-   }
+    public void handleEntityEvent(byte pId)
+    {
+        if (pId == 7)
+        {
+            this.spawnTamingParticles(true);
+        }
+        else if (pId == 6)
+        {
+            this.spawnTamingParticles(false);
+        }
+        else
+        {
+            super.handleEntityEvent(pId);
+        }
+    }
 
-   public void setTame(boolean p_21836_) {
-      byte b0 = this.entityData.get(DATA_FLAGS_ID);
-      if (p_21836_) {
-         this.entityData.set(DATA_FLAGS_ID, (byte)(b0 | 4));
-      } else {
-         this.entityData.set(DATA_FLAGS_ID, (byte)(b0 & -5));
-      }
+    public boolean isTame()
+    {
+        return (this.entityData.get(DATA_FLAGS_ID) & 4) != 0;
+    }
 
-      this.reassessTameGoals();
-   }
+    public void setTame(boolean pTamed)
+    {
+        byte b0 = this.entityData.get(DATA_FLAGS_ID);
 
-   protected void reassessTameGoals() {
-   }
+        if (pTamed)
+        {
+            this.entityData.set(DATA_FLAGS_ID, (byte)(b0 | 4));
+        }
+        else
+        {
+            this.entityData.set(DATA_FLAGS_ID, (byte)(b0 & -5));
+        }
 
-   public boolean isInSittingPose() {
-      return (this.entityData.get(DATA_FLAGS_ID) & 1) != 0;
-   }
+        this.reassessTameGoals();
+    }
 
-   public void setInSittingPose(boolean p_21838_) {
-      byte b0 = this.entityData.get(DATA_FLAGS_ID);
-      if (p_21838_) {
-         this.entityData.set(DATA_FLAGS_ID, (byte)(b0 | 1));
-      } else {
-         this.entityData.set(DATA_FLAGS_ID, (byte)(b0 & -2));
-      }
+    protected void reassessTameGoals()
+    {
+    }
 
-   }
+    public boolean isInSittingPose()
+    {
+        return (this.entityData.get(DATA_FLAGS_ID) & 1) != 0;
+    }
 
-   @Nullable
-   public UUID getOwnerUUID() {
-      return this.entityData.get(DATA_OWNERUUID_ID).orElse((UUID)null);
-   }
+    public void setInSittingPose(boolean p_21838_)
+    {
+        byte b0 = this.entityData.get(DATA_FLAGS_ID);
 
-   public void setOwnerUUID(@Nullable UUID p_21817_) {
-      this.entityData.set(DATA_OWNERUUID_ID, Optional.ofNullable(p_21817_));
-   }
+        if (p_21838_)
+        {
+            this.entityData.set(DATA_FLAGS_ID, (byte)(b0 | 1));
+        }
+        else
+        {
+            this.entityData.set(DATA_FLAGS_ID, (byte)(b0 & -2));
+        }
+    }
 
-   public void tame(Player p_21829_) {
-      this.setTame(true);
-      this.setOwnerUUID(p_21829_.getUUID());
-      if (p_21829_ instanceof ServerPlayer) {
-         CriteriaTriggers.TAME_ANIMAL.trigger((ServerPlayer)p_21829_, this);
-      }
+    @Nullable
+    public UUID getOwnerUUID()
+    {
+        return this.entityData.get(DATA_OWNERUUID_ID).orElse((UUID)null);
+    }
 
-   }
+    public void setOwnerUUID(@Nullable UUID p_21817_)
+    {
+        this.entityData.set(DATA_OWNERUUID_ID, Optional.ofNullable(p_21817_));
+    }
 
-   @Nullable
-   public LivingEntity getOwner() {
-      try {
-         UUID uuid = this.getOwnerUUID();
-         return uuid == null ? null : this.level.getPlayerByUUID(uuid);
-      } catch (IllegalArgumentException illegalargumentexception) {
-         return null;
-      }
-   }
+    public void tame(Player pPlayer)
+    {
+        this.setTame(true);
+        this.setOwnerUUID(pPlayer.getUUID());
 
-   public boolean canAttack(LivingEntity p_21822_) {
-      return this.isOwnedBy(p_21822_) ? false : super.canAttack(p_21822_);
-   }
+        if (pPlayer instanceof ServerPlayer)
+        {
+            CriteriaTriggers.TAME_ANIMAL.trigger((ServerPlayer)pPlayer, this);
+        }
+    }
 
-   public boolean isOwnedBy(LivingEntity p_21831_) {
-      return p_21831_ == this.getOwner();
-   }
+    @Nullable
+    public LivingEntity getOwner()
+    {
+        try
+        {
+            UUID uuid = this.getOwnerUUID();
+            return uuid == null ? null : this.level.getPlayerByUUID(uuid);
+        }
+        catch (IllegalArgumentException illegalargumentexception)
+        {
+            return null;
+        }
+    }
 
-   public boolean wantsToAttack(LivingEntity p_21810_, LivingEntity p_21811_) {
-      return true;
-   }
+    public boolean canAttack(LivingEntity pTarget)
+    {
+        return this.isOwnedBy(pTarget) ? false : super.canAttack(pTarget);
+    }
 
-   public Team getTeam() {
-      if (this.isTame()) {
-         LivingEntity livingentity = this.getOwner();
-         if (livingentity != null) {
-            return livingentity.getTeam();
-         }
-      }
+    public boolean isOwnedBy(LivingEntity pEntity)
+    {
+        return pEntity == this.getOwner();
+    }
 
-      return super.getTeam();
-   }
+    public boolean wantsToAttack(LivingEntity pTarget, LivingEntity pOwner)
+    {
+        return true;
+    }
 
-   public boolean isAlliedTo(Entity p_21833_) {
-      if (this.isTame()) {
-         LivingEntity livingentity = this.getOwner();
-         if (p_21833_ == livingentity) {
-            return true;
-         }
+    public Team getTeam()
+    {
+        if (this.isTame())
+        {
+            LivingEntity livingentity = this.getOwner();
 
-         if (livingentity != null) {
-            return livingentity.isAlliedTo(p_21833_);
-         }
-      }
+            if (livingentity != null)
+            {
+                return livingentity.getTeam();
+            }
+        }
 
-      return super.isAlliedTo(p_21833_);
-   }
+        return super.getTeam();
+    }
 
-   public void die(DamageSource p_21809_) {
-      if (!this.level.isClientSide && this.level.getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES) && this.getOwner() instanceof ServerPlayer) {
-         this.getOwner().sendMessage(this.getCombatTracker().getDeathMessage(), Util.NIL_UUID);
-      }
+    public boolean isAlliedTo(Entity pEntity)
+    {
+        if (this.isTame())
+        {
+            LivingEntity livingentity = this.getOwner();
 
-      super.die(p_21809_);
-   }
+            if (pEntity == livingentity)
+            {
+                return true;
+            }
 
-   public boolean isOrderedToSit() {
-      return this.orderedToSit;
-   }
+            if (livingentity != null)
+            {
+                return livingentity.isAlliedTo(pEntity);
+            }
+        }
 
-   public void setOrderedToSit(boolean p_21840_) {
-      this.orderedToSit = p_21840_;
-   }
+        return super.isAlliedTo(pEntity);
+    }
+
+    public void die(DamageSource pCause)
+    {
+        if (!this.level.isClientSide && this.level.getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES) && this.getOwner() instanceof ServerPlayer)
+        {
+            this.getOwner().sendMessage(this.getCombatTracker().getDeathMessage(), Util.NIL_UUID);
+        }
+
+        super.die(pCause);
+    }
+
+    public boolean isOrderedToSit()
+    {
+        return this.orderedToSit;
+    }
+
+    public void setOrderedToSit(boolean p_21840_)
+    {
+        this.orderedToSit = p_21840_;
+    }
 }

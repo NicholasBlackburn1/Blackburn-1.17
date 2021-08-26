@@ -18,57 +18,81 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.Level;
 
-public class BlockPosArgument implements ArgumentType<Coordinates> {
-   private static final Collection<String> EXAMPLES = Arrays.asList("0 0 0", "~ ~ ~", "^ ^ ^", "^1 ^ ^-5", "~0.5 ~1 ~-5");
-   public static final SimpleCommandExceptionType ERROR_NOT_LOADED = new SimpleCommandExceptionType(new TranslatableComponent("argument.pos.unloaded"));
-   public static final SimpleCommandExceptionType ERROR_OUT_OF_WORLD = new SimpleCommandExceptionType(new TranslatableComponent("argument.pos.outofworld"));
-   public static final SimpleCommandExceptionType ERROR_OUT_OF_BOUNDS = new SimpleCommandExceptionType(new TranslatableComponent("argument.pos.outofbounds"));
+public class BlockPosArgument implements ArgumentType<Coordinates>
+{
+    private static final Collection<String> EXAMPLES = Arrays.asList("0 0 0", "~ ~ ~", "^ ^ ^", "^1 ^ ^-5", "~0.5 ~1 ~-5");
+    public static final SimpleCommandExceptionType ERROR_NOT_LOADED = new SimpleCommandExceptionType(new TranslatableComponent("argument.pos.unloaded"));
+    public static final SimpleCommandExceptionType ERROR_OUT_OF_WORLD = new SimpleCommandExceptionType(new TranslatableComponent("argument.pos.outofworld"));
+    public static final SimpleCommandExceptionType ERROR_OUT_OF_BOUNDS = new SimpleCommandExceptionType(new TranslatableComponent("argument.pos.outofbounds"));
 
-   public static BlockPosArgument blockPos() {
-      return new BlockPosArgument();
-   }
+    public static BlockPosArgument blockPos()
+    {
+        return new BlockPosArgument();
+    }
 
-   public static BlockPos getLoadedBlockPos(CommandContext<CommandSourceStack> p_118243_, String p_118244_) throws CommandSyntaxException {
-      BlockPos blockpos = p_118243_.getArgument(p_118244_, Coordinates.class).getBlockPos(p_118243_.getSource());
-      if (!p_118243_.getSource().getLevel().hasChunkAt(blockpos)) {
-         throw ERROR_NOT_LOADED.create();
-      } else if (!p_118243_.getSource().getLevel().isInWorldBounds(blockpos)) {
-         throw ERROR_OUT_OF_WORLD.create();
-      } else {
-         return blockpos;
-      }
-   }
+    public static BlockPos getLoadedBlockPos(CommandContext<CommandSourceStack> pContext, String pName) throws CommandSyntaxException
+    {
+        BlockPos blockpos = pContext.getArgument(pName, Coordinates.class).getBlockPos(pContext.getSource());
 
-   public static BlockPos getSpawnablePos(CommandContext<CommandSourceStack> p_174396_, String p_174397_) throws CommandSyntaxException {
-      BlockPos blockpos = p_174396_.getArgument(p_174397_, Coordinates.class).getBlockPos(p_174396_.getSource());
-      if (!Level.isInSpawnableBounds(blockpos)) {
-         throw ERROR_OUT_OF_BOUNDS.create();
-      } else {
-         return blockpos;
-      }
-   }
+        if (!pContext.getSource().getLevel().hasChunkAt(blockpos))
+        {
+            throw ERROR_NOT_LOADED.create();
+        }
+        else if (!pContext.getSource().getLevel().isInWorldBounds(blockpos))
+        {
+            throw ERROR_OUT_OF_WORLD.create();
+        }
+        else
+        {
+            return blockpos;
+        }
+    }
 
-   public Coordinates parse(StringReader p_118241_) throws CommandSyntaxException {
-      return (Coordinates)(p_118241_.canRead() && p_118241_.peek() == '^' ? LocalCoordinates.parse(p_118241_) : WorldCoordinates.parseInt(p_118241_));
-   }
+    public static BlockPos getSpawnablePos(CommandContext<CommandSourceStack> p_174396_, String p_174397_) throws CommandSyntaxException
+    {
+        BlockPos blockpos = p_174396_.getArgument(p_174397_, Coordinates.class).getBlockPos(p_174396_.getSource());
 
-   public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> p_118250_, SuggestionsBuilder p_118251_) {
-      if (!(p_118250_.getSource() instanceof SharedSuggestionProvider)) {
-         return Suggestions.empty();
-      } else {
-         String s = p_118251_.getRemaining();
-         Collection<SharedSuggestionProvider.TextCoordinates> collection;
-         if (!s.isEmpty() && s.charAt(0) == '^') {
-            collection = Collections.singleton(SharedSuggestionProvider.TextCoordinates.DEFAULT_LOCAL);
-         } else {
-            collection = ((SharedSuggestionProvider)p_118250_.getSource()).getRelevantCoordinates();
-         }
+        if (!Level.isInSpawnableBounds(blockpos))
+        {
+            throw ERROR_OUT_OF_BOUNDS.create();
+        }
+        else
+        {
+            return blockpos;
+        }
+    }
 
-         return SharedSuggestionProvider.suggestCoordinates(s, collection, p_118251_, Commands.createValidator(this::parse));
-      }
-   }
+    public Coordinates parse(StringReader p_118241_) throws CommandSyntaxException
+    {
+        return (Coordinates)(p_118241_.canRead() && p_118241_.peek() == '^' ? LocalCoordinates.parse(p_118241_) : WorldCoordinates.parseInt(p_118241_));
+    }
 
-   public Collection<String> getExamples() {
-      return EXAMPLES;
-   }
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> p_118250_, SuggestionsBuilder p_118251_)
+    {
+        if (!(p_118250_.getSource() instanceof SharedSuggestionProvider))
+        {
+            return Suggestions.empty();
+        }
+        else
+        {
+            String s = p_118251_.getRemaining();
+            Collection<SharedSuggestionProvider.TextCoordinates> collection;
+
+            if (!s.isEmpty() && s.charAt(0) == '^')
+            {
+                collection = Collections.singleton(SharedSuggestionProvider.TextCoordinates.DEFAULT_LOCAL);
+            }
+            else
+            {
+                collection = ((SharedSuggestionProvider)p_118250_.getSource()).getRelevantCoordinates();
+            }
+
+            return SharedSuggestionProvider.suggestCoordinates(s, collection, p_118251_, Commands.createValidator(this::parse));
+        }
+    }
+
+    public Collection<String> getExamples()
+    {
+        return EXAMPLES;
+    }
 }

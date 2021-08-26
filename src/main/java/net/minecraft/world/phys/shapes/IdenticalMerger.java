@@ -2,30 +2,37 @@ package net.minecraft.world.phys.shapes;
 
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 
-public class IdenticalMerger implements IndexMerger {
-   private final DoubleList coords;
+public class IdenticalMerger implements IndexMerger
+{
+    private final DoubleList coords;
 
-   public IdenticalMerger(DoubleList p_82903_) {
-      this.coords = p_82903_;
-   }
+    public IdenticalMerger(DoubleList p_82903_)
+    {
+        this.coords = p_82903_;
+    }
 
-   public boolean forMergedIndexes(IndexMerger.IndexConsumer p_82906_) {
-      int i = this.coords.size() - 1;
+    public boolean forMergedIndexes(IndexMerger.IndexConsumer pConsumer)
+    {
+        int i = this.coords.size() - 1;
 
-      for(int j = 0; j < i; ++j) {
-         if (!p_82906_.merge(j, j, j)) {
-            return false;
-         }
-      }
+        for (int j = 0; j < i; ++j)
+        {
+            if (!pConsumer.merge(j, j, j))
+            {
+                return false;
+            }
+        }
 
-      return true;
-   }
+        return true;
+    }
 
-   public int size() {
-      return this.coords.size();
-   }
+    public int size()
+    {
+        return this.coords.size();
+    }
 
-   public DoubleList getList() {
-      return this.coords;
-   }
+    public DoubleList getList()
+    {
+        return this.coords;
+    }
 }

@@ -13,84 +13,93 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 
-public interface WorldData {
-   int ANVIL_VERSION_ID = 19133;
-   int MCREGION_VERSION_ID = 19132;
+public interface WorldData
+{
+    int ANVIL_VERSION_ID = 19133;
+    int MCREGION_VERSION_ID = 19132;
 
-   DataPackConfig getDataPackConfig();
+    DataPackConfig getDataPackConfig();
 
-   void setDataPackConfig(DataPackConfig p_78634_);
+    void setDataPackConfig(DataPackConfig pCodec);
 
-   boolean wasModded();
+    boolean wasModded();
 
-   Set<String> getKnownServerBrands();
+    Set<String> getKnownServerBrands();
 
-   void setModdedInfo(String p_78638_, boolean p_78639_);
+    void setModdedInfo(String pName, boolean pIsModded);
 
-   default void fillCrashReportCategory(CrashReportCategory p_78640_) {
-      p_78640_.setDetail("Known server brands", () -> {
-         return String.join(", ", this.getKnownServerBrands());
-      });
-      p_78640_.setDetail("Level was modded", () -> {
-         return Boolean.toString(this.wasModded());
-      });
-      p_78640_.setDetail("Level storage version", () -> {
-         int i = this.getVersion();
-         return String.format("0x%05X - %s", i, this.getStorageVersionName(i));
-      });
-   }
+default void fillCrashReportCategory(CrashReportCategory p_78640_)
+    {
+        p_78640_.setDetail("Known server brands", () ->
+        {
+            return String.join(", ", this.getKnownServerBrands());
+        });
+        p_78640_.setDetail("Level was modded", () ->
+        {
+            return Boolean.toString(this.wasModded());
+        });
+        p_78640_.setDetail("Level storage version", () ->
+        {
+            int i = this.getVersion();
+            return String.format("0x%05X - %s", i, this.getStorageVersionName(i));
+        });
+    }
 
-   default String getStorageVersionName(int p_78647_) {
-      switch(p_78647_) {
-      case 19132:
-         return "McRegion";
-      case 19133:
-         return "Anvil";
-      default:
-         return "Unknown?";
-      }
-   }
+default String getStorageVersionName(int pStorageVersionId)
+    {
+        switch (pStorageVersionId)
+        {
+            case 19132:
+                return "McRegion";
 
-   @Nullable
-   CompoundTag getCustomBossEvents();
+            case 19133:
+                return "Anvil";
 
-   void setCustomBossEvents(@Nullable CompoundTag p_78643_);
+            default:
+                return "Unknown?";
+        }
+    }
 
-   ServerLevelData overworldData();
+    @Nullable
+    CompoundTag getCustomBossEvents();
 
-   LevelSettings getLevelSettings();
+    void setCustomBossEvents(@Nullable CompoundTag pNbt);
 
-   CompoundTag createTag(RegistryAccess p_78636_, @Nullable CompoundTag p_78637_);
+    ServerLevelData overworldData();
 
-   boolean isHardcore();
+    LevelSettings getLevelSettings();
 
-   int getVersion();
+    CompoundTag createTag(RegistryAccess pRegistries, @Nullable CompoundTag pHostPlayerNBT);
 
-   String getLevelName();
+    boolean isHardcore();
 
-   GameType getGameType();
+    int getVersion();
 
-   void setGameType(GameType p_78635_);
+    String getLevelName();
 
-   boolean getAllowCommands();
+    GameType getGameType();
 
-   Difficulty getDifficulty();
+    void setGameType(GameType pType);
 
-   void setDifficulty(Difficulty p_78633_);
+    boolean getAllowCommands();
 
-   boolean isDifficultyLocked();
+    Difficulty getDifficulty();
 
-   void setDifficultyLocked(boolean p_78645_);
+    void setDifficulty(Difficulty pDifficulty);
 
-   GameRules getGameRules();
+    boolean isDifficultyLocked();
 
-   CompoundTag getLoadedPlayerTag();
+    void setDifficultyLocked(boolean pLocked);
 
-   CompoundTag endDragonFightData();
+    GameRules getGameRules();
 
-   void setEndDragonFightData(CompoundTag p_78641_);
+    CompoundTag getLoadedPlayerTag();
 
-   WorldGenSettings worldGenSettings();
+    CompoundTag endDragonFightData();
 
-   Lifecycle worldGenSettingsLifecycle();
+    void setEndDragonFightData(CompoundTag pNbt);
+
+    WorldGenSettings worldGenSettings();
+
+    Lifecycle worldGenSettingsLifecycle();
 }

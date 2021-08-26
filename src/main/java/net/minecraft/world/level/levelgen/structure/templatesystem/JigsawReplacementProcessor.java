@@ -11,39 +11,52 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class JigsawReplacementProcessor extends StructureProcessor {
-   public static final Codec<JigsawReplacementProcessor> CODEC;
-   public static final JigsawReplacementProcessor INSTANCE = new JigsawReplacementProcessor();
+public class JigsawReplacementProcessor extends StructureProcessor
+{
+    public static final Codec<JigsawReplacementProcessor> CODEC;
+    public static final JigsawReplacementProcessor INSTANCE = new JigsawReplacementProcessor();
 
-   private JigsawReplacementProcessor() {
-   }
+    private JigsawReplacementProcessor()
+    {
+    }
 
-   @Nullable
-   public StructureTemplate.StructureBlockInfo processBlock(LevelReader p_74127_, BlockPos p_74128_, BlockPos p_74129_, StructureTemplate.StructureBlockInfo p_74130_, StructureTemplate.StructureBlockInfo p_74131_, StructurePlaceSettings p_74132_) {
-      BlockState blockstate = p_74131_.state;
-      if (blockstate.is(Blocks.JIGSAW)) {
-         String s = p_74131_.nbt.getString("final_state");
-         BlockStateParser blockstateparser = new BlockStateParser(new StringReader(s), false);
+    @Nullable
+    public StructureTemplate.StructureBlockInfo processBlock(LevelReader p_74127_, BlockPos p_74128_, BlockPos p_74129_, StructureTemplate.StructureBlockInfo p_74130_, StructureTemplate.StructureBlockInfo p_74131_, StructurePlaceSettings p_74132_)
+    {
+        BlockState blockstate = p_74131_.state;
 
-         try {
-            blockstateparser.parse(true);
-         } catch (CommandSyntaxException commandsyntaxexception) {
-            throw new RuntimeException(commandsyntaxexception);
-         }
+        if (blockstate.is(Blocks.JIGSAW))
+        {
+            String s = p_74131_.nbt.getString("final_state");
+            BlockStateParser blockstateparser = new BlockStateParser(new StringReader(s), false);
 
-         return blockstateparser.getState().is(Blocks.STRUCTURE_VOID) ? null : new StructureTemplate.StructureBlockInfo(p_74131_.pos, blockstateparser.getState(), (CompoundTag)null);
-      } else {
-         return p_74131_;
-      }
-   }
+            try
+            {
+                blockstateparser.parse(true);
+            }
+            catch (CommandSyntaxException commandsyntaxexception)
+            {
+                throw new RuntimeException(commandsyntaxexception);
+            }
 
-   protected StructureProcessorType<?> getType() {
-      return StructureProcessorType.JIGSAW_REPLACEMENT;
-   }
+            return blockstateparser.getState().is(Blocks.STRUCTURE_VOID) ? null : new StructureTemplate.StructureBlockInfo(p_74131_.pos, blockstateparser.getState(), (CompoundTag)null);
+        }
+        else
+        {
+            return p_74131_;
+        }
+    }
 
-   static {
-      CODEC = Codec.unit(() -> {
-         return INSTANCE;
-      });
-   }
+    protected StructureProcessorType<?> getType()
+    {
+        return StructureProcessorType.JIGSAW_REPLACEMENT;
+    }
+
+    static
+    {
+        CODEC = Codec.unit(() ->
+        {
+            return INSTANCE;
+        });
+    }
 }

@@ -16,46 +16,58 @@ import net.minecraft.world.level.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class KnowledgeBookItem extends Item {
-   private static final String RECIPE_TAG = "Recipes";
-   private static final Logger LOGGER = LogManager.getLogger();
+public class KnowledgeBookItem extends Item
+{
+    private static final String RECIPE_TAG = "Recipes";
+    private static final Logger LOGGER = LogManager.getLogger();
 
-   public KnowledgeBookItem(Item.Properties p_42822_) {
-      super(p_42822_);
-   }
+    public KnowledgeBookItem(Item.Properties p_42822_)
+    {
+        super(p_42822_);
+    }
 
-   public InteractionResultHolder<ItemStack> use(Level p_42824_, Player p_42825_, InteractionHand p_42826_) {
-      ItemStack itemstack = p_42825_.getItemInHand(p_42826_);
-      CompoundTag compoundtag = itemstack.getTag();
-      if (!p_42825_.getAbilities().instabuild) {
-         p_42825_.setItemInHand(p_42826_, ItemStack.EMPTY);
-      }
+    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand)
+    {
+        ItemStack itemstack = pPlayer.getItemInHand(pHand);
+        CompoundTag compoundtag = itemstack.getTag();
 
-      if (compoundtag != null && compoundtag.contains("Recipes", 9)) {
-         if (!p_42824_.isClientSide) {
-            ListTag listtag = compoundtag.getList("Recipes", 8);
-            List<Recipe<?>> list = Lists.newArrayList();
-            RecipeManager recipemanager = p_42824_.getServer().getRecipeManager();
+        if (!pPlayer.getAbilities().instabuild)
+        {
+            pPlayer.setItemInHand(pHand, ItemStack.EMPTY);
+        }
 
-            for(int i = 0; i < listtag.size(); ++i) {
-               String s = listtag.getString(i);
-               Optional<? extends Recipe<?>> optional = recipemanager.byKey(new ResourceLocation(s));
-               if (!optional.isPresent()) {
-                  LOGGER.error("Invalid recipe: {}", (Object)s);
-                  return InteractionResultHolder.fail(itemstack);
-               }
+        if (compoundtag != null && compoundtag.contains("Recipes", 9))
+        {
+            if (!pLevel.isClientSide)
+            {
+                ListTag listtag = compoundtag.getList("Recipes", 8);
+                List < Recipe<? >> list = Lists.newArrayList();
+                RecipeManager recipemanager = pLevel.getServer().getRecipeManager();
 
-               list.add(optional.get());
+                for (int i = 0; i < listtag.size(); ++i)
+                {
+                    String s = listtag.getString(i);
+                    Optional <? extends Recipe<? >> optional = recipemanager.byKey(new ResourceLocation(s));
+
+                    if (!optional.isPresent())
+                    {
+                        LOGGER.error("Invalid recipe: {}", (Object)s);
+                        return InteractionResultHolder.fail(itemstack);
+                    }
+
+                    list.add(optional.get());
+                }
+
+                pPlayer.awardRecipes(list);
+                pPlayer.awardStat(Stats.ITEM_USED.get(this));
             }
 
-            p_42825_.awardRecipes(list);
-            p_42825_.awardStat(Stats.ITEM_USED.get(this));
-         }
-
-         return InteractionResultHolder.sidedSuccess(itemstack, p_42824_.isClientSide());
-      } else {
-         LOGGER.error("Tag not valid: {}", (Object)compoundtag);
-         return InteractionResultHolder.fail(itemstack);
-      }
-   }
+            return InteractionResultHolder.sidedSuccess(itemstack, pLevel.isClientSide());
+        }
+        else
+        {
+            LOGGER.error("Tag not valid: {}", (Object)compoundtag);
+            return InteractionResultHolder.fail(itemstack);
+        }
+    }
 }

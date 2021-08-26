@@ -17,93 +17,128 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public abstract class SimpleJsonResourceReloadListener extends SimplePreparableReloadListener<Map<ResourceLocation, JsonElement>> {
-   private static final Logger LOGGER = LogManager.getLogger();
-   private static final String PATH_SUFFIX = ".json";
-   private static final int PATH_SUFFIX_LENGTH = ".json".length();
-   private final Gson gson;
-   private final String directory;
+public abstract class SimpleJsonResourceReloadListener extends SimplePreparableReloadListener<Map<ResourceLocation, JsonElement>>
+{
+    private static final Logger LOGGER = LogManager.getLogger();
+    private static final String PATH_SUFFIX = ".json";
+    private static final int PATH_SUFFIX_LENGTH = ".json".length();
+    private final Gson gson;
+    private final String directory;
 
-   public SimpleJsonResourceReloadListener(Gson p_10768_, String p_10769_) {
-      this.gson = p_10768_;
-      this.directory = p_10769_;
-   }
+    public SimpleJsonResourceReloadListener(Gson p_10768_, String p_10769_)
+    {
+        this.gson = p_10768_;
+        this.directory = p_10769_;
+    }
 
-   protected Map<ResourceLocation, JsonElement> prepare(ResourceManager p_10771_, ProfilerFiller p_10772_) {
-      Map<ResourceLocation, JsonElement> map = Maps.newHashMap();
-      int i = this.directory.length() + 1;
+    protected Map<ResourceLocation, JsonElement> prepare(ResourceManager pResourceManager, ProfilerFiller pProfiler)
+    {
+        Map<ResourceLocation, JsonElement> map = Maps.newHashMap();
+        int i = this.directory.length() + 1;
 
-      for(ResourceLocation resourcelocation : p_10771_.listResources(this.directory, (p_10774_) -> {
-         return p_10774_.endsWith(".json");
-      })) {
-         String s = resourcelocation.getPath();
-         ResourceLocation resourcelocation1 = new ResourceLocation(resourcelocation.getNamespace(), s.substring(i, s.length() - PATH_SUFFIX_LENGTH));
+        for (ResourceLocation resourcelocation : pResourceManager.listResources(this.directory, (p_10774_) ->
+    {
+        return p_10774_.endsWith(".json");
+        }))
+        {
+            String s = resourcelocation.getPath();
+            ResourceLocation resourcelocation1 = new ResourceLocation(resourcelocation.getNamespace(), s.substring(i, s.length() - PATH_SUFFIX_LENGTH));
 
-         try {
-            Resource resource = p_10771_.getResource(resourcelocation);
+            try
+            {
+                Resource resource = pResourceManager.getResource(resourcelocation);
 
-            try {
-               InputStream inputstream = resource.getInputStream();
+                try
+                {
+                    InputStream inputstream = resource.getInputStream();
 
-               try {
-                  Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8));
+                    try
+                    {
+                        Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8));
 
-                  try {
-                     JsonElement jsonelement = GsonHelper.fromJson(this.gson, reader, JsonElement.class);
-                     if (jsonelement != null) {
-                        JsonElement jsonelement1 = map.put(resourcelocation1, jsonelement);
-                        if (jsonelement1 != null) {
-                           throw new IllegalStateException("Duplicate data file ignored with ID " + resourcelocation1);
+                        try
+                        {
+                            JsonElement jsonelement = GsonHelper.fromJson(this.gson, reader, JsonElement.class);
+
+                            if (jsonelement != null)
+                            {
+                                JsonElement jsonelement1 = map.put(resourcelocation1, jsonelement);
+
+                                if (jsonelement1 != null)
+                                {
+                                    throw new IllegalStateException("Duplicate data file ignored with ID " + resourcelocation1);
+                                }
+                            }
+                            else
+                            {
+                                LOGGER.error("Couldn't load data file {} from {} as it's null or empty", resourcelocation1, resourcelocation);
+                            }
                         }
-                     } else {
-                        LOGGER.error("Couldn't load data file {} from {} as it's null or empty", resourcelocation1, resourcelocation);
-                     }
-                  } catch (Throwable throwable3) {
-                     try {
+                        catch (Throwable throwable3)
+                        {
+                            try
+                            {
+                                reader.close();
+                            }
+                            catch (Throwable throwable2)
+                            {
+                                throwable3.addSuppressed(throwable2);
+                            }
+
+                            throw throwable3;
+                        }
+
                         reader.close();
-                     } catch (Throwable throwable2) {
-                        throwable3.addSuppressed(throwable2);
-                     }
+                    }
+                    catch (Throwable throwable4)
+                    {
+                        if (inputstream != null)
+                        {
+                            try
+                            {
+                                inputstream.close();
+                            }
+                            catch (Throwable throwable1)
+                            {
+                                throwable4.addSuppressed(throwable1);
+                            }
+                        }
 
-                     throw throwable3;
-                  }
+                        throw throwable4;
+                    }
 
-                  reader.close();
-               } catch (Throwable throwable4) {
-                  if (inputstream != null) {
-                     try {
+                    if (inputstream != null)
+                    {
                         inputstream.close();
-                     } catch (Throwable throwable1) {
-                        throwable4.addSuppressed(throwable1);
-                     }
-                  }
+                    }
+                }
+                catch (Throwable throwable5)
+                {
+                    if (resource != null)
+                    {
+                        try
+                        {
+                            resource.close();
+                        }
+                        catch (Throwable throwable)
+                        {
+                            throwable5.addSuppressed(throwable);
+                        }
+                    }
 
-                  throw throwable4;
-               }
+                    throw throwable5;
+                }
 
-               if (inputstream != null) {
-                  inputstream.close();
-               }
-            } catch (Throwable throwable5) {
-               if (resource != null) {
-                  try {
-                     resource.close();
-                  } catch (Throwable throwable) {
-                     throwable5.addSuppressed(throwable);
-                  }
-               }
-
-               throw throwable5;
+                if (resource != null)
+                {
+                    resource.close();
+                }
             }
-
-            if (resource != null) {
-               resource.close();
+            catch (IllegalArgumentException | IOException | JsonParseException jsonparseexception)
+            {
+                LOGGER.error("Couldn't parse data file {} from {}", resourcelocation1, resourcelocation, jsonparseexception);
             }
-         } catch (IllegalArgumentException | IOException | JsonParseException jsonparseexception) {
-            LOGGER.error("Couldn't parse data file {} from {}", resourcelocation1, resourcelocation, jsonparseexception);
-         }
-      }
-
-      return map;
-   }
+        }
+        return map;
+    }
 }

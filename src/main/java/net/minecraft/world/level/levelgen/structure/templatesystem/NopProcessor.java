@@ -5,25 +5,31 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelReader;
 
-public class NopProcessor extends StructureProcessor {
-   public static final Codec<NopProcessor> CODEC;
-   public static final NopProcessor INSTANCE = new NopProcessor();
+public class NopProcessor extends StructureProcessor
+{
+    public static final Codec<NopProcessor> CODEC;
+    public static final NopProcessor INSTANCE = new NopProcessor();
 
-   private NopProcessor() {
-   }
+    private NopProcessor()
+    {
+    }
 
-   @Nullable
-   public StructureTemplate.StructureBlockInfo processBlock(LevelReader p_74180_, BlockPos p_74181_, BlockPos p_74182_, StructureTemplate.StructureBlockInfo p_74183_, StructureTemplate.StructureBlockInfo p_74184_, StructurePlaceSettings p_74185_) {
-      return p_74184_;
-   }
+    @Nullable
+    public StructureTemplate.StructureBlockInfo processBlock(LevelReader p_74180_, BlockPos p_74181_, BlockPos p_74182_, StructureTemplate.StructureBlockInfo p_74183_, StructureTemplate.StructureBlockInfo p_74184_, StructurePlaceSettings p_74185_)
+    {
+        return p_74184_;
+    }
 
-   protected StructureProcessorType<?> getType() {
-      return StructureProcessorType.NOP;
-   }
+    protected StructureProcessorType<?> getType()
+    {
+        return StructureProcessorType.NOP;
+    }
 
-   static {
-      CODEC = Codec.unit(() -> {
-         return INSTANCE;
-      });
-   }
+    static
+    {
+        CODEC = Codec.unit(() ->
+        {
+            return INSTANCE;
+        });
+    }
 }

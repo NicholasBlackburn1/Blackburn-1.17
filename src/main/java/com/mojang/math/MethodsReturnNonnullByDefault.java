@@ -7,7 +7,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.meta.TypeQualifierDefault;
 
 @Nonnull
-@TypeQualifierDefault({ElementType.METHOD})
+@TypeQualifierDefault( {ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface MethodsReturnNonnullByDefault {
+public @interface MethodsReturnNonnullByDefault
+{
 }

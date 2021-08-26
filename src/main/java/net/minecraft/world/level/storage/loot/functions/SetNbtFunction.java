@@ -12,42 +12,54 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
-public class SetNbtFunction extends LootItemConditionalFunction {
-   final CompoundTag tag;
+public class SetNbtFunction extends LootItemConditionalFunction
+{
+    final CompoundTag tag;
 
-   SetNbtFunction(LootItemCondition[] p_81176_, CompoundTag p_81177_) {
-      super(p_81176_);
-      this.tag = p_81177_;
-   }
+    SetNbtFunction(LootItemCondition[] p_81176_, CompoundTag p_81177_)
+    {
+        super(p_81176_);
+        this.tag = p_81177_;
+    }
 
-   public LootItemFunctionType getType() {
-      return LootItemFunctions.SET_NBT;
-   }
+    public LootItemFunctionType getType()
+    {
+        return LootItemFunctions.SET_NBT;
+    }
 
-   public ItemStack run(ItemStack p_81183_, LootContext p_81184_) {
-      p_81183_.getOrCreateTag().merge(this.tag);
-      return p_81183_;
-   }
+    public ItemStack run(ItemStack pStack, LootContext pContext)
+    {
+        pStack.getOrCreateTag().merge(this.tag);
+        return pStack;
+    }
 
-   public static LootItemConditionalFunction.Builder<?> setTag(CompoundTag p_81188_) {
-      return simpleBuilder((p_81191_) -> {
-         return new SetNbtFunction(p_81191_, p_81188_);
-      });
-   }
+    public static LootItemConditionalFunction.Builder<?> setTag(CompoundTag p_81188_)
+    {
+        return simpleBuilder((p_81191_) ->
+        {
+            return new SetNbtFunction(p_81191_, p_81188_);
+        });
+    }
 
-   public static class Serializer extends LootItemConditionalFunction.Serializer<SetNbtFunction> {
-      public void serialize(JsonObject p_81203_, SetNbtFunction p_81204_, JsonSerializationContext p_81205_) {
-         super.serialize(p_81203_, p_81204_, p_81205_);
-         p_81203_.addProperty("tag", p_81204_.tag.toString());
-      }
+    public static class Serializer extends LootItemConditionalFunction.Serializer<SetNbtFunction>
+    {
+        public void serialize(JsonObject p_81203_, SetNbtFunction p_81204_, JsonSerializationContext p_81205_)
+        {
+            super.serialize(p_81203_, p_81204_, p_81205_);
+            p_81203_.addProperty("tag", p_81204_.tag.toString());
+        }
 
-      public SetNbtFunction deserialize(JsonObject p_81195_, JsonDeserializationContext p_81196_, LootItemCondition[] p_81197_) {
-         try {
-            CompoundTag compoundtag = TagParser.parseTag(GsonHelper.getAsString(p_81195_, "tag"));
-            return new SetNbtFunction(p_81197_, compoundtag);
-         } catch (CommandSyntaxException commandsyntaxexception) {
-            throw new JsonSyntaxException(commandsyntaxexception.getMessage());
-         }
-      }
-   }
+        public SetNbtFunction m_6821_(JsonObject p_81195_, JsonDeserializationContext p_81196_, LootItemCondition[] p_81197_)
+        {
+            try
+            {
+                CompoundTag compoundtag = TagParser.parseTag(GsonHelper.getAsString(p_81195_, "tag"));
+                return new SetNbtFunction(p_81197_, compoundtag);
+            }
+            catch (CommandSyntaxException commandsyntaxexception)
+            {
+                throw new JsonSyntaxException(commandsyntaxexception.getMessage());
+            }
+        }
+    }
 }

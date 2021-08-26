@@ -5,56 +5,70 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 
-public interface PlaceRecipe<T> {
-   default void placeRecipe(int p_135409_, int p_135410_, int p_135411_, Recipe<?> p_135412_, Iterator<T> p_135413_, int p_135414_) {
-      int i = p_135409_;
-      int j = p_135410_;
-      if (p_135412_ instanceof ShapedRecipe) {
-         ShapedRecipe shapedrecipe = (ShapedRecipe)p_135412_;
-         i = shapedrecipe.getWidth();
-         j = shapedrecipe.getHeight();
-      }
+public interface PlaceRecipe<T>
+{
+default void placeRecipe(int pWidth, int pHeight, int pOutputSlot, Recipe<?> pRecipe, Iterator<T> pIngredients, int pMaxAmount)
+    {
+        int i = pWidth;
+        int j = pHeight;
 
-      int k1 = 0;
+        if (pRecipe instanceof ShapedRecipe)
+        {
+            ShapedRecipe shapedrecipe = (ShapedRecipe)pRecipe;
+            i = shapedrecipe.getWidth();
+            j = shapedrecipe.getHeight();
+        }
 
-      for(int k = 0; k < p_135410_; ++k) {
-         if (k1 == p_135411_) {
-            ++k1;
-         }
+        int k1 = 0;
 
-         boolean flag = (float)j < (float)p_135410_ / 2.0F;
-         int l = Mth.floor((float)p_135410_ / 2.0F - (float)j / 2.0F);
-         if (flag && l > k) {
-            k1 += p_135409_;
-            ++k;
-         }
-
-         for(int i1 = 0; i1 < p_135409_; ++i1) {
-            if (!p_135413_.hasNext()) {
-               return;
+        for (int k = 0; k < pHeight; ++k)
+        {
+            if (k1 == pOutputSlot)
+            {
+                ++k1;
             }
 
-            flag = (float)i < (float)p_135409_ / 2.0F;
-            l = Mth.floor((float)p_135409_ / 2.0F - (float)i / 2.0F);
-            int j1 = i;
-            boolean flag1 = i1 < i;
-            if (flag) {
-               j1 = l + i;
-               flag1 = l <= i1 && i1 < l + i;
+            boolean flag = (float)j < (float)pHeight / 2.0F;
+            int l = Mth.floor((float)pHeight / 2.0F - (float)j / 2.0F);
+
+            if (flag && l > k)
+            {
+                k1 += pWidth;
+                ++k;
             }
 
-            if (flag1) {
-               this.addItemToSlot(p_135413_, k1, p_135414_, k, i1);
-            } else if (j1 == i1) {
-               k1 += p_135409_ - i1;
-               break;
+            for (int i1 = 0; i1 < pWidth; ++i1)
+            {
+                if (!pIngredients.hasNext())
+                {
+                    return;
+                }
+
+                flag = (float)i < (float)pWidth / 2.0F;
+                l = Mth.floor((float)pWidth / 2.0F - (float)i / 2.0F);
+                int j1 = i;
+                boolean flag1 = i1 < i;
+
+                if (flag)
+                {
+                    j1 = l + i;
+                    flag1 = l <= i1 && i1 < l + i;
+                }
+
+                if (flag1)
+                {
+                    this.addItemToSlot(pIngredients, k1, pMaxAmount, k, i1);
+                }
+                else if (j1 == i1)
+                {
+                    k1 += pWidth - i1;
+                    break;
+                }
+
+                ++k1;
             }
+        }
+    }
 
-            ++k1;
-         }
-      }
-
-   }
-
-   void addItemToSlot(Iterator<T> p_135415_, int p_135416_, int p_135417_, int p_135418_, int p_135419_);
+    void addItemToSlot(Iterator<T> pIngredients, int pSlot, int pMaxAmount, int pY, int pX);
 }

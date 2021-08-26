@@ -48,156 +48,200 @@ import net.minecraft.util.LazyLoadedValue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ServerConnectionListener {
-   private static final Logger LOGGER = LogManager.getLogger();
-   public static final LazyLoadedValue<NioEventLoopGroup> SERVER_EVENT_GROUP = new LazyLoadedValue<>(() -> {
-      return new NioEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Server IO #%d").setDaemon(true).build());
-   });
-   public static final LazyLoadedValue<EpollEventLoopGroup> SERVER_EPOLL_EVENT_GROUP = new LazyLoadedValue<>(() -> {
-      return new EpollEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Epoll Server IO #%d").setDaemon(true).build());
-   });
-   final MinecraftServer server;
-   public volatile boolean running;
-   private final List<ChannelFuture> channels = Collections.synchronizedList(Lists.newArrayList());
-   final List<Connection> connections = Collections.synchronizedList(Lists.newArrayList());
+public class ServerConnectionListener
+{
+    private static final Logger LOGGER = LogManager.getLogger();
+    public static final LazyLoadedValue<NioEventLoopGroup> SERVER_EVENT_GROUP = new LazyLoadedValue<>(() ->
+    {
+        return new NioEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Server IO #%d").setDaemon(true).build());
+    });
+    public static final LazyLoadedValue<EpollEventLoopGroup> SERVER_EPOLL_EVENT_GROUP = new LazyLoadedValue<>(() ->
+    {
+        return new EpollEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Epoll Server IO #%d").setDaemon(true).build());
+    });
+    final MinecraftServer server;
+    public volatile boolean running;
+    private final List<ChannelFuture> channels = Collections.synchronizedList(Lists.newArrayList());
+    final List<Connection> connections = Collections.synchronizedList(Lists.newArrayList());
 
-   public ServerConnectionListener(MinecraftServer p_9707_) {
-      this.server = p_9707_;
-      this.running = true;
-   }
+    public ServerConnectionListener(MinecraftServer p_9707_)
+    {
+        this.server = p_9707_;
+        this.running = true;
+    }
 
-   public void startTcpServerListener(@Nullable InetAddress p_9712_, int p_9713_) throws IOException {
-      synchronized(this.channels) {
-         Class<? extends ServerSocketChannel> oclass;
-         LazyLoadedValue<? extends EventLoopGroup> lazyloadedvalue;
-         if (Epoll.isAvailable() && this.server.isEpollEnabled()) {
-            oclass = EpollServerSocketChannel.class;
-            lazyloadedvalue = SERVER_EPOLL_EVENT_GROUP;
-            LOGGER.info("Using epoll channel type");
-         } else {
-            oclass = NioServerSocketChannel.class;
-            lazyloadedvalue = SERVER_EVENT_GROUP;
-            LOGGER.info("Using default channel type");
-         }
+    public void startTcpServerListener(@Nullable InetAddress pAddress, int pPort) throws IOException
+    {
+        synchronized (this.channels)
+        {
+            Class <? extends ServerSocketChannel > oclass;
+            LazyLoadedValue <? extends EventLoopGroup > lazyloadedvalue;
 
-         this.channels.add((new ServerBootstrap()).channel(oclass).childHandler(new ChannelInitializer<Channel>() {
-            protected void initChannel(Channel p_9729_) {
-               try {
-                  p_9729_.config().setOption(ChannelOption.TCP_NODELAY, true);
-               } catch (ChannelException channelexception) {
-               }
-
-               p_9729_.pipeline().addLast("timeout", new ReadTimeoutHandler(30)).addLast("legacy_query", new LegacyQueryHandler(ServerConnectionListener.this)).addLast("splitter", new Varint21FrameDecoder()).addLast("decoder", new PacketDecoder(PacketFlow.SERVERBOUND)).addLast("prepender", new Varint21LengthFieldPrepender()).addLast("encoder", new PacketEncoder(PacketFlow.CLIENTBOUND));
-               int i = ServerConnectionListener.this.server.getRateLimitPacketsPerSecond();
-               Connection connection = (Connection)(i > 0 ? new RateKickingConnection(i) : new Connection(PacketFlow.SERVERBOUND));
-               ServerConnectionListener.this.connections.add(connection);
-               p_9729_.pipeline().addLast("packet_handler", connection);
-               connection.setListener(new ServerHandshakePacketListenerImpl(ServerConnectionListener.this.server, connection));
+            if (Epoll.isAvailable() && this.server.isEpollEnabled())
+            {
+                oclass = EpollServerSocketChannel.class;
+                lazyloadedvalue = SERVER_EPOLL_EVENT_GROUP;
+                LOGGER.info("Using epoll channel type");
             }
-         }).group(lazyloadedvalue.get()).localAddress(p_9712_, p_9713_).bind().syncUninterruptibly());
-      }
-   }
-
-   public SocketAddress startMemoryChannel() {
-      ChannelFuture channelfuture;
-      synchronized(this.channels) {
-         channelfuture = (new ServerBootstrap()).channel(LocalServerChannel.class).childHandler(new ChannelInitializer<Channel>() {
-            protected void initChannel(Channel p_9734_) {
-               Connection connection = new Connection(PacketFlow.SERVERBOUND);
-               connection.setListener(new MemoryServerHandshakePacketListenerImpl(ServerConnectionListener.this.server, connection));
-               ServerConnectionListener.this.connections.add(connection);
-               p_9734_.pipeline().addLast("packet_handler", connection);
+            else
+            {
+                oclass = NioServerSocketChannel.class;
+                lazyloadedvalue = SERVER_EVENT_GROUP;
+                LOGGER.info("Using default channel type");
             }
-         }).group(SERVER_EVENT_GROUP.get()).localAddress(LocalAddress.ANY).bind().syncUninterruptibly();
-         this.channels.add(channelfuture);
-      }
 
-      return channelfuture.channel().localAddress();
-   }
+            this.channels.add((new ServerBootstrap()).channel(oclass).childHandler(new ChannelInitializer<Channel>()
+            {
+                protected void initChannel(Channel p_9729_)
+                {
+                    try
+                    {
+                        p_9729_.config().setOption(ChannelOption.TCP_NODELAY, true);
+                    }
+                    catch (ChannelException channelexception)
+                    {
+                    }
 
-   public void stop() {
-      this.running = false;
+                    p_9729_.pipeline().addLast("timeout", new ReadTimeoutHandler(30)).addLast("legacy_query", new LegacyQueryHandler(ServerConnectionListener.this)).addLast("splitter", new Varint21FrameDecoder()).addLast("decoder", new PacketDecoder(PacketFlow.SERVERBOUND)).addLast("prepender", new Varint21LengthFieldPrepender()).addLast("encoder", new PacketEncoder(PacketFlow.CLIENTBOUND));
+                    int i = ServerConnectionListener.this.server.getRateLimitPacketsPerSecond();
+                    Connection connection = (Connection)(i > 0 ? new RateKickingConnection(i) : new Connection(PacketFlow.SERVERBOUND));
+                    ServerConnectionListener.this.connections.add(connection);
+                    p_9729_.pipeline().addLast("packet_handler", connection);
+                    connection.setListener(new ServerHandshakePacketListenerImpl(ServerConnectionListener.this.server, connection));
+                }
+            }).group(lazyloadedvalue.get()).localAddress(pAddress, pPort).bind().syncUninterruptibly());
+        }
+    }
 
-      for(ChannelFuture channelfuture : this.channels) {
-         try {
-            channelfuture.channel().close().sync();
-         } catch (InterruptedException interruptedexception) {
-            LOGGER.error("Interrupted whilst closing channel");
-         }
-      }
+    public SocketAddress startMemoryChannel()
+    {
+        ChannelFuture channelfuture;
 
-   }
+        synchronized (this.channels)
+        {
+            channelfuture = (new ServerBootstrap()).channel(LocalServerChannel.class).childHandler(new ChannelInitializer<Channel>()
+            {
+                protected void initChannel(Channel p_9734_)
+                {
+                    Connection connection = new Connection(PacketFlow.SERVERBOUND);
+                    connection.setListener(new MemoryServerHandshakePacketListenerImpl(ServerConnectionListener.this.server, connection));
+                    ServerConnectionListener.this.connections.add(connection);
+                    p_9734_.pipeline().addLast("packet_handler", connection);
+                }
+            }).group(SERVER_EVENT_GROUP.get()).localAddress(LocalAddress.ANY).bind().syncUninterruptibly();
+            this.channels.add(channelfuture);
+        }
 
-   public void tick() {
-      synchronized(this.connections) {
-         Iterator<Connection> iterator = this.connections.iterator();
+        return channelfuture.channel().localAddress();
+    }
 
-         while(iterator.hasNext()) {
-            Connection connection = iterator.next();
-            if (!connection.isConnecting()) {
-               if (connection.isConnected()) {
-                  try {
-                     connection.tick();
-                  } catch (Exception exception) {
-                     if (connection.isMemoryConnection()) {
-                        throw new ReportedException(CrashReport.forThrowable(exception, "Ticking memory connection"));
-                     }
+    public void stop()
+    {
+        this.running = false;
 
-                     LOGGER.warn("Failed to handle packet for {}", connection.getRemoteAddress(), exception);
-                     Component component = new TextComponent("Internal server error");
-                     connection.send(new ClientboundDisconnectPacket(component), (p_9717_) -> {
-                        connection.disconnect(component);
-                     });
-                     connection.setReadOnly();
-                  }
-               } else {
-                  iterator.remove();
-                  connection.handleDisconnection();
-               }
+        for (ChannelFuture channelfuture : this.channels)
+        {
+            try
+            {
+                channelfuture.channel().close().sync();
             }
-         }
+            catch (InterruptedException interruptedexception)
+            {
+                LOGGER.error("Interrupted whilst closing channel");
+            }
+        }
+    }
 
-      }
-   }
+    public void tick()
+    {
+        synchronized (this.connections)
+        {
+            Iterator<Connection> iterator = this.connections.iterator();
 
-   public MinecraftServer getServer() {
-      return this.server;
-   }
+            while (iterator.hasNext())
+            {
+                Connection connection = iterator.next();
 
-   static class LatencySimulator extends ChannelInboundHandlerAdapter {
-      private static final Timer TIMER = new HashedWheelTimer();
-      private final int delay;
-      private final int jitter;
-      private final List<ServerConnectionListener.LatencySimulator.DelayedMessage> queuedMessages = Lists.newArrayList();
+                if (!connection.isConnecting())
+                {
+                    if (connection.isConnected())
+                    {
+                        try
+                        {
+                            connection.tick();
+                        }
+                        catch (Exception exception)
+                        {
+                            if (connection.isMemoryConnection())
+                            {
+                                throw new ReportedException(CrashReport.forThrowable(exception, "Ticking memory connection"));
+                            }
 
-      public LatencySimulator(int p_143593_, int p_143594_) {
-         this.delay = p_143593_;
-         this.jitter = p_143594_;
-      }
+                            LOGGER.warn("Failed to handle packet for {}", connection.getRemoteAddress(), exception);
+                            Component component = new TextComponent("Internal server error");
+                            connection.send(new ClientboundDisconnectPacket(component), (p_9717_) ->
+                            {
+                                connection.disconnect(component);
+                            });
+                            connection.setReadOnly();
+                        }
+                    }
+                    else
+                    {
+                        iterator.remove();
+                        connection.handleDisconnection();
+                    }
+                }
+            }
+        }
+    }
 
-      public void channelRead(ChannelHandlerContext p_143601_, Object p_143602_) {
-         this.delayDownstream(p_143601_, p_143602_);
-      }
+    public MinecraftServer getServer()
+    {
+        return this.server;
+    }
 
-      private void delayDownstream(ChannelHandlerContext p_143596_, Object p_143597_) {
-         int i = this.delay + (int)(Math.random() * (double)this.jitter);
-         this.queuedMessages.add(new ServerConnectionListener.LatencySimulator.DelayedMessage(p_143596_, p_143597_));
-         TIMER.newTimeout(this::onTimeout, (long)i, TimeUnit.MILLISECONDS);
-      }
+    static class LatencySimulator extends ChannelInboundHandlerAdapter
+    {
+        private static final Timer TIMER = new HashedWheelTimer();
+        private final int delay;
+        private final int jitter;
+        private final List<ServerConnectionListener.LatencySimulator.DelayedMessage> queuedMessages = Lists.newArrayList();
 
-      private void onTimeout(Timeout p_143599_) {
-         ServerConnectionListener.LatencySimulator.DelayedMessage serverconnectionlistener$latencysimulator$delayedmessage = this.queuedMessages.remove(0);
-         serverconnectionlistener$latencysimulator$delayedmessage.ctx.fireChannelRead(serverconnectionlistener$latencysimulator$delayedmessage.msg);
-      }
+        public LatencySimulator(int p_143593_, int p_143594_)
+        {
+            this.delay = p_143593_;
+            this.jitter = p_143594_;
+        }
 
-      static class DelayedMessage {
-         public final ChannelHandlerContext ctx;
-         public final Object msg;
+        public void channelRead(ChannelHandlerContext p_143601_, Object p_143602_)
+        {
+            this.delayDownstream(p_143601_, p_143602_);
+        }
 
-         public DelayedMessage(ChannelHandlerContext p_143606_, Object p_143607_) {
-            this.ctx = p_143606_;
-            this.msg = p_143607_;
-         }
-      }
-   }
+        private void delayDownstream(ChannelHandlerContext p_143596_, Object p_143597_)
+        {
+            int i = this.delay + (int)(Math.random() * (double)this.jitter);
+            this.queuedMessages.add(new ServerConnectionListener.LatencySimulator.DelayedMessage(p_143596_, p_143597_));
+            TIMER.newTimeout(this::onTimeout, (long)i, TimeUnit.MILLISECONDS);
+        }
+
+        private void onTimeout(Timeout p_143599_)
+        {
+            ServerConnectionListener.LatencySimulator.DelayedMessage serverconnectionlistener$latencysimulator$delayedmessage = this.queuedMessages.remove(0);
+            serverconnectionlistener$latencysimulator$delayedmessage.ctx.fireChannelRead(serverconnectionlistener$latencysimulator$delayedmessage.msg);
+        }
+
+        static class DelayedMessage
+        {
+            public final ChannelHandlerContext ctx;
+            public final Object msg;
+
+            public DelayedMessage(ChannelHandlerContext p_143606_, Object p_143607_)
+            {
+                this.ctx = p_143606_;
+                this.msg = p_143607_;
+            }
+        }
+    }
 }

@@ -1,9 +1,10 @@
 package net.minecraft.world;
 
-public interface SnooperPopulator {
-   void populateSnooper(Snooper p_19234_);
+public interface SnooperPopulator
+{
+    void populateSnooper(Snooper pSnooper);
 
-   void populateSnooperInitial(Snooper p_146683_);
+    void populateSnooperInitial(Snooper pSnooper);
 
-   boolean isSnooperEnabled();
+    boolean isSnooperEnabled();
 }

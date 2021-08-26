@@ -4,12 +4,15 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
-public class WoodButtonBlock extends ButtonBlock {
-   protected WoodButtonBlock(BlockBehaviour.Properties p_58284_) {
-      super(true, p_58284_);
-   }
+public class WoodButtonBlock extends ButtonBlock
+{
+    protected WoodButtonBlock(BlockBehaviour.Properties p_58284_)
+    {
+        super(true, p_58284_);
+    }
 
-   protected SoundEvent getSound(boolean p_58286_) {
-      return p_58286_ ? SoundEvents.WOODEN_BUTTON_CLICK_ON : SoundEvents.WOODEN_BUTTON_CLICK_OFF;
-   }
+    protected SoundEvent getSound(boolean pIsOn)
+    {
+        return pIsOn ? SoundEvents.WOODEN_BUTTON_CLICK_ON : SoundEvents.WOODEN_BUTTON_CLICK_OFF;
+    }
 }

@@ -17,105 +17,135 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class UseBonemeal extends Behavior<Villager> {
-   private static final int BONEMEALING_DURATION = 80;
-   private long nextWorkCycleTime;
-   private long lastBonemealingSession;
-   private int timeWorkedSoFar;
-   private Optional<BlockPos> cropPos = Optional.empty();
+public class UseBonemeal extends Behavior<Villager>
+{
+    private static final int BONEMEALING_DURATION = 80;
+    private long nextWorkCycleTime;
+    private long lastBonemealingSession;
+    private int timeWorkedSoFar;
+    private Optional<BlockPos> cropPos = Optional.empty();
 
-   public UseBonemeal() {
-      super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryStatus.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT));
-   }
+    public UseBonemeal()
+    {
+        super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryStatus.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT));
+    }
 
-   protected boolean checkExtraStartConditions(ServerLevel p_24474_, Villager p_24475_) {
-      if (p_24475_.tickCount % 10 == 0 && (this.lastBonemealingSession == 0L || this.lastBonemealingSession + 160L <= (long)p_24475_.tickCount)) {
-         if (p_24475_.getInventory().countItem(Items.BONE_MEAL) <= 0) {
+    protected boolean checkExtraStartConditions(ServerLevel pLevel, Villager pOwner)
+    {
+        if (pOwner.tickCount % 10 == 0 && (this.lastBonemealingSession == 0L || this.lastBonemealingSession + 160L <= (long)pOwner.tickCount))
+        {
+            if (pOwner.getInventory().countItem(Items.BONE_MEAL) <= 0)
+            {
+                return false;
+            }
+            else
+            {
+                this.cropPos = this.pickNextTarget(pLevel, pOwner);
+                return this.cropPos.isPresent();
+            }
+        }
+        else
+        {
             return false;
-         } else {
-            this.cropPos = this.pickNextTarget(p_24474_, p_24475_);
-            return this.cropPos.isPresent();
-         }
-      } else {
-         return false;
-      }
-   }
+        }
+    }
 
-   protected boolean canStillUse(ServerLevel p_24477_, Villager p_24478_, long p_24479_) {
-      return this.timeWorkedSoFar < 80 && this.cropPos.isPresent();
-   }
+    protected boolean canStillUse(ServerLevel pLevel, Villager pEntity, long pGameTime)
+    {
+        return this.timeWorkedSoFar < 80 && this.cropPos.isPresent();
+    }
 
-   private Optional<BlockPos> pickNextTarget(ServerLevel p_24493_, Villager p_24494_) {
-      BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
-      Optional<BlockPos> optional = Optional.empty();
-      int i = 0;
+    private Optional<BlockPos> pickNextTarget(ServerLevel pLevel, Villager pVillager)
+    {
+        BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
+        Optional<BlockPos> optional = Optional.empty();
+        int i = 0;
 
-      for(int j = -1; j <= 1; ++j) {
-         for(int k = -1; k <= 1; ++k) {
-            for(int l = -1; l <= 1; ++l) {
-               blockpos$mutableblockpos.setWithOffset(p_24494_.blockPosition(), j, k, l);
-               if (this.validPos(blockpos$mutableblockpos, p_24493_)) {
-                  ++i;
-                  if (p_24493_.random.nextInt(i) == 0) {
-                     optional = Optional.of(blockpos$mutableblockpos.immutable());
-                  }
-               }
+        for (int j = -1; j <= 1; ++j)
+        {
+            for (int k = -1; k <= 1; ++k)
+            {
+                for (int l = -1; l <= 1; ++l)
+                {
+                    blockpos$mutableblockpos.setWithOffset(pVillager.blockPosition(), j, k, l);
+
+                    if (this.validPos(blockpos$mutableblockpos, pLevel))
+                    {
+                        ++i;
+
+                        if (pLevel.random.nextInt(i) == 0)
+                        {
+                            optional = Optional.of(blockpos$mutableblockpos.immutable());
+                        }
+                    }
+                }
             }
-         }
-      }
+        }
 
-      return optional;
-   }
+        return optional;
+    }
 
-   private boolean validPos(BlockPos p_24486_, ServerLevel p_24487_) {
-      BlockState blockstate = p_24487_.getBlockState(p_24486_);
-      Block block = blockstate.getBlock();
-      return block instanceof CropBlock && !((CropBlock)block).isMaxAge(blockstate);
-   }
+    private boolean validPos(BlockPos pPos, ServerLevel pLevel)
+    {
+        BlockState blockstate = pLevel.getBlockState(pPos);
+        Block block = blockstate.getBlock();
+        return block instanceof CropBlock && !((CropBlock)block).isMaxAge(blockstate);
+    }
 
-   protected void start(ServerLevel p_24496_, Villager p_24497_, long p_24498_) {
-      this.setCurrentCropAsTarget(p_24497_);
-      p_24497_.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.BONE_MEAL));
-      this.nextWorkCycleTime = p_24498_;
-      this.timeWorkedSoFar = 0;
-   }
+    protected void start(ServerLevel pLevel, Villager pEntity, long pGameTime)
+    {
+        this.setCurrentCropAsTarget(pEntity);
+        pEntity.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.BONE_MEAL));
+        this.nextWorkCycleTime = pGameTime;
+        this.timeWorkedSoFar = 0;
+    }
 
-   private void setCurrentCropAsTarget(Villager p_24481_) {
-      this.cropPos.ifPresent((p_24484_) -> {
-         BlockPosTracker blockpostracker = new BlockPosTracker(p_24484_);
-         p_24481_.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, blockpostracker);
-         p_24481_.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(blockpostracker, 0.5F, 1));
-      });
-   }
+    private void setCurrentCropAsTarget(Villager pVillager)
+    {
+        this.cropPos.ifPresent((p_24484_) ->
+        {
+            BlockPosTracker blockpostracker = new BlockPosTracker(p_24484_);
+            pVillager.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, blockpostracker);
+            pVillager.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(blockpostracker, 0.5F, 1));
+        });
+    }
 
-   protected void stop(ServerLevel p_24504_, Villager p_24505_, long p_24506_) {
-      p_24505_.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
-      this.lastBonemealingSession = (long)p_24505_.tickCount;
-   }
+    protected void stop(ServerLevel pLevel, Villager pEntity, long pGameTime)
+    {
+        pEntity.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+        this.lastBonemealingSession = (long)pEntity.tickCount;
+    }
 
-   protected void tick(ServerLevel p_24512_, Villager p_24513_, long p_24514_) {
-      BlockPos blockpos = this.cropPos.get();
-      if (p_24514_ >= this.nextWorkCycleTime && blockpos.closerThan(p_24513_.position(), 1.0D)) {
-         ItemStack itemstack = ItemStack.EMPTY;
-         SimpleContainer simplecontainer = p_24513_.getInventory();
-         int i = simplecontainer.getContainerSize();
+    protected void tick(ServerLevel pLevel, Villager pOwner, long pGameTime)
+    {
+        BlockPos blockpos = this.cropPos.get();
 
-         for(int j = 0; j < i; ++j) {
-            ItemStack itemstack1 = simplecontainer.getItem(j);
-            if (itemstack1.is(Items.BONE_MEAL)) {
-               itemstack = itemstack1;
-               break;
+        if (pGameTime >= this.nextWorkCycleTime && blockpos.closerThan(pOwner.position(), 1.0D))
+        {
+            ItemStack itemstack = ItemStack.EMPTY;
+            SimpleContainer simplecontainer = pOwner.getInventory();
+            int i = simplecontainer.getContainerSize();
+
+            for (int j = 0; j < i; ++j)
+            {
+                ItemStack itemstack1 = simplecontainer.getItem(j);
+
+                if (itemstack1.is(Items.BONE_MEAL))
+                {
+                    itemstack = itemstack1;
+                    break;
+                }
             }
-         }
 
-         if (!itemstack.isEmpty() && BoneMealItem.growCrop(itemstack, p_24512_, blockpos)) {
-            p_24512_.levelEvent(1505, blockpos, 0);
-            this.cropPos = this.pickNextTarget(p_24512_, p_24513_);
-            this.setCurrentCropAsTarget(p_24513_);
-            this.nextWorkCycleTime = p_24514_ + 40L;
-         }
+            if (!itemstack.isEmpty() && BoneMealItem.growCrop(itemstack, pLevel, blockpos))
+            {
+                pLevel.levelEvent(1505, blockpos, 0);
+                this.cropPos = this.pickNextTarget(pLevel, pOwner);
+                this.setCurrentCropAsTarget(pOwner);
+                this.nextWorkCycleTime = pGameTime + 40L;
+            }
 
-         ++this.timeWorkedSoFar;
-      }
-   }
+            ++this.timeWorkedSoFar;
+        }
+    }
 }

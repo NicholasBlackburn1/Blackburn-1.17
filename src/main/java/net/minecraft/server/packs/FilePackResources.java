@@ -19,110 +19,151 @@ import java.util.zip.ZipFile;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.io.IOUtils;
 
-public class FilePackResources extends AbstractPackResources {
-   public static final Splitter SPLITTER = Splitter.on('/').omitEmptyStrings().limit(3);
-   private ZipFile zipFile;
+public class FilePackResources extends AbstractPackResources
+{
+    public static final Splitter SPLITTER = Splitter.on('/').omitEmptyStrings().limit(3);
+    private ZipFile zipFile;
 
-   public FilePackResources(File p_10236_) {
-      super(p_10236_);
-   }
+    public FilePackResources(File p_10236_)
+    {
+        super(p_10236_);
+    }
 
-   private ZipFile getOrCreateZipFile() throws IOException {
-      if (this.zipFile == null) {
-         this.zipFile = new ZipFile(this.file);
-      }
+    private ZipFile getOrCreateZipFile() throws IOException
+    {
+        if (this.zipFile == null)
+        {
+            this.zipFile = new ZipFile(this.file);
+        }
 
-      return this.zipFile;
-   }
+        return this.zipFile;
+    }
 
-   protected InputStream getResource(String p_10246_) throws IOException {
-      ZipFile zipfile = this.getOrCreateZipFile();
-      ZipEntry zipentry = zipfile.getEntry(p_10246_);
-      if (zipentry == null) {
-         throw new ResourcePackFileNotFoundException(this.file, p_10246_);
-      } else {
-         return zipfile.getInputStream(zipentry);
-      }
-   }
+    protected InputStream getResource(String pResourcePath) throws IOException
+    {
+        ZipFile zipfile = this.getOrCreateZipFile();
+        ZipEntry zipentry = zipfile.getEntry(pResourcePath);
 
-   public boolean hasResource(String p_10249_) {
-      try {
-         return this.getOrCreateZipFile().getEntry(p_10249_) != null;
-      } catch (IOException ioexception) {
-         return false;
-      }
-   }
+        if (zipentry == null)
+        {
+            throw new ResourcePackFileNotFoundException(this.file, pResourcePath);
+        }
+        else
+        {
+            return zipfile.getInputStream(zipentry);
+        }
+    }
 
-   public Set<String> getNamespaces(PackType p_10238_) {
-      ZipFile zipfile;
-      try {
-         zipfile = this.getOrCreateZipFile();
-      } catch (IOException ioexception) {
-         return Collections.emptySet();
-      }
+    public boolean hasResource(String pResourcePath)
+    {
+        try
+        {
+            return this.getOrCreateZipFile().getEntry(pResourcePath) != null;
+        }
+        catch (IOException ioexception)
+        {
+            return false;
+        }
+    }
 
-      Enumeration<? extends ZipEntry> enumeration = zipfile.entries();
-      Set<String> set = Sets.newHashSet();
+    public Set<String> getNamespaces(PackType pType)
+    {
+        ZipFile zipfile;
 
-      while(enumeration.hasMoreElements()) {
-         ZipEntry zipentry = enumeration.nextElement();
-         String s = zipentry.getName();
-         if (s.startsWith(p_10238_.getDirectory() + "/")) {
-            List<String> list = Lists.newArrayList(SPLITTER.split(s));
-            if (list.size() > 1) {
-               String s1 = list.get(1);
-               if (s1.equals(s1.toLowerCase(Locale.ROOT))) {
-                  set.add(s1);
-               } else {
-                  this.logWarning(s1);
-               }
+        try
+        {
+            zipfile = this.getOrCreateZipFile();
+        }
+        catch (IOException ioexception)
+        {
+            return Collections.emptySet();
+        }
+
+        Enumeration <? extends ZipEntry > enumeration = zipfile.entries();
+        Set<String> set = Sets.newHashSet();
+
+        while (enumeration.hasMoreElements())
+        {
+            ZipEntry zipentry = enumeration.nextElement();
+            String s = zipentry.getName();
+
+            if (s.startsWith(pType.getDirectory() + "/"))
+            {
+                List<String> list = Lists.newArrayList(SPLITTER.split(s));
+
+                if (list.size() > 1)
+                {
+                    String s1 = list.get(1);
+
+                    if (s1.equals(s1.toLowerCase(Locale.ROOT)))
+                    {
+                        set.add(s1);
+                    }
+                    else
+                    {
+                        this.logWarning(s1);
+                    }
+                }
             }
-         }
-      }
+        }
 
-      return set;
-   }
+        return set;
+    }
 
-   protected void finalize() throws Throwable {
-      this.close();
-      super.finalize();
-   }
+    protected void finalize() throws Throwable
+    {
+        this.close();
+        super.finalize();
+    }
 
-   public void close() {
-      if (this.zipFile != null) {
-         IOUtils.closeQuietly((Closeable)this.zipFile);
-         this.zipFile = null;
-      }
+    public void close()
+    {
+        if (this.zipFile != null)
+        {
+            IOUtils.closeQuietly((Closeable)this.zipFile);
+            this.zipFile = null;
+        }
+    }
 
-   }
+    public Collection<ResourceLocation> getResources(PackType pType, String pNamespace, String pPath, int pMaxDepth, Predicate<String> pFilter)
+    {
+        ZipFile zipfile;
 
-   public Collection<ResourceLocation> getResources(PackType p_10240_, String p_10241_, String p_10242_, int p_10243_, Predicate<String> p_10244_) {
-      ZipFile zipfile;
-      try {
-         zipfile = this.getOrCreateZipFile();
-      } catch (IOException ioexception) {
-         return Collections.emptySet();
-      }
+        try
+        {
+            zipfile = this.getOrCreateZipFile();
+        }
+        catch (IOException ioexception)
+        {
+            return Collections.emptySet();
+        }
 
-      Enumeration<? extends ZipEntry> enumeration = zipfile.entries();
-      List<ResourceLocation> list = Lists.newArrayList();
-      String s = p_10240_.getDirectory() + "/" + p_10241_ + "/";
-      String s1 = s + p_10242_ + "/";
+        Enumeration <? extends ZipEntry > enumeration = zipfile.entries();
+        List<ResourceLocation> list = Lists.newArrayList();
+        String s = pType.getDirectory() + "/" + pNamespace + "/";
+        String s1 = s + pPath + "/";
 
-      while(enumeration.hasMoreElements()) {
-         ZipEntry zipentry = enumeration.nextElement();
-         if (!zipentry.isDirectory()) {
-            String s2 = zipentry.getName();
-            if (!s2.endsWith(".mcmeta") && s2.startsWith(s1)) {
-               String s3 = s2.substring(s.length());
-               String[] astring = s3.split("/");
-               if (astring.length >= p_10243_ + 1 && p_10244_.test(astring[astring.length - 1])) {
-                  list.add(new ResourceLocation(p_10241_, s3));
-               }
+        while (enumeration.hasMoreElements())
+        {
+            ZipEntry zipentry = enumeration.nextElement();
+
+            if (!zipentry.isDirectory())
+            {
+                String s2 = zipentry.getName();
+
+                if (!s2.endsWith(".mcmeta") && s2.startsWith(s1))
+                {
+                    String s3 = s2.substring(s.length());
+                    String[] astring = s3.split("/");
+
+                    if (astring.length >= pMaxDepth + 1 && pFilter.test(astring[astring.length - 1]))
+                    {
+                        list.add(new ResourceLocation(pNamespace, s3));
+                    }
+                }
             }
-         }
-      }
+        }
 
-      return list;
-   }
+        return list;
+    }
 }

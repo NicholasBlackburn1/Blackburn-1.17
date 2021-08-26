@@ -8,58 +8,70 @@ import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
 
-public class IdMapper<T> implements IdMap<T> {
-   public static final int DEFAULT = -1;
-   private int nextId;
-   private final IdentityHashMap<T, Integer> tToId;
-   private final List<T> idToT;
+public class IdMapper<T> implements IdMap<T>
+{
+    public static final int DEFAULT = -1;
+    private int nextId;
+    private final IdentityHashMap<T, Integer> tToId;
+    private final List<T> idToT;
 
-   public IdMapper() {
-      this(512);
-   }
+    public IdMapper()
+    {
+        this(512);
+    }
 
-   public IdMapper(int p_122658_) {
-      this.idToT = Lists.newArrayListWithExpectedSize(p_122658_);
-      this.tToId = new IdentityHashMap<>(p_122658_);
-   }
+    public IdMapper(int p_122658_)
+    {
+        this.idToT = Lists.newArrayListWithExpectedSize(p_122658_);
+        this.tToId = new IdentityHashMap<>(p_122658_);
+    }
 
-   public void addMapping(T p_122665_, int p_122666_) {
-      this.tToId.put(p_122665_, p_122666_);
+    public void addMapping(T pKey, int pValue)
+    {
+        this.tToId.put(pKey, pValue);
 
-      while(this.idToT.size() <= p_122666_) {
-         this.idToT.add((T)null);
-      }
+        while (this.idToT.size() <= pValue)
+        {
+            this.idToT.add((T)null);
+        }
 
-      this.idToT.set(p_122666_, p_122665_);
-      if (this.nextId <= p_122666_) {
-         this.nextId = p_122666_ + 1;
-      }
+        this.idToT.set(pValue, pKey);
 
-   }
+        if (this.nextId <= pValue)
+        {
+            this.nextId = pValue + 1;
+        }
+    }
 
-   public void add(T p_122668_) {
-      this.addMapping(p_122668_, this.nextId);
-   }
+    public void add(T pKey)
+    {
+        this.addMapping(pKey, this.nextId);
+    }
 
-   public int getId(T p_122663_) {
-      Integer integer = this.tToId.get(p_122663_);
-      return integer == null ? -1 : integer;
-   }
+    public int getId(T pValue)
+    {
+        Integer integer = this.tToId.get(pValue);
+        return integer == null ? -1 : integer;
+    }
 
-   @Nullable
-   public final T byId(int p_122661_) {
-      return (T)(p_122661_ >= 0 && p_122661_ < this.idToT.size() ? this.idToT.get(p_122661_) : null);
-   }
+    @Nullable
+    public final T byId(int pValue)
+    {
+        return (T)(pValue >= 0 && pValue < this.idToT.size() ? this.idToT.get(pValue) : null);
+    }
 
-   public Iterator<T> iterator() {
-      return Iterators.filter(this.idToT.iterator(), Predicates.notNull());
-   }
+    public Iterator<T> iterator()
+    {
+        return Iterators.filter(this.idToT.iterator(), Predicates.notNull());
+    }
 
-   public boolean contains(int p_175381_) {
-      return this.byId(p_175381_) != null;
-   }
+    public boolean contains(int p_175381_)
+    {
+        return this.byId(p_175381_) != null;
+    }
 
-   public int size() {
-      return this.tToId.size();
-   }
+    public int size()
+    {
+        return this.tToId.size();
+    }
 }

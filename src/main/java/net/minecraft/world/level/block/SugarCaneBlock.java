@@ -18,76 +18,100 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class SugarCaneBlock extends Block {
-   public static final IntegerProperty AGE = BlockStateProperties.AGE_15;
-   protected static final float AABB_OFFSET = 6.0F;
-   protected static final VoxelShape SHAPE = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 16.0D, 14.0D);
+public class SugarCaneBlock extends Block
+{
+    public static final IntegerProperty AGE = BlockStateProperties.AGE_15;
+    protected static final float AABB_OFFSET = 6.0F;
+    protected static final VoxelShape SHAPE = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 16.0D, 14.0D);
 
-   protected SugarCaneBlock(BlockBehaviour.Properties p_57168_) {
-      super(p_57168_);
-      this.registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)));
-   }
+    protected SugarCaneBlock(BlockBehaviour.Properties p_57168_)
+    {
+        super(p_57168_);
+        this.registerDefaultState(this.stateDefinition.any().setValue(AGE, Integer.valueOf(0)));
+    }
 
-   public VoxelShape getShape(BlockState p_57193_, BlockGetter p_57194_, BlockPos p_57195_, CollisionContext p_57196_) {
-      return SHAPE;
-   }
+    public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext)
+    {
+        return SHAPE;
+    }
 
-   public void tick(BlockState p_57170_, ServerLevel p_57171_, BlockPos p_57172_, Random p_57173_) {
-      if (!p_57170_.canSurvive(p_57171_, p_57172_)) {
-         p_57171_.destroyBlock(p_57172_, true);
-      }
+    public void tick(BlockState pState, ServerLevel pLevel, BlockPos pPos, Random pRand)
+    {
+        if (!pState.canSurvive(pLevel, pPos))
+        {
+            pLevel.destroyBlock(pPos, true);
+        }
+    }
 
-   }
+    public void randomTick(BlockState pState, ServerLevel pLevel, BlockPos pPos, Random pRandom)
+    {
+        if (pLevel.isEmptyBlock(pPos.above()))
+        {
+            int i;
 
-   public void randomTick(BlockState p_57188_, ServerLevel p_57189_, BlockPos p_57190_, Random p_57191_) {
-      if (p_57189_.isEmptyBlock(p_57190_.above())) {
-         int i;
-         for(i = 1; p_57189_.getBlockState(p_57190_.below(i)).is(this); ++i) {
-         }
-
-         if (i < 3) {
-            int j = p_57188_.getValue(AGE);
-            if (j == 15) {
-               p_57189_.setBlockAndUpdate(p_57190_.above(), this.defaultBlockState());
-               p_57189_.setBlock(p_57190_, p_57188_.setValue(AGE, Integer.valueOf(0)), 4);
-            } else {
-               p_57189_.setBlock(p_57190_, p_57188_.setValue(AGE, Integer.valueOf(j + 1)), 4);
+            for (i = 1; pLevel.getBlockState(pPos.below(i)).is(this); ++i)
+            {
             }
-         }
-      }
 
-   }
+            if (i < 3)
+            {
+                int j = pState.getValue(AGE);
 
-   public BlockState updateShape(BlockState p_57179_, Direction p_57180_, BlockState p_57181_, LevelAccessor p_57182_, BlockPos p_57183_, BlockPos p_57184_) {
-      if (!p_57179_.canSurvive(p_57182_, p_57183_)) {
-         p_57182_.getBlockTicks().scheduleTick(p_57183_, this, 1);
-      }
-
-      return super.updateShape(p_57179_, p_57180_, p_57181_, p_57182_, p_57183_, p_57184_);
-   }
-
-   public boolean canSurvive(BlockState p_57175_, LevelReader p_57176_, BlockPos p_57177_) {
-      BlockState blockstate = p_57176_.getBlockState(p_57177_.below());
-      if (blockstate.is(this)) {
-         return true;
-      } else {
-         if (blockstate.is(BlockTags.DIRT) || blockstate.is(Blocks.SAND) || blockstate.is(Blocks.RED_SAND)) {
-            BlockPos blockpos = p_57177_.below();
-
-            for(Direction direction : Direction.Plane.HORIZONTAL) {
-               BlockState blockstate1 = p_57176_.getBlockState(blockpos.relative(direction));
-               FluidState fluidstate = p_57176_.getFluidState(blockpos.relative(direction));
-               if (fluidstate.is(FluidTags.WATER) || blockstate1.is(Blocks.FROSTED_ICE)) {
-                  return true;
-               }
+                if (j == 15)
+                {
+                    pLevel.setBlockAndUpdate(pPos.above(), this.defaultBlockState());
+                    pLevel.setBlock(pPos, pState.setValue(AGE, Integer.valueOf(0)), 4);
+                }
+                else
+                {
+                    pLevel.setBlock(pPos, pState.setValue(AGE, Integer.valueOf(j + 1)), 4);
+                }
             }
-         }
+        }
+    }
 
-         return false;
-      }
-   }
+    public BlockState updateShape(BlockState pState, Direction pFacing, BlockState pFacingState, LevelAccessor pLevel, BlockPos pCurrentPos, BlockPos pFacingPos)
+    {
+        if (!pState.canSurvive(pLevel, pCurrentPos))
+        {
+            pLevel.getBlockTicks().scheduleTick(pCurrentPos, this, 1);
+        }
 
-   protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> p_57186_) {
-      p_57186_.add(AGE);
-   }
+        return super.updateShape(pState, pFacing, pFacingState, pLevel, pCurrentPos, pFacingPos);
+    }
+
+    public boolean canSurvive(BlockState pState, LevelReader pLevel, BlockPos pPos)
+    {
+        BlockState blockstate = pLevel.getBlockState(pPos.below());
+
+        if (blockstate.is(this))
+        {
+            return true;
+        }
+        else
+        {
+            if (blockstate.is(BlockTags.DIRT) || blockstate.is(Blocks.SAND) || blockstate.is(Blocks.RED_SAND))
+            {
+                BlockPos blockpos = pPos.below();
+
+                for (Direction direction : Direction.Plane.HORIZONTAL)
+                {
+                    BlockState blockstate1 = pLevel.getBlockState(blockpos.relative(direction));
+                    FluidState fluidstate = pLevel.getFluidState(blockpos.relative(direction));
+
+                    if (fluidstate.is(FluidTags.WATER) || blockstate1.is(Blocks.FROSTED_ICE))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+    }
+
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder)
+    {
+        pBuilder.m_61104_(AGE);
+    }
 }

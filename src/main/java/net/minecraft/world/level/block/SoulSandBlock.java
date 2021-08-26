@@ -14,43 +14,53 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class SoulSandBlock extends Block {
-   protected static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 14.0D, 16.0D);
-   private static final int BUBBLE_COLUMN_CHECK_DELAY = 20;
+public class SoulSandBlock extends Block
+{
+    protected static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 14.0D, 16.0D);
+    private static final int BUBBLE_COLUMN_CHECK_DELAY = 20;
 
-   public SoulSandBlock(BlockBehaviour.Properties p_56672_) {
-      super(p_56672_);
-   }
+    public SoulSandBlock(BlockBehaviour.Properties p_56672_)
+    {
+        super(p_56672_);
+    }
 
-   public VoxelShape getCollisionShape(BlockState p_56702_, BlockGetter p_56703_, BlockPos p_56704_, CollisionContext p_56705_) {
-      return SHAPE;
-   }
+    public VoxelShape getCollisionShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext)
+    {
+        return SHAPE;
+    }
 
-   public VoxelShape getBlockSupportShape(BlockState p_56707_, BlockGetter p_56708_, BlockPos p_56709_) {
-      return Shapes.block();
-   }
+    public VoxelShape getBlockSupportShape(BlockState pState, BlockGetter pReader, BlockPos pPos)
+    {
+        return Shapes.block();
+    }
 
-   public VoxelShape getVisualShape(BlockState p_56684_, BlockGetter p_56685_, BlockPos p_56686_, CollisionContext p_56687_) {
-      return Shapes.block();
-   }
+    public VoxelShape getVisualShape(BlockState pState, BlockGetter pReader, BlockPos pPos, CollisionContext pContext)
+    {
+        return Shapes.block();
+    }
 
-   public void tick(BlockState p_56674_, ServerLevel p_56675_, BlockPos p_56676_, Random p_56677_) {
-      BubbleColumnBlock.updateColumn(p_56675_, p_56676_.above(), p_56674_);
-   }
+    public void tick(BlockState pState, ServerLevel pLevel, BlockPos pPos, Random pRand)
+    {
+        BubbleColumnBlock.updateColumn(pLevel, pPos.above(), pState);
+    }
 
-   public BlockState updateShape(BlockState p_56689_, Direction p_56690_, BlockState p_56691_, LevelAccessor p_56692_, BlockPos p_56693_, BlockPos p_56694_) {
-      if (p_56690_ == Direction.UP && p_56691_.is(Blocks.WATER)) {
-         p_56692_.getBlockTicks().scheduleTick(p_56693_, this, 20);
-      }
+    public BlockState updateShape(BlockState pState, Direction pFacing, BlockState pFacingState, LevelAccessor pLevel, BlockPos pCurrentPos, BlockPos pFacingPos)
+    {
+        if (pFacing == Direction.UP && pFacingState.is(Blocks.WATER))
+        {
+            pLevel.getBlockTicks().scheduleTick(pCurrentPos, this, 20);
+        }
 
-      return super.updateShape(p_56689_, p_56690_, p_56691_, p_56692_, p_56693_, p_56694_);
-   }
+        return super.updateShape(pState, pFacing, pFacingState, pLevel, pCurrentPos, pFacingPos);
+    }
 
-   public void onPlace(BlockState p_56696_, Level p_56697_, BlockPos p_56698_, BlockState p_56699_, boolean p_56700_) {
-      p_56697_.getBlockTicks().scheduleTick(p_56698_, this, 20);
-   }
+    public void onPlace(BlockState pState, Level pLevel, BlockPos pPos, BlockState pOldState, boolean pIsMoving)
+    {
+        pLevel.getBlockTicks().scheduleTick(pPos, this, 20);
+    }
 
-   public boolean isPathfindable(BlockState p_56679_, BlockGetter p_56680_, BlockPos p_56681_, PathComputationType p_56682_) {
-      return false;
-   }
+    public boolean isPathfindable(BlockState pState, BlockGetter pLevel, BlockPos pPos, PathComputationType pType)
+    {
+        return false;
+    }
 }

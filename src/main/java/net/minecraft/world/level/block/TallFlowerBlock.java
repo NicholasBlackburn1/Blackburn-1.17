@@ -10,24 +10,30 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class TallFlowerBlock extends DoublePlantBlock implements BonemealableBlock {
-   public TallFlowerBlock(BlockBehaviour.Properties p_57296_) {
-      super(p_57296_);
-   }
+public class TallFlowerBlock extends DoublePlantBlock implements BonemealableBlock
+{
+    public TallFlowerBlock(BlockBehaviour.Properties p_57296_)
+    {
+        super(p_57296_);
+    }
 
-   public boolean canBeReplaced(BlockState p_57313_, BlockPlaceContext p_57314_) {
-      return false;
-   }
+    public boolean canBeReplaced(BlockState pState, BlockPlaceContext pUseContext)
+    {
+        return false;
+    }
 
-   public boolean isValidBonemealTarget(BlockGetter p_57303_, BlockPos p_57304_, BlockState p_57305_, boolean p_57306_) {
-      return true;
-   }
+    public boolean isValidBonemealTarget(BlockGetter pLevel, BlockPos pPos, BlockState pState, boolean pIsClient)
+    {
+        return true;
+    }
 
-   public boolean isBonemealSuccess(Level p_57308_, Random p_57309_, BlockPos p_57310_, BlockState p_57311_) {
-      return true;
-   }
+    public boolean isBonemealSuccess(Level pLevel, Random pRand, BlockPos pPos, BlockState pState)
+    {
+        return true;
+    }
 
-   public void performBonemeal(ServerLevel p_57298_, Random p_57299_, BlockPos p_57300_, BlockState p_57301_) {
-      popResource(p_57298_, p_57300_, new ItemStack(this));
-   }
+    public void performBonemeal(ServerLevel pLevel, Random pRand, BlockPos pPos, BlockState pState)
+    {
+        popResource(pLevel, pPos, new ItemStack(this));
+    }
 }

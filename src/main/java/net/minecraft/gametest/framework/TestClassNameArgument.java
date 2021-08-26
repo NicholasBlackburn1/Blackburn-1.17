@@ -15,32 +15,42 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.TextComponent;
 
-public class TestClassNameArgument implements ArgumentType<String> {
-   private static final Collection<String> EXAMPLES = Arrays.asList("techtests", "mobtests");
+public class TestClassNameArgument implements ArgumentType<String>
+{
+    private static final Collection<String> EXAMPLES = Arrays.asList("techtests", "mobtests");
 
-   public String parse(StringReader p_127919_) throws CommandSyntaxException {
-      String s = p_127919_.readUnquotedString();
-      if (GameTestRegistry.isTestClass(s)) {
-         return s;
-      } else {
-         Message message = new TextComponent("No such test class: " + s);
-         throw new CommandSyntaxException(new SimpleCommandExceptionType(message), message);
-      }
-   }
+    public String parse(StringReader p_127919_) throws CommandSyntaxException
+    {
+        String s = p_127919_.readUnquotedString();
 
-   public static TestClassNameArgument testClassName() {
-      return new TestClassNameArgument();
-   }
+        if (GameTestRegistry.isTestClass(s))
+        {
+            return s;
+        }
+        else
+        {
+            Message message = new TextComponent("No such test class: " + s);
+            throw new CommandSyntaxException(new SimpleCommandExceptionType(message), message);
+        }
+    }
 
-   public static String getTestClassName(CommandContext<CommandSourceStack> p_127921_, String p_127922_) {
-      return p_127921_.getArgument(p_127922_, String.class);
-   }
+    public static TestClassNameArgument testClassName()
+    {
+        return new TestClassNameArgument();
+    }
 
-   public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> p_127925_, SuggestionsBuilder p_127926_) {
-      return SharedSuggestionProvider.suggest(GameTestRegistry.getAllTestClassNames().stream(), p_127926_);
-   }
+    public static String getTestClassName(CommandContext<CommandSourceStack> p_127921_, String p_127922_)
+    {
+        return p_127921_.getArgument(p_127922_, String.class);
+    }
 
-   public Collection<String> getExamples() {
-      return EXAMPLES;
-   }
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> p_127925_, SuggestionsBuilder p_127926_)
+    {
+        return SharedSuggestionProvider.suggest(GameTestRegistry.getAllTestClassNames().stream(), p_127926_);
+    }
+
+    public Collection<String> getExamples()
+    {
+        return EXAMPLES;
+    }
 }

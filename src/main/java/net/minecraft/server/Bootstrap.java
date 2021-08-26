@@ -28,115 +28,149 @@ import net.minecraft.world.level.block.FireBlock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class Bootstrap {
-   public static final PrintStream STDOUT = System.out;
-   private static volatile boolean isBootstrapped;
-   private static final Logger LOGGER = LogManager.getLogger();
+public class Bootstrap
+{
+    public static final PrintStream STDOUT = System.out;
+    private static volatile boolean isBootstrapped;
+    private static final Logger LOGGER = LogManager.getLogger();
 
-   public static void bootStrap() {
-      if (!isBootstrapped) {
-         isBootstrapped = true;
-         if (Registry.REGISTRY.keySet().isEmpty()) {
-            throw new IllegalStateException("Unable to load registries");
-         } else {
-            FireBlock.bootStrap();
-            ComposterBlock.bootStrap();
-            if (EntityType.getKey(EntityType.PLAYER) == null) {
-               throw new IllegalStateException("Failed loading EntityTypes");
-            } else {
-               PotionBrewing.bootStrap();
-               EntitySelectorOptions.bootStrap();
-               DispenseItemBehavior.bootStrap();
-               CauldronInteraction.bootStrap();
-               ArgumentTypes.bootStrap();
-               StaticTags.bootStrap();
-               wrapStreams();
+    public static void bootStrap()
+    {
+        if (!isBootstrapped)
+        {
+            isBootstrapped = true;
+
+            if (Registry.REGISTRY.keySet().isEmpty())
+            {
+                throw new IllegalStateException("Unable to load registries");
             }
-         }
-      }
-   }
+            else
+            {
+                FireBlock.bootStrap();
+                ComposterBlock.bootStrap();
 
-   private static <T> void checkTranslations(Iterable<T> p_135872_, Function<T, String> p_135873_, Set<String> p_135874_) {
-      Language language = Language.getInstance();
-      p_135872_.forEach((p_135883_) -> {
-         String s = p_135873_.apply(p_135883_);
-         if (!language.has(s)) {
-            p_135874_.add(s);
-         }
-
-      });
-   }
-
-   private static void checkGameruleTranslations(final Set<String> p_135878_) {
-      final Language language = Language.getInstance();
-      GameRules.visitGameRuleTypes(new GameRules.GameRuleTypeVisitor() {
-         public <T extends GameRules.Value<T>> void visit(GameRules.Key<T> p_135897_, GameRules.Type<T> p_135898_) {
-            if (!language.has(p_135897_.getDescriptionId())) {
-               p_135878_.add(p_135897_.getId());
+                if (EntityType.getKey(EntityType.PLAYER) == null)
+                {
+                    throw new IllegalStateException("Failed loading EntityTypes");
+                }
+                else
+                {
+                    PotionBrewing.bootStrap();
+                    EntitySelectorOptions.bootStrap();
+                    DispenseItemBehavior.bootStrap();
+                    CauldronInteraction.bootStrap();
+                    ArgumentTypes.bootStrap();
+                    StaticTags.bootStrap();
+                    wrapStreams();
+                }
             }
+        }
+    }
 
-         }
-      });
-   }
+    private static <T> void checkTranslations(Iterable<T> pObjects, Function<T, String> pObjectToKeyFunction, Set<String> pTranslationSet)
+    {
+        Language language = Language.getInstance();
+        pObjects.forEach((p_135883_) ->
+        {
+            String s = pObjectToKeyFunction.apply(p_135883_);
 
-   public static Set<String> getMissingTranslations() {
-      Set<String> set = new TreeSet<>();
-      checkTranslations(Registry.ATTRIBUTE, Attribute::getDescriptionId, set);
-      checkTranslations(Registry.ENTITY_TYPE, EntityType::getDescriptionId, set);
-      checkTranslations(Registry.MOB_EFFECT, MobEffect::getDescriptionId, set);
-      checkTranslations(Registry.ITEM, Item::getDescriptionId, set);
-      checkTranslations(Registry.ENCHANTMENT, Enchantment::getDescriptionId, set);
-      checkTranslations(Registry.BLOCK, Block::getDescriptionId, set);
-      checkTranslations(Registry.CUSTOM_STAT, (p_135885_) -> {
-         return "stat." + p_135885_.toString().replace(':', '.');
-      }, set);
-      checkGameruleTranslations(set);
-      return set;
-   }
+            if (!language.has(s))
+            {
+                pTranslationSet.add(s);
+            }
+        });
+    }
 
-   public static void checkBootstrapCalled(Supplier<String> p_179913_) {
-      if (!isBootstrapped) {
-         throw createBootstrapException(p_179913_);
-      }
-   }
+    private static void checkGameruleTranslations(final Set<String> pTranslations)
+    {
+        final Language language = Language.getInstance();
+        GameRules.visitGameRuleTypes(new GameRules.GameRuleTypeVisitor()
+        {
+            public <T extends GameRules.Value<T>> void visit(GameRules.Key<T> pKey, GameRules.Type<T> pType)
+            {
+                if (!language.has(pKey.getDescriptionId()))
+                {
+                    pTranslations.add(pKey.getId());
+                }
+            }
+        });
+    }
 
-   private static RuntimeException createBootstrapException(Supplier<String> p_179917_) {
-      try {
-         String s = p_179917_.get();
-         return new IllegalArgumentException("Not bootstrapped (called from " + s + ")");
-      } catch (Exception exception) {
-         RuntimeException runtimeexception = new IllegalArgumentException("Not bootstrapped (failed to resolve location)");
-         runtimeexception.addSuppressed(exception);
-         return runtimeexception;
-      }
-   }
+    public static Set<String> getMissingTranslations()
+    {
+        Set<String> set = new TreeSet<>();
+        checkTranslations(Registry.ATTRIBUTE, Attribute::getDescriptionId, set);
+        checkTranslations(Registry.ENTITY_TYPE, EntityType::getDescriptionId, set);
+        checkTranslations(Registry.MOB_EFFECT, MobEffect::getDescriptionId, set);
+        checkTranslations(Registry.ITEM, Item::getDescriptionId, set);
+        checkTranslations(Registry.ENCHANTMENT, Enchantment::getDescriptionId, set);
+        checkTranslations(Registry.BLOCK, Block::getDescriptionId, set);
+        checkTranslations(Registry.CUSTOM_STAT, (p_135885_) ->
+        {
+            return "stat." + p_135885_.toString().replace(':', '.');
+        }, set);
+        checkGameruleTranslations(set);
+        return set;
+    }
 
-   public static void validate() {
-      checkBootstrapCalled(() -> {
-         return "validate";
-      });
-      if (SharedConstants.IS_RUNNING_IN_IDE) {
-         getMissingTranslations().forEach((p_179915_) -> {
-            LOGGER.error("Missing translations: {}", (Object)p_179915_);
-         });
-         Commands.validate();
-      }
+    public static void checkBootstrapCalled(Supplier<String> p_179913_)
+    {
+        if (!isBootstrapped)
+        {
+            throw createBootstrapException(p_179913_);
+        }
+    }
 
-      DefaultAttributes.validate();
-   }
+    private static RuntimeException createBootstrapException(Supplier<String> p_179917_)
+    {
+        try
+        {
+            String s = p_179917_.get();
+            return new IllegalArgumentException("Not bootstrapped (called from " + s + ")");
+        }
+        catch (Exception exception)
+        {
+            RuntimeException runtimeexception = new IllegalArgumentException("Not bootstrapped (failed to resolve location)");
+            runtimeexception.addSuppressed(exception);
+            return runtimeexception;
+        }
+    }
 
-   private static void wrapStreams() {
-      if (LOGGER.isDebugEnabled()) {
-         System.setErr(new DebugLoggedPrintStream("STDERR", System.err));
-         System.setOut(new DebugLoggedPrintStream("STDOUT", STDOUT));
-      } else {
-         System.setErr(new LoggedPrintStream("STDERR", System.err));
-         System.setOut(new LoggedPrintStream("STDOUT", STDOUT));
-      }
+    public static void validate()
+    {
+        checkBootstrapCalled(() ->
+        {
+            return "validate";
+        });
 
-   }
+        if (SharedConstants.IS_RUNNING_IN_IDE)
+        {
+            getMissingTranslations().forEach((p_179915_) ->
+            {
+                LOGGER.error("Missing translations: {}", (Object)p_179915_);
+            });
+            Commands.validate();
+        }
 
-   public static void realStdoutPrintln(String p_135876_) {
-      STDOUT.println(p_135876_);
-   }
+        DefaultAttributes.validate();
+    }
+
+    private static void wrapStreams()
+    {
+        if (LOGGER.isDebugEnabled())
+        {
+            System.setErr(new DebugLoggedPrintStream("STDERR", System.err));
+            System.setOut(new DebugLoggedPrintStream("STDOUT", STDOUT));
+        }
+        else
+        {
+            System.setErr(new LoggedPrintStream("STDERR", System.err));
+            System.setOut(new LoggedPrintStream("STDOUT", STDOUT));
+        }
+    }
+
+    public static void realStdoutPrintln(String pMessage)
+    {
+        STDOUT.println(pMessage);
+    }
 }

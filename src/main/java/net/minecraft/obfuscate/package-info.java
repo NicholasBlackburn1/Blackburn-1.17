@@ -2,5 +2,5 @@
 @MethodsReturnNonnullByDefault
 package net.minecraft.obfuscate;
 
+import mcp.MethodsReturnNonnullByDefault;
 import javax.annotation.ParametersAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;

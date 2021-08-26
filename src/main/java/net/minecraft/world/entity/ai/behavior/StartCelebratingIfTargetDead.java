@@ -9,35 +9,43 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.level.GameRules;
 
-public class StartCelebratingIfTargetDead extends Behavior<LivingEntity> {
-   private final int celebrateDuration;
-   private final BiPredicate<LivingEntity, LivingEntity> dancePredicate;
+public class StartCelebratingIfTargetDead extends Behavior<LivingEntity>
+{
+    private final int celebrateDuration;
+    private final BiPredicate<LivingEntity, LivingEntity> dancePredicate;
 
-   public StartCelebratingIfTargetDead(int p_24222_, BiPredicate<LivingEntity, LivingEntity> p_24223_) {
-      super(ImmutableMap.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT, MemoryModuleType.ANGRY_AT, MemoryStatus.REGISTERED, MemoryModuleType.CELEBRATE_LOCATION, MemoryStatus.VALUE_ABSENT, MemoryModuleType.DANCING, MemoryStatus.REGISTERED));
-      this.celebrateDuration = p_24222_;
-      this.dancePredicate = p_24223_;
-   }
+    public StartCelebratingIfTargetDead(int p_24222_, BiPredicate<LivingEntity, LivingEntity> p_24223_)
+    {
+        super(ImmutableMap.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT, MemoryModuleType.ANGRY_AT, MemoryStatus.REGISTERED, MemoryModuleType.CELEBRATE_LOCATION, MemoryStatus.VALUE_ABSENT, MemoryModuleType.DANCING, MemoryStatus.REGISTERED));
+        this.celebrateDuration = p_24222_;
+        this.dancePredicate = p_24223_;
+    }
 
-   protected boolean checkExtraStartConditions(ServerLevel p_24225_, LivingEntity p_24226_) {
-      return this.getAttackTarget(p_24226_).isDeadOrDying();
-   }
+    protected boolean checkExtraStartConditions(ServerLevel pLevel, LivingEntity pOwner)
+    {
+        return this.getAttackTarget(pOwner).isDeadOrDying();
+    }
 
-   protected void start(ServerLevel p_24228_, LivingEntity p_24229_, long p_24230_) {
-      LivingEntity livingentity = this.getAttackTarget(p_24229_);
-      if (this.dancePredicate.test(p_24229_, livingentity)) {
-         p_24229_.getBrain().setMemoryWithExpiry(MemoryModuleType.DANCING, true, (long)this.celebrateDuration);
-      }
+    protected void start(ServerLevel pLevel, LivingEntity pEntity, long pGameTime)
+    {
+        LivingEntity livingentity = this.getAttackTarget(pEntity);
 
-      p_24229_.getBrain().setMemoryWithExpiry(MemoryModuleType.CELEBRATE_LOCATION, livingentity.blockPosition(), (long)this.celebrateDuration);
-      if (livingentity.getType() != EntityType.PLAYER || p_24228_.getGameRules().getBoolean(GameRules.RULE_FORGIVE_DEAD_PLAYERS)) {
-         p_24229_.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
-         p_24229_.getBrain().eraseMemory(MemoryModuleType.ANGRY_AT);
-      }
+        if (this.dancePredicate.test(pEntity, livingentity))
+        {
+            pEntity.getBrain().setMemoryWithExpiry(MemoryModuleType.DANCING, true, (long)this.celebrateDuration);
+        }
 
-   }
+        pEntity.getBrain().setMemoryWithExpiry(MemoryModuleType.CELEBRATE_LOCATION, livingentity.blockPosition(), (long)this.celebrateDuration);
 
-   private LivingEntity getAttackTarget(LivingEntity p_24232_) {
-      return p_24232_.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get();
-   }
+        if (livingentity.getType() != EntityType.PLAYER || pLevel.getGameRules().getBoolean(GameRules.RULE_FORGIVE_DEAD_PLAYERS))
+        {
+            pEntity.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
+            pEntity.getBrain().eraseMemory(MemoryModuleType.ANGRY_AT);
+        }
+    }
+
+    private LivingEntity getAttackTarget(LivingEntity pLivingEntity)
+    {
+        return pLivingEntity.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get();
+    }
 }

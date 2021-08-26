@@ -12,89 +12,119 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.enchantment.Enchantment;
 
-public class EnchantmentPredicate {
-   public static final EnchantmentPredicate ANY = new EnchantmentPredicate();
-   public static final EnchantmentPredicate[] NONE = new EnchantmentPredicate[0];
-   private final Enchantment enchantment;
-   private final MinMaxBounds.Ints level;
+public class EnchantmentPredicate
+{
+    public static final EnchantmentPredicate ANY = new EnchantmentPredicate();
+    public static final EnchantmentPredicate[] NONE = new EnchantmentPredicate[0];
+    private final Enchantment enchantment;
+    private final MinMaxBounds.Ints level;
 
-   public EnchantmentPredicate() {
-      this.enchantment = null;
-      this.level = MinMaxBounds.Ints.ANY;
-   }
+    public EnchantmentPredicate()
+    {
+        this.enchantment = null;
+        this.level = MinMaxBounds.Ints.ANY;
+    }
 
-   public EnchantmentPredicate(@Nullable Enchantment p_30471_, MinMaxBounds.Ints p_30472_) {
-      this.enchantment = p_30471_;
-      this.level = p_30472_;
-   }
+    public EnchantmentPredicate(@Nullable Enchantment p_30471_, MinMaxBounds.Ints p_30472_)
+    {
+        this.enchantment = p_30471_;
+        this.level = p_30472_;
+    }
 
-   public boolean containedIn(Map<Enchantment, Integer> p_30477_) {
-      if (this.enchantment != null) {
-         if (!p_30477_.containsKey(this.enchantment)) {
-            return false;
-         }
-
-         int i = p_30477_.get(this.enchantment);
-         if (this.level != null && !this.level.matches(i)) {
-            return false;
-         }
-      } else if (this.level != null) {
-         for(Integer integer : p_30477_.values()) {
-            if (this.level.matches(integer)) {
-               return true;
+    public boolean containedIn(Map<Enchantment, Integer> pEnchantments)
+    {
+        if (this.enchantment != null)
+        {
+            if (!pEnchantments.containsKey(this.enchantment))
+            {
+                return false;
             }
-         }
 
-         return false;
-      }
+            int i = pEnchantments.get(this.enchantment);
 
-      return true;
-   }
+            if (this.level != null && !this.level.matches(i))
+            {
+                return false;
+            }
+        }
+        else if (this.level != null)
+        {
+            for (Integer integer : pEnchantments.values())
+            {
+                if (this.level.matches(integer))
+                {
+                    return true;
+                }
+            }
 
-   public JsonElement serializeToJson() {
-      if (this == ANY) {
-         return JsonNull.INSTANCE;
-      } else {
-         JsonObject jsonobject = new JsonObject();
-         if (this.enchantment != null) {
-            jsonobject.addProperty("enchantment", Registry.ENCHANTMENT.getKey(this.enchantment).toString());
-         }
+            return false;
+        }
 
-         jsonobject.add("levels", this.level.serializeToJson());
-         return jsonobject;
-      }
-   }
+        return true;
+    }
 
-   public static EnchantmentPredicate fromJson(@Nullable JsonElement p_30475_) {
-      if (p_30475_ != null && !p_30475_.isJsonNull()) {
-         JsonObject jsonobject = GsonHelper.convertToJsonObject(p_30475_, "enchantment");
-         Enchantment enchantment = null;
-         if (jsonobject.has("enchantment")) {
-            ResourceLocation resourcelocation = new ResourceLocation(GsonHelper.getAsString(jsonobject, "enchantment"));
-            enchantment = Registry.ENCHANTMENT.getOptional(resourcelocation).orElseThrow(() -> {
-               return new JsonSyntaxException("Unknown enchantment '" + resourcelocation + "'");
-            });
-         }
+    public JsonElement serializeToJson()
+    {
+        if (this == ANY)
+        {
+            return JsonNull.INSTANCE;
+        }
+        else
+        {
+            JsonObject jsonobject = new JsonObject();
 
-         MinMaxBounds.Ints minmaxbounds$ints = MinMaxBounds.Ints.fromJson(jsonobject.get("levels"));
-         return new EnchantmentPredicate(enchantment, minmaxbounds$ints);
-      } else {
-         return ANY;
-      }
-   }
+            if (this.enchantment != null)
+            {
+                jsonobject.addProperty("enchantment", Registry.ENCHANTMENT.getKey(this.enchantment).toString());
+            }
 
-   public static EnchantmentPredicate[] fromJsonArray(@Nullable JsonElement p_30481_) {
-      if (p_30481_ != null && !p_30481_.isJsonNull()) {
-         JsonArray jsonarray = GsonHelper.convertToJsonArray(p_30481_, "enchantments");
-         EnchantmentPredicate[] aenchantmentpredicate = new EnchantmentPredicate[jsonarray.size()];
+            jsonobject.add("levels", this.level.serializeToJson());
+            return jsonobject;
+        }
+    }
 
-         for(int i = 0; i < aenchantmentpredicate.length; ++i) {
-            aenchantmentpredicate[i] = fromJson(jsonarray.get(i));
-         }
+    public static EnchantmentPredicate fromJson(@Nullable JsonElement pElement)
+    {
+        if (pElement != null && !pElement.isJsonNull())
+        {
+            JsonObject jsonobject = GsonHelper.convertToJsonObject(pElement, "enchantment");
+            Enchantment enchantment = null;
 
-         return aenchantmentpredicate;
-      } else {
-         return NONE;
-      }
-   }
+            if (jsonobject.has("enchantment"))
+            {
+                ResourceLocation resourcelocation = new ResourceLocation(GsonHelper.getAsString(jsonobject, "enchantment"));
+                enchantment = Registry.ENCHANTMENT.getOptional(resourcelocation).orElseThrow(() ->
+                {
+                    return new JsonSyntaxException("Unknown enchantment '" + resourcelocation + "'");
+                });
+            }
+
+            MinMaxBounds.Ints minmaxbounds$ints = MinMaxBounds.Ints.fromJson(jsonobject.get("levels"));
+            return new EnchantmentPredicate(enchantment, minmaxbounds$ints);
+        }
+        else
+        {
+            return ANY;
+        }
+    }
+
+    public static EnchantmentPredicate[] fromJsonArray(@Nullable JsonElement pElement)
+    {
+        if (pElement != null && !pElement.isJsonNull())
+        {
+            JsonArray jsonarray = GsonHelper.convertToJsonArray(pElement, "enchantments");
+            EnchantmentPredicate[] aenchantmentpredicate = new EnchantmentPredicate[jsonarray.size()];
+
+            for (int i = 0; i < aenchantmentpredicate.length; ++i)
+            {
+                aenchantmentpredicate[i] = fromJson(jsonarray.get(i));
+            }
+
+            return aenchantmentpredicate;
+        }
+        else
+        {
+            return NONE;
+        }
+    }
 }

@@ -5,12 +5,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 
-public class ExplosionDamageCalculator {
-   public Optional<Float> getBlockExplosionResistance(Explosion p_46099_, BlockGetter p_46100_, BlockPos p_46101_, BlockState p_46102_, FluidState p_46103_) {
-      return p_46102_.isAir() && p_46103_.isEmpty() ? Optional.empty() : Optional.of(Math.max(p_46102_.getBlock().getExplosionResistance(), p_46103_.getExplosionResistance()));
-   }
+public class ExplosionDamageCalculator
+{
+    public Optional<Float> getBlockExplosionResistance(Explosion pExplosion, BlockGetter pReader, BlockPos pPos, BlockState pState, FluidState pFluid)
+    {
+        return pState.isAir() && pFluid.isEmpty() ? Optional.empty() : Optional.of(Math.max(pState.getBlock().getExplosionResistance(), pFluid.getExplosionResistance()));
+    }
 
-   public boolean shouldBlockExplode(Explosion p_46094_, BlockGetter p_46095_, BlockPos p_46096_, BlockState p_46097_, float p_46098_) {
-      return true;
-   }
+    public boolean shouldBlockExplode(Explosion pExplosion, BlockGetter pReader, BlockPos pPos, BlockState pState, float pPower)
+    {
+        return true;
+    }
 }

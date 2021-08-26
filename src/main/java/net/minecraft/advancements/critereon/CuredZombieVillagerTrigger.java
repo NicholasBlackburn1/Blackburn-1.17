@@ -7,54 +7,67 @@ import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.level.storage.loot.LootContext;
 
-public class CuredZombieVillagerTrigger extends SimpleCriterionTrigger<CuredZombieVillagerTrigger.TriggerInstance> {
-   static final ResourceLocation ID = new ResourceLocation("cured_zombie_villager");
+public class CuredZombieVillagerTrigger extends SimpleCriterionTrigger<CuredZombieVillagerTrigger.TriggerInstance>
+{
+    static final ResourceLocation ID = new ResourceLocation("cured_zombie_villager");
 
-   public ResourceLocation getId() {
-      return ID;
-   }
+    public ResourceLocation getId()
+    {
+        return ID;
+    }
 
-   public CuredZombieVillagerTrigger.TriggerInstance createInstance(JsonObject p_24279_, EntityPredicate.Composite p_24280_, DeserializationContext p_24281_) {
-      EntityPredicate.Composite entitypredicate$composite = EntityPredicate.Composite.fromJson(p_24279_, "zombie", p_24281_);
-      EntityPredicate.Composite entitypredicate$composite1 = EntityPredicate.Composite.fromJson(p_24279_, "villager", p_24281_);
-      return new CuredZombieVillagerTrigger.TriggerInstance(p_24280_, entitypredicate$composite, entitypredicate$composite1);
-   }
+    public CuredZombieVillagerTrigger.TriggerInstance createInstance(JsonObject pJson, EntityPredicate.Composite pEntityPredicate, DeserializationContext pConditionsParser)
+    {
+        EntityPredicate.Composite entitypredicate$composite = EntityPredicate.Composite.fromJson(pJson, "zombie", pConditionsParser);
+        EntityPredicate.Composite entitypredicate$composite1 = EntityPredicate.Composite.fromJson(pJson, "villager", pConditionsParser);
+        return new CuredZombieVillagerTrigger.TriggerInstance(pEntityPredicate, entitypredicate$composite, entitypredicate$composite1);
+    }
 
-   public void trigger(ServerPlayer p_24275_, Zombie p_24276_, Villager p_24277_) {
-      LootContext lootcontext = EntityPredicate.createContext(p_24275_, p_24276_);
-      LootContext lootcontext1 = EntityPredicate.createContext(p_24275_, p_24277_);
-      this.trigger(p_24275_, (p_24285_) -> {
-         return p_24285_.matches(lootcontext, lootcontext1);
-      });
-   }
+    public void trigger(ServerPlayer pPlayer, Zombie pZombie, Villager pVillager)
+    {
+        LootContext lootcontext = EntityPredicate.createContext(pPlayer, pZombie);
+        LootContext lootcontext1 = EntityPredicate.createContext(pPlayer, pVillager);
+        this.trigger(pPlayer, (p_24285_) ->
+        {
+            return p_24285_.matches(lootcontext, lootcontext1);
+        });
+    }
 
-   public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-      private final EntityPredicate.Composite zombie;
-      private final EntityPredicate.Composite villager;
+    public static class TriggerInstance extends AbstractCriterionTriggerInstance
+    {
+        private final EntityPredicate.Composite zombie;
+        private final EntityPredicate.Composite villager;
 
-      public TriggerInstance(EntityPredicate.Composite p_24294_, EntityPredicate.Composite p_24295_, EntityPredicate.Composite p_24296_) {
-         super(CuredZombieVillagerTrigger.ID, p_24294_);
-         this.zombie = p_24295_;
-         this.villager = p_24296_;
-      }
+        public TriggerInstance(EntityPredicate.Composite p_24294_, EntityPredicate.Composite p_24295_, EntityPredicate.Composite p_24296_)
+        {
+            super(CuredZombieVillagerTrigger.ID, p_24294_);
+            this.zombie = p_24295_;
+            this.villager = p_24296_;
+        }
 
-      public static CuredZombieVillagerTrigger.TriggerInstance curedZombieVillager() {
-         return new CuredZombieVillagerTrigger.TriggerInstance(EntityPredicate.Composite.ANY, EntityPredicate.Composite.ANY, EntityPredicate.Composite.ANY);
-      }
+        public static CuredZombieVillagerTrigger.TriggerInstance curedZombieVillager()
+        {
+            return new CuredZombieVillagerTrigger.TriggerInstance(EntityPredicate.Composite.ANY, EntityPredicate.Composite.ANY, EntityPredicate.Composite.ANY);
+        }
 
-      public boolean matches(LootContext p_24300_, LootContext p_24301_) {
-         if (!this.zombie.matches(p_24300_)) {
-            return false;
-         } else {
-            return this.villager.matches(p_24301_);
-         }
-      }
+        public boolean matches(LootContext pZombie, LootContext pVillager)
+        {
+            if (!this.zombie.matches(pZombie))
+            {
+                return false;
+            }
+            else
+            {
+                return this.villager.matches(pVillager);
+            }
+        }
 
-      public JsonObject serializeToJson(SerializationContext p_24298_) {
-         JsonObject jsonobject = super.serializeToJson(p_24298_);
-         jsonobject.add("zombie", this.zombie.toJson(p_24298_));
-         jsonobject.add("villager", this.villager.toJson(p_24298_));
-         return jsonobject;
-      }
-   }
+        public JsonObject serializeToJson(SerializationContext pConditions)
+        {
+            JsonObject jsonobject = super.serializeToJson(pConditions);
+            jsonobject.add("zombie", this.zombie.toJson(pConditions));
+            jsonobject.add("villager", this.villager.toJson(pConditions));
+            return jsonobject;
+        }
+    }
 }

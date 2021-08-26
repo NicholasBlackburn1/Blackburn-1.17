@@ -11,94 +11,163 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.optifine.entity.model.IEntityRenderer;
+import net.optifine.reflect.Reflector;
+import net.optifine.reflect.ReflectorForge;
+import net.optifine.util.Either;
 
-@OnlyIn(Dist.CLIENT)
-public abstract class EntityRenderer<T extends Entity> {
-   protected static final float NAMETAG_SCALE = 0.025F;
-   protected final EntityRenderDispatcher entityRenderDispatcher;
-   private final Font font;
-   protected float shadowRadius;
-   protected float shadowStrength = 1.0F;
+public abstract class EntityRenderer<T extends Entity> implements IEntityRenderer
+{
+    protected static final float NAMETAG_SCALE = 0.025F;
+    protected final EntityRenderDispatcher entityRenderDispatcher;
+    private final Font font;
+    public float shadowRadius;
+    protected float shadowStrength = 1.0F;
+    private EntityType entityType = null;
+    private ResourceLocation locationTextureCustom = null;
 
-   protected EntityRenderer(EntityRendererProvider.Context p_174008_) {
-      this.entityRenderDispatcher = p_174008_.getEntityRenderDispatcher();
-      this.font = p_174008_.getFont();
-   }
+    protected EntityRenderer(EntityRendererProvider.Context p_174008_)
+    {
+        this.entityRenderDispatcher = p_174008_.getEntityRenderDispatcher();
+        this.font = p_174008_.getFont();
+    }
 
-   public final int getPackedLightCoords(T p_114506_, float p_114507_) {
-      BlockPos blockpos = new BlockPos(p_114506_.getLightProbePosition(p_114507_));
-      return LightTexture.pack(this.getBlockLightLevel(p_114506_, blockpos), this.getSkyLightLevel(p_114506_, blockpos));
-   }
+    public final int getPackedLightCoords(T pEntity, float pPartialTicks)
+    {
+        BlockPos blockpos = new BlockPos(pEntity.getLightProbePosition(pPartialTicks));
+        return LightTexture.pack(this.getBlockLightLevel(pEntity, blockpos), this.getSkyLightLevel(pEntity, blockpos));
+    }
 
-   protected int getSkyLightLevel(T p_114509_, BlockPos p_114510_) {
-      return p_114509_.level.getBrightness(LightLayer.SKY, p_114510_);
-   }
+    protected int getSkyLightLevel(T pEntity, BlockPos pPos)
+    {
+        return pEntity.level.getBrightness(LightLayer.SKY, pPos);
+    }
 
-   protected int getBlockLightLevel(T p_114496_, BlockPos p_114497_) {
-      return p_114496_.isOnFire() ? 15 : p_114496_.level.getBrightness(LightLayer.BLOCK, p_114497_);
-   }
+    protected int getBlockLightLevel(T pEntity, BlockPos pPos)
+    {
+        return pEntity.isOnFire() ? 15 : pEntity.level.getBrightness(LightLayer.BLOCK, pPos);
+    }
 
-   public boolean shouldRender(T p_114491_, Frustum p_114492_, double p_114493_, double p_114494_, double p_114495_) {
-      if (!p_114491_.shouldRender(p_114493_, p_114494_, p_114495_)) {
-         return false;
-      } else if (p_114491_.noCulling) {
-         return true;
-      } else {
-         AABB aabb = p_114491_.getBoundingBoxForCulling().inflate(0.5D);
-         if (aabb.hasNaN() || aabb.getSize() == 0.0D) {
-            aabb = new AABB(p_114491_.getX() - 2.0D, p_114491_.getY() - 2.0D, p_114491_.getZ() - 2.0D, p_114491_.getX() + 2.0D, p_114491_.getY() + 2.0D, p_114491_.getZ() + 2.0D);
-         }
+    public boolean shouldRender(T pLivingEntity, Frustum pCamera, double pCamX, double p_114494_, double pCamY)
+    {
+        if (!pLivingEntity.shouldRender(pCamX, p_114494_, pCamY))
+        {
+            return false;
+        }
+        else if (pLivingEntity.noCulling)
+        {
+            return true;
+        }
+        else
+        {
+            AABB aabb = pLivingEntity.getBoundingBoxForCulling().inflate(0.5D);
 
-         return p_114492_.isVisible(aabb);
-      }
-   }
+            if (aabb.hasNaN() || aabb.getSize() == 0.0D)
+            {
+                aabb = new AABB(pLivingEntity.getX() - 2.0D, pLivingEntity.getY() - 2.0D, pLivingEntity.getZ() - 2.0D, pLivingEntity.getX() + 2.0D, pLivingEntity.getY() + 2.0D, pLivingEntity.getZ() + 2.0D);
+            }
 
-   public Vec3 getRenderOffset(T p_114483_, float p_114484_) {
-      return Vec3.ZERO;
-   }
+            return pCamera.isVisible(aabb);
+        }
+    }
 
-   public void render(T p_114485_, float p_114486_, float p_114487_, PoseStack p_114488_, MultiBufferSource p_114489_, int p_114490_) {
-      if (this.shouldShowName(p_114485_)) {
-         this.renderNameTag(p_114485_, p_114485_.getDisplayName(), p_114488_, p_114489_, p_114490_);
-      }
-   }
+    public Vec3 getRenderOffset(T pEntity, float pPartialTicks)
+    {
+        return Vec3.ZERO;
+    }
 
-   protected boolean shouldShowName(T p_114504_) {
-      return p_114504_.shouldShowName() && p_114504_.hasCustomName();
-   }
+    public void render(T pEntity, float pEntityYaw, float pPartialTicks, PoseStack pMatrixStack, MultiBufferSource pBuffer, int pPackedLight)
+    {
+        if (!Reflector.RenderNameplateEvent_Constructor.exists())
+        {
+            if (this.shouldShowName(pEntity))
+            {
+                this.renderNameTag(pEntity, pEntity.getDisplayName(), pMatrixStack, pBuffer, pPackedLight);
+            }
+        }
+        else
+        {
+            Object object = Reflector.newInstance(Reflector.RenderNameplateEvent_Constructor, pEntity, pEntity.getDisplayName(), this, pMatrixStack, pBuffer, pPackedLight, pPartialTicks);
+            Reflector.postForgeBusEvent(object);
+            Object object1 = Reflector.call(object, Reflector.Event_getResult);
 
-   public abstract ResourceLocation getTextureLocation(T p_114482_);
+            if (object1 != ReflectorForge.EVENT_RESULT_DENY && (object1 == ReflectorForge.EVENT_RESULT_ALLOW || this.shouldShowName(pEntity)))
+            {
+                Component component = (Component)Reflector.call(object, Reflector.RenderNameplateEvent_getContent);
+                this.renderNameTag(pEntity, component, pMatrixStack, pBuffer, pPackedLight);
+            }
+        }
+    }
 
-   public Font getFont() {
-      return this.font;
-   }
+    protected boolean shouldShowName(T pEntity)
+    {
+        return pEntity.shouldShowName() && pEntity.hasCustomName();
+    }
 
-   protected void renderNameTag(T p_114498_, Component p_114499_, PoseStack p_114500_, MultiBufferSource p_114501_, int p_114502_) {
-      double d0 = this.entityRenderDispatcher.distanceToSqr(p_114498_);
-      if (!(d0 > 4096.0D)) {
-         boolean flag = !p_114498_.isDiscrete();
-         float f = p_114498_.getBbHeight() + 0.5F;
-         int i = "deadmau5".equals(p_114499_.getString()) ? -10 : 0;
-         p_114500_.pushPose();
-         p_114500_.translate(0.0D, (double)f, 0.0D);
-         p_114500_.mulPose(this.entityRenderDispatcher.cameraOrientation());
-         p_114500_.scale(-0.025F, -0.025F, 0.025F);
-         Matrix4f matrix4f = p_114500_.last().pose();
-         float f1 = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
-         int j = (int)(f1 * 255.0F) << 24;
-         Font font = this.getFont();
-         float f2 = (float)(-font.width(p_114499_) / 2);
-         font.drawInBatch(p_114499_, f2, (float)i, 553648127, false, matrix4f, p_114501_, flag, j, p_114502_);
-         if (flag) {
-            font.drawInBatch(p_114499_, f2, (float)i, -1, false, matrix4f, p_114501_, false, 0, p_114502_);
-         }
+    public abstract ResourceLocation getTextureLocation(T pEntity);
 
-         p_114500_.popPose();
-      }
-   }
+    public Font getFont()
+    {
+        return this.font;
+    }
+
+    protected void renderNameTag(T pEntity, Component pDisplayName, PoseStack pMatrixStack, MultiBufferSource pBuffer, int pPackedLight)
+    {
+        double d0 = this.entityRenderDispatcher.distanceToSqr(pEntity);
+        boolean flag = !(d0 > 4096.0D);
+
+        if (Reflector.ForgeHooksClient_isNameplateInRenderDistance.exists())
+        {
+            flag = Reflector.ForgeHooksClient_isNameplateInRenderDistance.callBoolean(pEntity, d0);
+        }
+
+        if (flag)
+        {
+            boolean flag1 = !pEntity.isDiscrete();
+            float f = pEntity.getBbHeight() + 0.5F;
+            int i = "deadmau5".equals(pDisplayName.getString()) ? -10 : 0;
+            pMatrixStack.pushPose();
+            pMatrixStack.translate(0.0D, (double)f, 0.0D);
+            pMatrixStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
+            pMatrixStack.scale(-0.025F, -0.025F, 0.025F);
+            Matrix4f matrix4f = pMatrixStack.last().pose();
+            float f1 = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
+            int j = (int)(f1 * 255.0F) << 24;
+            Font font = this.getFont();
+            float f2 = (float)(-font.width(pDisplayName) / 2);
+            font.drawInBatch(pDisplayName, f2, (float)i, 553648127, false, matrix4f, pBuffer, flag1, j, pPackedLight);
+
+            if (flag1)
+            {
+                font.drawInBatch(pDisplayName, f2, (float)i, -1, false, matrix4f, pBuffer, false, 0, pPackedLight);
+            }
+
+            pMatrixStack.popPose();
+        }
+    }
+
+    public Either<EntityType, BlockEntityType> getType()
+    {
+        return this.entityType == null ? null : Either.makeLeft(this.entityType);
+    }
+
+    public void setType(Either<EntityType, BlockEntityType> type)
+    {
+        this.entityType = type.getLeft().get();
+    }
+
+    public ResourceLocation getLocationTextureCustom()
+    {
+        return this.locationTextureCustom;
+    }
+
+    public void setLocationTextureCustom(ResourceLocation locationTextureCustom)
+    {
+        this.locationTextureCustom = locationTextureCustom;
+    }
 }

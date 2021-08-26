@@ -24,153 +24,192 @@ import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
 
-public class ChestBlockEntity extends RandomizableContainerBlockEntity implements LidBlockEntity {
-   private static final int EVENT_SET_OPEN_COUNT = 1;
-   private NonNullList<ItemStack> items = NonNullList.withSize(27, ItemStack.EMPTY);
-   private final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
-      protected void onOpen(Level p_155357_, BlockPos p_155358_, BlockState p_155359_) {
-         ChestBlockEntity.playSound(p_155357_, p_155358_, p_155359_, SoundEvents.CHEST_OPEN);
-      }
+public class ChestBlockEntity extends RandomizableContainerBlockEntity implements LidBlockEntity
+{
+    private static final int EVENT_SET_OPEN_COUNT = 1;
+    private NonNullList<ItemStack> items = NonNullList.withSize(27, ItemStack.EMPTY);
+    private final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter()
+    {
+        protected void onOpen(Level p_155357_, BlockPos p_155358_, BlockState p_155359_)
+        {
+            ChestBlockEntity.playSound(p_155357_, p_155358_, p_155359_, SoundEvents.CHEST_OPEN);
+        }
+        protected void onClose(Level p_155367_, BlockPos p_155368_, BlockState p_155369_)
+        {
+            ChestBlockEntity.playSound(p_155367_, p_155368_, p_155369_, SoundEvents.CHEST_CLOSE);
+        }
+        protected void openerCountChanged(Level p_155361_, BlockPos p_155362_, BlockState p_155363_, int p_155364_, int p_155365_)
+        {
+            ChestBlockEntity.this.signalOpenCount(p_155361_, p_155362_, p_155363_, p_155364_, p_155365_);
+        }
+        protected boolean isOwnContainer(Player p_155355_)
+        {
+            if (!(p_155355_.containerMenu instanceof ChestMenu))
+            {
+                return false;
+            }
+            else
+            {
+                Container container = ((ChestMenu)p_155355_.containerMenu).getContainer();
+                return container == ChestBlockEntity.this || container instanceof CompoundContainer && ((CompoundContainer)container).contains(ChestBlockEntity.this);
+            }
+        }
+    };
+    private final ChestLidController chestLidController = new ChestLidController();
 
-      protected void onClose(Level p_155367_, BlockPos p_155368_, BlockState p_155369_) {
-         ChestBlockEntity.playSound(p_155367_, p_155368_, p_155369_, SoundEvents.CHEST_CLOSE);
-      }
+    protected ChestBlockEntity(BlockEntityType<?> p_155327_, BlockPos p_155328_, BlockState p_155329_)
+    {
+        super(p_155327_, p_155328_, p_155329_);
+    }
 
-      protected void openerCountChanged(Level p_155361_, BlockPos p_155362_, BlockState p_155363_, int p_155364_, int p_155365_) {
-         ChestBlockEntity.this.signalOpenCount(p_155361_, p_155362_, p_155363_, p_155364_, p_155365_);
-      }
+    public ChestBlockEntity(BlockPos p_155331_, BlockState p_155332_)
+    {
+        this(BlockEntityType.CHEST, p_155331_, p_155332_);
+    }
 
-      protected boolean isOwnContainer(Player p_155355_) {
-         if (!(p_155355_.containerMenu instanceof ChestMenu)) {
-            return false;
-         } else {
-            Container container = ((ChestMenu)p_155355_.containerMenu).getContainer();
-            return container == ChestBlockEntity.this || container instanceof CompoundContainer && ((CompoundContainer)container).contains(ChestBlockEntity.this);
-         }
-      }
-   };
-   private final ChestLidController chestLidController = new ChestLidController();
+    public int getContainerSize()
+    {
+        return 27;
+    }
 
-   protected ChestBlockEntity(BlockEntityType<?> p_155327_, BlockPos p_155328_, BlockState p_155329_) {
-      super(p_155327_, p_155328_, p_155329_);
-   }
+    protected Component getDefaultName()
+    {
+        return new TranslatableComponent("container.chest");
+    }
 
-   public ChestBlockEntity(BlockPos p_155331_, BlockState p_155332_) {
-      this(BlockEntityType.CHEST, p_155331_, p_155332_);
-   }
+    public void load(CompoundTag p_155349_)
+    {
+        super.load(p_155349_);
+        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
 
-   public int getContainerSize() {
-      return 27;
-   }
+        if (!this.tryLoadLootTable(p_155349_))
+        {
+            ContainerHelper.loadAllItems(p_155349_, this.items);
+        }
+    }
 
-   protected Component getDefaultName() {
-      return new TranslatableComponent("container.chest");
-   }
+    public CompoundTag save(CompoundTag pCompound)
+    {
+        super.save(pCompound);
 
-   public void load(CompoundTag p_155349_) {
-      super.load(p_155349_);
-      this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-      if (!this.tryLoadLootTable(p_155349_)) {
-         ContainerHelper.loadAllItems(p_155349_, this.items);
-      }
+        if (!this.trySaveLootTable(pCompound))
+        {
+            ContainerHelper.saveAllItems(pCompound, this.items);
+        }
 
-   }
+        return pCompound;
+    }
 
-   public CompoundTag save(CompoundTag p_59112_) {
-      super.save(p_59112_);
-      if (!this.trySaveLootTable(p_59112_)) {
-         ContainerHelper.saveAllItems(p_59112_, this.items);
-      }
+    public static void lidAnimateTick(Level p_155344_, BlockPos p_155345_, BlockState p_155346_, ChestBlockEntity p_155347_)
+    {
+        p_155347_.chestLidController.tickLid();
+    }
 
-      return p_59112_;
-   }
+    static void playSound(Level p_155339_, BlockPos p_155340_, BlockState p_155341_, SoundEvent p_155342_)
+    {
+        ChestType chesttype = p_155341_.getValue(ChestBlock.TYPE);
 
-   public static void lidAnimateTick(Level p_155344_, BlockPos p_155345_, BlockState p_155346_, ChestBlockEntity p_155347_) {
-      p_155347_.chestLidController.tickLid();
-   }
+        if (chesttype != ChestType.LEFT)
+        {
+            double d0 = (double)p_155340_.getX() + 0.5D;
+            double d1 = (double)p_155340_.getY() + 0.5D;
+            double d2 = (double)p_155340_.getZ() + 0.5D;
 
-   static void playSound(Level p_155339_, BlockPos p_155340_, BlockState p_155341_, SoundEvent p_155342_) {
-      ChestType chesttype = p_155341_.getValue(ChestBlock.TYPE);
-      if (chesttype != ChestType.LEFT) {
-         double d0 = (double)p_155340_.getX() + 0.5D;
-         double d1 = (double)p_155340_.getY() + 0.5D;
-         double d2 = (double)p_155340_.getZ() + 0.5D;
-         if (chesttype == ChestType.RIGHT) {
-            Direction direction = ChestBlock.getConnectedDirection(p_155341_);
-            d0 += (double)direction.getStepX() * 0.5D;
-            d2 += (double)direction.getStepZ() * 0.5D;
-         }
+            if (chesttype == ChestType.RIGHT)
+            {
+                Direction direction = ChestBlock.getConnectedDirection(p_155341_);
+                d0 += (double)direction.getStepX() * 0.5D;
+                d2 += (double)direction.getStepZ() * 0.5D;
+            }
 
-         p_155339_.playSound((Player)null, d0, d1, d2, p_155342_, SoundSource.BLOCKS, 0.5F, p_155339_.random.nextFloat() * 0.1F + 0.9F);
-      }
-   }
+            p_155339_.playSound((Player)null, d0, d1, d2, p_155342_, SoundSource.BLOCKS, 0.5F, p_155339_.random.nextFloat() * 0.1F + 0.9F);
+        }
+    }
 
-   public boolean triggerEvent(int p_59114_, int p_59115_) {
-      if (p_59114_ == 1) {
-         this.chestLidController.shouldBeOpen(p_59115_ > 0);
-         return true;
-      } else {
-         return super.triggerEvent(p_59114_, p_59115_);
-      }
-   }
+    public boolean triggerEvent(int pId, int pType)
+    {
+        if (pId == 1)
+        {
+            this.chestLidController.shouldBeOpen(pType > 0);
+            return true;
+        }
+        else
+        {
+            return super.triggerEvent(pId, pType);
+        }
+    }
 
-   public void startOpen(Player p_59120_) {
-      if (!this.remove && !p_59120_.isSpectator()) {
-         this.openersCounter.incrementOpeners(p_59120_, this.getLevel(), this.getBlockPos(), this.getBlockState());
-      }
+    public void startOpen(Player pPlayer)
+    {
+        if (!this.remove && !pPlayer.isSpectator())
+        {
+            this.openersCounter.incrementOpeners(pPlayer, this.getLevel(), this.getBlockPos(), this.getBlockState());
+        }
+    }
 
-   }
+    public void stopOpen(Player pPlayer)
+    {
+        if (!this.remove && !pPlayer.isSpectator())
+        {
+            this.openersCounter.decrementOpeners(pPlayer, this.getLevel(), this.getBlockPos(), this.getBlockState());
+        }
+    }
 
-   public void stopOpen(Player p_59118_) {
-      if (!this.remove && !p_59118_.isSpectator()) {
-         this.openersCounter.decrementOpeners(p_59118_, this.getLevel(), this.getBlockPos(), this.getBlockState());
-      }
+    protected NonNullList<ItemStack> getItems()
+    {
+        return this.items;
+    }
 
-   }
+    protected void setItems(NonNullList<ItemStack> pItems)
+    {
+        this.items = pItems;
+    }
 
-   protected NonNullList<ItemStack> getItems() {
-      return this.items;
-   }
+    public float getOpenNess(float pPartialTicks)
+    {
+        return this.chestLidController.getOpenness(pPartialTicks);
+    }
 
-   protected void setItems(NonNullList<ItemStack> p_59110_) {
-      this.items = p_59110_;
-   }
+    public static int getOpenCount(BlockGetter pReader, BlockPos pPos)
+    {
+        BlockState blockstate = pReader.getBlockState(pPos);
 
-   public float getOpenNess(float p_59080_) {
-      return this.chestLidController.getOpenness(p_59080_);
-   }
+        if (blockstate.hasBlockEntity())
+        {
+            BlockEntity blockentity = pReader.getBlockEntity(pPos);
 
-   public static int getOpenCount(BlockGetter p_59087_, BlockPos p_59088_) {
-      BlockState blockstate = p_59087_.getBlockState(p_59088_);
-      if (blockstate.hasBlockEntity()) {
-         BlockEntity blockentity = p_59087_.getBlockEntity(p_59088_);
-         if (blockentity instanceof ChestBlockEntity) {
-            return ((ChestBlockEntity)blockentity).openersCounter.getOpenerCount();
-         }
-      }
+            if (blockentity instanceof ChestBlockEntity)
+            {
+                return ((ChestBlockEntity)blockentity).openersCounter.getOpenerCount();
+            }
+        }
 
-      return 0;
-   }
+        return 0;
+    }
 
-   public static void swapContents(ChestBlockEntity p_59104_, ChestBlockEntity p_59105_) {
-      NonNullList<ItemStack> nonnulllist = p_59104_.getItems();
-      p_59104_.setItems(p_59105_.getItems());
-      p_59105_.setItems(nonnulllist);
-   }
+    public static void swapContents(ChestBlockEntity pChest, ChestBlockEntity pOtherChest)
+    {
+        NonNullList<ItemStack> nonnulllist = pChest.getItems();
+        pChest.setItems(pOtherChest.getItems());
+        pOtherChest.setItems(nonnulllist);
+    }
 
-   protected AbstractContainerMenu createMenu(int p_59082_, Inventory p_59083_) {
-      return ChestMenu.threeRows(p_59082_, p_59083_, this);
-   }
+    protected AbstractContainerMenu createMenu(int pId, Inventory pPlayer)
+    {
+        return ChestMenu.threeRows(pId, pPlayer, this);
+    }
 
-   public void recheckOpen() {
-      if (!this.remove) {
-         this.openersCounter.recheckOpeners(this.getLevel(), this.getBlockPos(), this.getBlockState());
-      }
+    public void recheckOpen()
+    {
+        if (!this.remove)
+        {
+            this.openersCounter.recheckOpeners(this.getLevel(), this.getBlockPos(), this.getBlockState());
+        }
+    }
 
-   }
-
-   protected void signalOpenCount(Level p_155333_, BlockPos p_155334_, BlockState p_155335_, int p_155336_, int p_155337_) {
-      Block block = p_155335_.getBlock();
-      p_155333_.blockEvent(p_155334_, block, 1, p_155337_);
-   }
+    protected void signalOpenCount(Level p_155333_, BlockPos p_155334_, BlockState p_155335_, int p_155336_, int p_155337_)
+    {
+        Block block = p_155335_.getBlock();
+        p_155333_.blockEvent(p_155334_, block, 1, p_155337_);
+    }
 }

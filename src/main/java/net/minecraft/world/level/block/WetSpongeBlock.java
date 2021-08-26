@@ -11,54 +11,78 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class WetSpongeBlock extends Block {
-   protected WetSpongeBlock(BlockBehaviour.Properties p_58222_) {
-      super(p_58222_);
-   }
+public class WetSpongeBlock extends Block
+{
+    protected WetSpongeBlock(BlockBehaviour.Properties p_58222_)
+    {
+        super(p_58222_);
+    }
 
-   public void onPlace(BlockState p_58229_, Level p_58230_, BlockPos p_58231_, BlockState p_58232_, boolean p_58233_) {
-      if (p_58230_.dimensionType().ultraWarm()) {
-         p_58230_.setBlock(p_58231_, Blocks.SPONGE.defaultBlockState(), 3);
-         p_58230_.levelEvent(2009, p_58231_, 0);
-         p_58230_.playSound((Player)null, p_58231_, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 1.0F, (1.0F + p_58230_.getRandom().nextFloat() * 0.2F) * 0.7F);
-      }
+    public void onPlace(BlockState pState, Level pLevel, BlockPos pPos, BlockState pOldState, boolean pIsMoving)
+    {
+        if (pLevel.dimensionType().ultraWarm())
+        {
+            pLevel.setBlock(pPos, Blocks.SPONGE.defaultBlockState(), 3);
+            pLevel.levelEvent(2009, pPos, 0);
+            pLevel.playSound((Player)null, pPos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 1.0F, (1.0F + pLevel.getRandom().nextFloat() * 0.2F) * 0.7F);
+        }
+    }
 
-   }
+    public void animateTick(BlockState pState, Level pLevel, BlockPos pPos, Random pRand)
+    {
+        Direction direction = Direction.getRandom(pRand);
 
-   public void animateTick(BlockState p_58224_, Level p_58225_, BlockPos p_58226_, Random p_58227_) {
-      Direction direction = Direction.getRandom(p_58227_);
-      if (direction != Direction.UP) {
-         BlockPos blockpos = p_58226_.relative(direction);
-         BlockState blockstate = p_58225_.getBlockState(blockpos);
-         if (!p_58224_.canOcclude() || !blockstate.isFaceSturdy(p_58225_, blockpos, direction.getOpposite())) {
-            double d0 = (double)p_58226_.getX();
-            double d1 = (double)p_58226_.getY();
-            double d2 = (double)p_58226_.getZ();
-            if (direction == Direction.DOWN) {
-               d1 = d1 - 0.05D;
-               d0 += p_58227_.nextDouble();
-               d2 += p_58227_.nextDouble();
-            } else {
-               d1 = d1 + p_58227_.nextDouble() * 0.8D;
-               if (direction.getAxis() == Direction.Axis.X) {
-                  d2 += p_58227_.nextDouble();
-                  if (direction == Direction.EAST) {
-                     ++d0;
-                  } else {
-                     d0 += 0.05D;
-                  }
-               } else {
-                  d0 += p_58227_.nextDouble();
-                  if (direction == Direction.SOUTH) {
-                     ++d2;
-                  } else {
-                     d2 += 0.05D;
-                  }
-               }
+        if (direction != Direction.UP)
+        {
+            BlockPos blockpos = pPos.relative(direction);
+            BlockState blockstate = pLevel.getBlockState(blockpos);
+
+            if (!pState.canOcclude() || !blockstate.isFaceSturdy(pLevel, blockpos, direction.getOpposite()))
+            {
+                double d0 = (double)pPos.getX();
+                double d1 = (double)pPos.getY();
+                double d2 = (double)pPos.getZ();
+
+                if (direction == Direction.DOWN)
+                {
+                    d1 = d1 - 0.05D;
+                    d0 += pRand.nextDouble();
+                    d2 += pRand.nextDouble();
+                }
+                else
+                {
+                    d1 = d1 + pRand.nextDouble() * 0.8D;
+
+                    if (direction.getAxis() == Direction.Axis.X)
+                    {
+                        d2 += pRand.nextDouble();
+
+                        if (direction == Direction.EAST)
+                        {
+                            ++d0;
+                        }
+                        else
+                        {
+                            d0 += 0.05D;
+                        }
+                    }
+                    else
+                    {
+                        d0 += pRand.nextDouble();
+
+                        if (direction == Direction.SOUTH)
+                        {
+                            ++d2;
+                        }
+                        else
+                        {
+                            d2 += 0.05D;
+                        }
+                    }
+                }
+
+                pLevel.addParticle(ParticleTypes.DRIPPING_WATER, d0, d1, d2, 0.0D, 0.0D, 0.0D);
             }
-
-            p_58225_.addParticle(ParticleTypes.DRIPPING_WATER, d0, d1, d2, 0.0D, 0.0D, 0.0D);
-         }
-      }
-   }
+        }
+    }
 }

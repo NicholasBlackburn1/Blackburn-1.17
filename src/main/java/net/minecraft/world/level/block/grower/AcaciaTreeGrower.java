@@ -6,9 +6,11 @@ import net.minecraft.data.worldgen.Features;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 
-public class AcaciaTreeGrower extends AbstractTreeGrower {
-   @Nullable
-   protected ConfiguredFeature<TreeConfiguration, ?> getConfiguredFeature(Random p_60018_, boolean p_60019_) {
-      return Features.ACACIA;
-   }
+public class AcaciaTreeGrower extends AbstractTreeGrower
+{
+    @Nullable
+    protected ConfiguredFeature < TreeConfiguration, ? > getConfiguredFeature(Random pRandom, boolean pLargeHive)
+    {
+        return Features.ACACIA;
+    }
 }

@@ -4,10 +4,11 @@ import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.ArgumentType;
 import net.minecraft.network.FriendlyByteBuf;
 
-public interface ArgumentSerializer<T extends ArgumentType<?>> {
-   void serializeToNetwork(T p_121579_, FriendlyByteBuf p_121580_);
+public interface ArgumentSerializer < T extends ArgumentType<? >>
+{
+    void serializeToNetwork(T pArgument, FriendlyByteBuf pBuffer);
 
-   T deserializeFromNetwork(FriendlyByteBuf p_121581_);
+    T deserializeFromNetwork(FriendlyByteBuf pBuffer);
 
-   void serializeToJson(T p_121577_, JsonObject p_121578_);
+    void serializeToJson(T p_121577_, JsonObject p_121578_);
 }

@@ -8,99 +8,134 @@ import java.util.Random;
 import net.minecraft.Util;
 import net.minecraft.core.Direction;
 
-public enum Rotation {
-   NONE(OctahedralGroup.IDENTITY),
-   CLOCKWISE_90(OctahedralGroup.ROT_90_Y_NEG),
-   CLOCKWISE_180(OctahedralGroup.ROT_180_FACE_XZ),
-   COUNTERCLOCKWISE_90(OctahedralGroup.ROT_90_Y_POS);
+public enum Rotation
+{
+    NONE(OctahedralGroup.IDENTITY),
+    CLOCKWISE_90(OctahedralGroup.ROT_90_Y_NEG),
+    CLOCKWISE_180(OctahedralGroup.ROT_180_FACE_XZ),
+    COUNTERCLOCKWISE_90(OctahedralGroup.ROT_90_Y_POS);
 
-   private final OctahedralGroup rotation;
+    private final OctahedralGroup rotation;
 
-   private Rotation(OctahedralGroup p_55947_) {
-      this.rotation = p_55947_;
-   }
+    private Rotation(OctahedralGroup p_55947_)
+    {
+        this.rotation = p_55947_;
+    }
 
-   public Rotation getRotated(Rotation p_55953_) {
-      switch(p_55953_) {
-      case CLOCKWISE_180:
-         switch(this) {
-         case NONE:
-            return CLOCKWISE_180;
-         case CLOCKWISE_90:
-            return COUNTERCLOCKWISE_90;
-         case CLOCKWISE_180:
-            return NONE;
-         case COUNTERCLOCKWISE_90:
-            return CLOCKWISE_90;
-         }
-      case COUNTERCLOCKWISE_90:
-         switch(this) {
-         case NONE:
-            return COUNTERCLOCKWISE_90;
-         case CLOCKWISE_90:
-            return NONE;
-         case CLOCKWISE_180:
-            return CLOCKWISE_90;
-         case COUNTERCLOCKWISE_90:
-            return CLOCKWISE_180;
-         }
-      case CLOCKWISE_90:
-         switch(this) {
-         case NONE:
-            return CLOCKWISE_90;
-         case CLOCKWISE_90:
-            return CLOCKWISE_180;
-         case CLOCKWISE_180:
-            return COUNTERCLOCKWISE_90;
-         case COUNTERCLOCKWISE_90:
-            return NONE;
-         }
-      default:
-         return this;
-      }
-   }
+    public Rotation getRotated(Rotation pRotation)
+    {
+        switch (pRotation)
+        {
+            case CLOCKWISE_180:
+                switch (this)
+                {
+                    case NONE:
+                        return CLOCKWISE_180;
 
-   public OctahedralGroup rotation() {
-      return this.rotation;
-   }
+                    case CLOCKWISE_90:
+                        return COUNTERCLOCKWISE_90;
 
-   public Direction rotate(Direction p_55955_) {
-      if (p_55955_.getAxis() == Direction.Axis.Y) {
-         return p_55955_;
-      } else {
-         switch(this) {
-         case CLOCKWISE_90:
-            return p_55955_.getClockWise();
-         case CLOCKWISE_180:
-            return p_55955_.getOpposite();
-         case COUNTERCLOCKWISE_90:
-            return p_55955_.getCounterClockWise();
-         default:
-            return p_55955_;
-         }
-      }
-   }
+                    case CLOCKWISE_180:
+                        return NONE;
 
-   public int rotate(int p_55950_, int p_55951_) {
-      switch(this) {
-      case CLOCKWISE_90:
-         return (p_55950_ + p_55951_ / 4) % p_55951_;
-      case CLOCKWISE_180:
-         return (p_55950_ + p_55951_ / 2) % p_55951_;
-      case COUNTERCLOCKWISE_90:
-         return (p_55950_ + p_55951_ * 3 / 4) % p_55951_;
-      default:
-         return p_55950_;
-      }
-   }
+                    case COUNTERCLOCKWISE_90:
+                        return CLOCKWISE_90;
+                }
 
-   public static Rotation getRandom(Random p_55957_) {
-      return Util.getRandom(values(), p_55957_);
-   }
+            case COUNTERCLOCKWISE_90:
+                switch (this)
+                {
+                    case NONE:
+                        return COUNTERCLOCKWISE_90;
 
-   public static List<Rotation> getShuffled(Random p_55959_) {
-      List<Rotation> list = Lists.newArrayList(values());
-      Collections.shuffle(list, p_55959_);
-      return list;
-   }
+                    case CLOCKWISE_90:
+                        return NONE;
+
+                    case CLOCKWISE_180:
+                        return CLOCKWISE_90;
+
+                    case COUNTERCLOCKWISE_90:
+                        return CLOCKWISE_180;
+                }
+
+            case CLOCKWISE_90:
+                switch (this)
+                {
+                    case NONE:
+                        return CLOCKWISE_90;
+
+                    case CLOCKWISE_90:
+                        return CLOCKWISE_180;
+
+                    case CLOCKWISE_180:
+                        return COUNTERCLOCKWISE_90;
+
+                    case COUNTERCLOCKWISE_90:
+                        return NONE;
+                }
+
+            default:
+                return this;
+        }
+    }
+
+    public OctahedralGroup rotation()
+    {
+        return this.rotation;
+    }
+
+    public Direction rotate(Direction pRotation)
+    {
+        if (pRotation.getAxis() == Direction.Axis.Y)
+        {
+            return pRotation;
+        }
+        else
+        {
+            switch (this)
+            {
+                case CLOCKWISE_90:
+                    return pRotation.getClockWise();
+
+                case CLOCKWISE_180:
+                    return pRotation.getOpposite();
+
+                case COUNTERCLOCKWISE_90:
+                    return pRotation.getCounterClockWise();
+
+                default:
+                    return pRotation;
+            }
+        }
+    }
+
+    public int rotate(int pRotation, int pPositionCount)
+    {
+        switch (this)
+        {
+            case CLOCKWISE_90:
+                return (pRotation + pPositionCount / 4) % pPositionCount;
+
+            case CLOCKWISE_180:
+                return (pRotation + pPositionCount / 2) % pPositionCount;
+
+            case COUNTERCLOCKWISE_90:
+                return (pRotation + pPositionCount * 3 / 4) % pPositionCount;
+
+            default:
+                return pRotation;
+        }
+    }
+
+    public static Rotation getRandom(Random pRand)
+    {
+        return Util.m_137545_(values(), pRand);
+    }
+
+    public static List<Rotation> getShuffled(Random pRand)
+    {
+        List<Rotation> list = Lists.newArrayList(values());
+        Collections.shuffle(list, pRand);
+        return list;
+    }
 }

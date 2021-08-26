@@ -10,44 +10,48 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.ItemSupplier;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
-public class ThrownItemRenderer<T extends Entity & ItemSupplier> extends EntityRenderer<T> {
-   private static final float MIN_CAMERA_DISTANCE_SQUARED = 12.25F;
-   private final ItemRenderer itemRenderer;
-   private final float scale;
-   private final boolean fullBright;
+public class ThrownItemRenderer<T extends Entity & ItemSupplier> extends EntityRenderer<T>
+{
+    private static final float MIN_CAMERA_DISTANCE_SQUARED = 12.25F;
+    private final ItemRenderer itemRenderer;
+    private final float scale;
+    private final boolean fullBright;
 
-   public ThrownItemRenderer(EntityRendererProvider.Context p_174416_, float p_174417_, boolean p_174418_) {
-      super(p_174416_);
-      this.itemRenderer = p_174416_.getItemRenderer();
-      this.scale = p_174417_;
-      this.fullBright = p_174418_;
-   }
+    public ThrownItemRenderer(EntityRendererProvider.Context p_174416_, float p_174417_, boolean p_174418_)
+    {
+        super(p_174416_);
+        this.itemRenderer = p_174416_.getItemRenderer();
+        this.scale = p_174417_;
+        this.fullBright = p_174418_;
+    }
 
-   public ThrownItemRenderer(EntityRendererProvider.Context p_174414_) {
-      this(p_174414_, 1.0F, false);
-   }
+    public ThrownItemRenderer(EntityRendererProvider.Context p_174414_)
+    {
+        this(p_174414_, 1.0F, false);
+    }
 
-   protected int getBlockLightLevel(T p_116092_, BlockPos p_116093_) {
-      return this.fullBright ? 15 : super.getBlockLightLevel(p_116092_, p_116093_);
-   }
+    protected int getBlockLightLevel(T pEntity, BlockPos pPos)
+    {
+        return this.fullBright ? 15 : super.getBlockLightLevel(pEntity, pPos);
+    }
 
-   public void render(T p_116085_, float p_116086_, float p_116087_, PoseStack p_116088_, MultiBufferSource p_116089_, int p_116090_) {
-      if (p_116085_.tickCount >= 2 || !(this.entityRenderDispatcher.camera.getEntity().distanceToSqr(p_116085_) < 12.25D)) {
-         p_116088_.pushPose();
-         p_116088_.scale(this.scale, this.scale, this.scale);
-         p_116088_.mulPose(this.entityRenderDispatcher.cameraOrientation());
-         p_116088_.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-         this.itemRenderer.renderStatic(p_116085_.getItem(), ItemTransforms.TransformType.GROUND, p_116090_, OverlayTexture.NO_OVERLAY, p_116088_, p_116089_, p_116085_.getId());
-         p_116088_.popPose();
-         super.render(p_116085_, p_116086_, p_116087_, p_116088_, p_116089_, p_116090_);
-      }
-   }
+    public void render(T pEntity, float pEntityYaw, float pPartialTicks, PoseStack pMatrixStack, MultiBufferSource pBuffer, int pPackedLight)
+    {
+        if (pEntity.tickCount >= 2 || !(this.entityRenderDispatcher.camera.getEntity().distanceToSqr(pEntity) < 12.25D))
+        {
+            pMatrixStack.pushPose();
+            pMatrixStack.scale(this.scale, this.scale, this.scale);
+            pMatrixStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
+            pMatrixStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+            this.itemRenderer.renderStatic(pEntity.getItem(), ItemTransforms.TransformType.GROUND, pPackedLight, OverlayTexture.NO_OVERLAY, pMatrixStack, pBuffer, pEntity.getId());
+            pMatrixStack.popPose();
+            super.render(pEntity, pEntityYaw, pPartialTicks, pMatrixStack, pBuffer, pPackedLight);
+        }
+    }
 
-   public ResourceLocation getTextureLocation(Entity p_116083_) {
-      return TextureAtlas.LOCATION_BLOCKS;
-   }
+    public ResourceLocation getTextureLocation(Entity pEntity)
+    {
+        return TextureAtlas.LOCATION_BLOCKS;
+    }
 }

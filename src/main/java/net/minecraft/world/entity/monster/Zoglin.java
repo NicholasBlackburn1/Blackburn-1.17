@@ -46,233 +46,292 @@ import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class Zoglin extends Monster implements Enemy, HoglinBase {
-   private static final EntityDataAccessor<Boolean> DATA_BABY_ID = SynchedEntityData.defineId(Zoglin.class, EntityDataSerializers.BOOLEAN);
-   private static final int MAX_HEALTH = 40;
-   private static final int ATTACK_KNOCKBACK = 1;
-   private static final float KNOCKBACK_RESISTANCE = 0.6F;
-   private static final int ATTACK_DAMAGE = 6;
-   private static final float BABY_ATTACK_DAMAGE = 0.5F;
-   private static final int ATTACK_INTERVAL = 40;
-   private static final int BABY_ATTACK_INTERVAL = 15;
-   private static final int ATTACK_DURATION = 200;
-   private static final float MOVEMENT_SPEED_WHEN_FIGHTING = 0.3F;
-   private static final float SPEED_MULTIPLIER_WHEN_IDLING = 0.4F;
-   private int attackAnimationRemainingTicks;
-   protected static final ImmutableList<? extends SensorType<? extends Sensor<? super Zoglin>>> SENSOR_TYPES = ImmutableList.of(SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS);
-   protected static final ImmutableList<? extends MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(MemoryModuleType.NEAREST_LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER, MemoryModuleType.LOOK_TARGET, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.PATH, MemoryModuleType.ATTACK_TARGET, MemoryModuleType.ATTACK_COOLING_DOWN);
+public class Zoglin extends Monster implements Enemy, HoglinBase
+{
+    private static final EntityDataAccessor<Boolean> DATA_BABY_ID = SynchedEntityData.defineId(Zoglin.class, EntityDataSerializers.BOOLEAN);
+    private static final int MAX_HEALTH = 40;
+    private static final int ATTACK_KNOCKBACK = 1;
+    private static final float KNOCKBACK_RESISTANCE = 0.6F;
+    private static final int ATTACK_DAMAGE = 6;
+    private static final float BABY_ATTACK_DAMAGE = 0.5F;
+    private static final int ATTACK_INTERVAL = 40;
+    private static final int BABY_ATTACK_INTERVAL = 15;
+    private static final int ATTACK_DURATION = 200;
+    private static final float MOVEMENT_SPEED_WHEN_FIGHTING = 0.3F;
+    private static final float SPEED_MULTIPLIER_WHEN_IDLING = 0.4F;
+    private int attackAnimationRemainingTicks;
+    protected static final ImmutableList <? extends SensorType <? extends Sensor <? super Zoglin >>> SENSOR_TYPES = ImmutableList.of(SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS);
+    protected static final ImmutableList <? extends MemoryModuleType<? >> MEMORY_TYPES = ImmutableList.of(MemoryModuleType.NEAREST_LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER, MemoryModuleType.LOOK_TARGET, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.PATH, MemoryModuleType.ATTACK_TARGET, MemoryModuleType.ATTACK_COOLING_DOWN);
 
-   public Zoglin(EntityType<? extends Zoglin> p_34204_, Level p_34205_) {
-      super(p_34204_, p_34205_);
-      this.xpReward = 5;
-   }
+    public Zoglin(EntityType <? extends Zoglin > p_34204_, Level p_34205_)
+    {
+        super(p_34204_, p_34205_);
+        this.xpReward = 5;
+    }
 
-   protected Brain.Provider<Zoglin> brainProvider() {
-      return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
-   }
+    protected Brain.Provider<Zoglin> brainProvider()
+    {
+        return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
+    }
 
-   protected Brain<?> makeBrain(Dynamic<?> p_34221_) {
-      Brain<Zoglin> brain = this.brainProvider().makeBrain(p_34221_);
-      initCoreActivity(brain);
-      initIdleActivity(brain);
-      initFightActivity(brain);
-      brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
-      brain.setDefaultActivity(Activity.IDLE);
-      brain.useDefaultActivity();
-      return brain;
-   }
+    protected Brain<?> makeBrain(Dynamic<?> pDynamic)
+    {
+        Brain<Zoglin> brain = this.brainProvider().makeBrain(pDynamic);
+        initCoreActivity(brain);
+        initIdleActivity(brain);
+        initFightActivity(brain);
+        brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
+        brain.setDefaultActivity(Activity.IDLE);
+        brain.useDefaultActivity();
+        return brain;
+    }
 
-   private static void initCoreActivity(Brain<Zoglin> p_34217_) {
-      p_34217_.addActivity(Activity.CORE, 0, ImmutableList.of(new LookAtTargetSink(45, 90), new MoveToTargetSink()));
-   }
+    private static void initCoreActivity(Brain<Zoglin> p_34217_)
+    {
+        p_34217_.addActivity(Activity.CORE, 0, ImmutableList.of(new LookAtTargetSink(45, 90), new MoveToTargetSink()));
+    }
 
-   private static void initIdleActivity(Brain<Zoglin> p_34229_) {
-      p_34229_.addActivity(Activity.IDLE, 10, ImmutableList.of(new StartAttacking<Zoglin>(Zoglin::findNearestValidAttackTarget), new RunSometimes<Zoglin>(new SetEntityLookTarget(8.0F), UniformInt.of(30, 60)), new RunOne<Zoglin>(ImmutableList.of(Pair.of(new RandomStroll(0.4F), 2), Pair.of(new SetWalkTargetFromLookTarget(0.4F, 3), 2), Pair.of(new DoNothing(30, 60), 1)))));
-   }
+    private static void initIdleActivity(Brain<Zoglin> p_34229_)
+    {
+        p_34229_.addActivity(Activity.IDLE, 10, ImmutableList.of(new StartAttacking<Zoglin>(Zoglin::findNearestValidAttackTarget), new RunSometimes<Zoglin>(new SetEntityLookTarget(8.0F), UniformInt.of(30, 60)), new RunOne<Zoglin>(ImmutableList.of(Pair.of(new RandomStroll(0.4F), 2), Pair.of(new SetWalkTargetFromLookTarget(0.4F, 3), 2), Pair.of(new DoNothing(30, 60), 1)))));
+    }
 
-   private static void initFightActivity(Brain<Zoglin> p_34237_) {
-      p_34237_.addActivityAndRemoveMemoryWhenStopped(Activity.FIGHT, 10, ImmutableList.<net.minecraft.world.entity.ai.behavior.Behavior<net.minecraft.world.entity.Mob>>of(new SetWalkTargetFromAttackTargetIfTargetOutOfReach(1.0F), (net.minecraft.world.entity.ai.behavior.Behavior<net.minecraft.world.entity.Mob>)(net.minecraft.world.entity.ai.behavior.Behavior)new RunIf<Zoglin>(Zoglin::isAdult, new MeleeAttack(40)), (net.minecraft.world.entity.ai.behavior.Behavior<net.minecraft.world.entity.Mob>)(net.minecraft.world.entity.ai.behavior.Behavior)new RunIf<Zoglin>(Zoglin::isBaby, new MeleeAttack(15)), new StopAttackingIfTargetInvalid()), MemoryModuleType.ATTACK_TARGET);
-   }
+    private static void initFightActivity(Brain<Zoglin> p_34237_)
+    {
+        p_34237_.addActivityAndRemoveMemoryWhenStopped(Activity.FIGHT, 10, ImmutableList.<net.minecraft.world.entity.ai.behavior.Behavior<net.minecraft.world.entity.Mob>>of(new SetWalkTargetFromAttackTargetIfTargetOutOfReach(1.0F), (net.minecraft.world.entity.ai.behavior.Behavior<net.minecraft.world.entity.Mob>)(net.minecraft.world.entity.ai.behavior.Behavior)new RunIf<Zoglin>(Zoglin::isAdult, new MeleeAttack(40)), (net.minecraft.world.entity.ai.behavior.Behavior<net.minecraft.world.entity.Mob>)(net.minecraft.world.entity.ai.behavior.Behavior)new RunIf<Zoglin>(Zoglin::isBaby, new MeleeAttack(15)), new StopAttackingIfTargetInvalid()), MemoryModuleType.ATTACK_TARGET);
+    }
 
-   private Optional<? extends LivingEntity> findNearestValidAttackTarget() {
-      return this.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).orElse(ImmutableList.of()).stream().filter(this::isTargetable).findFirst();
-   }
+    private Optional <? extends LivingEntity > findNearestValidAttackTarget()
+    {
+        return this.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).orElse(ImmutableList.of()).stream().filter(this::isTargetable).findFirst();
+    }
 
-   private boolean isTargetable(LivingEntity p_34253_) {
-      EntityType<?> entitytype = p_34253_.getType();
-      return entitytype != EntityType.ZOGLIN && entitytype != EntityType.CREEPER && Sensor.isEntityAttackable(this, p_34253_);
-   }
+    private boolean isTargetable(LivingEntity p_34253_)
+    {
+        EntityType<?> entitytype = p_34253_.getType();
+        return entitytype != EntityType.ZOGLIN && entitytype != EntityType.CREEPER && Sensor.isEntityAttackable(this, p_34253_);
+    }
 
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.entityData.define(DATA_BABY_ID, false);
-   }
+    protected void defineSynchedData()
+    {
+        super.defineSynchedData();
+        this.entityData.define(DATA_BABY_ID, false);
+    }
 
-   public void onSyncedDataUpdated(EntityDataAccessor<?> p_34225_) {
-      super.onSyncedDataUpdated(p_34225_);
-      if (DATA_BABY_ID.equals(p_34225_)) {
-         this.refreshDimensions();
-      }
+    public void onSyncedDataUpdated(EntityDataAccessor<?> pKey)
+    {
+        super.onSyncedDataUpdated(pKey);
 
-   }
+        if (DATA_BABY_ID.equals(pKey))
+        {
+            this.refreshDimensions();
+        }
+    }
 
-   public static AttributeSupplier.Builder createAttributes() {
-      return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 40.0D).add(Attributes.MOVEMENT_SPEED, (double)0.3F).add(Attributes.KNOCKBACK_RESISTANCE, (double)0.6F).add(Attributes.ATTACK_KNOCKBACK, 1.0D).add(Attributes.ATTACK_DAMAGE, 6.0D);
-   }
+    public static AttributeSupplier.Builder createAttributes()
+    {
+        return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 40.0D).add(Attributes.MOVEMENT_SPEED, (double)0.3F).add(Attributes.KNOCKBACK_RESISTANCE, (double)0.6F).add(Attributes.ATTACK_KNOCKBACK, 1.0D).add(Attributes.ATTACK_DAMAGE, 6.0D);
+    }
 
-   public boolean isAdult() {
-      return !this.isBaby();
-   }
+    public boolean isAdult()
+    {
+        return !this.isBaby();
+    }
 
-   public boolean doHurtTarget(Entity p_34207_) {
-      if (!(p_34207_ instanceof LivingEntity)) {
-         return false;
-      } else {
-         this.attackAnimationRemainingTicks = 10;
-         this.level.broadcastEntityEvent(this, (byte)4);
-         this.playSound(SoundEvents.ZOGLIN_ATTACK, 1.0F, this.getVoicePitch());
-         return HoglinBase.hurtAndThrowTarget(this, (LivingEntity)p_34207_);
-      }
-   }
+    public boolean doHurtTarget(Entity pEntity)
+    {
+        if (!(pEntity instanceof LivingEntity))
+        {
+            return false;
+        }
+        else
+        {
+            this.attackAnimationRemainingTicks = 10;
+            this.level.broadcastEntityEvent(this, (byte)4);
+            this.playSound(SoundEvents.ZOGLIN_ATTACK, 1.0F, this.getVoicePitch());
+            return HoglinBase.hurtAndThrowTarget(this, (LivingEntity)pEntity);
+        }
+    }
 
-   public boolean canBeLeashed(Player p_34219_) {
-      return !this.isLeashed();
-   }
+    public boolean canBeLeashed(Player pPlayer)
+    {
+        return !this.isLeashed();
+    }
 
-   protected void blockedByShield(LivingEntity p_34246_) {
-      if (!this.isBaby()) {
-         HoglinBase.throwTarget(this, p_34246_);
-      }
+    protected void blockedByShield(LivingEntity pEntity)
+    {
+        if (!this.isBaby())
+        {
+            HoglinBase.throwTarget(this, pEntity);
+        }
+    }
 
-   }
+    public double getPassengersRidingOffset()
+    {
+        return (double)this.getBbHeight() - (this.isBaby() ? 0.2D : 0.15D);
+    }
 
-   public double getPassengersRidingOffset() {
-      return (double)this.getBbHeight() - (this.isBaby() ? 0.2D : 0.15D);
-   }
+    public boolean hurt(DamageSource pSource, float pAmount)
+    {
+        boolean flag = super.hurt(pSource, pAmount);
 
-   public boolean hurt(DamageSource p_34214_, float p_34215_) {
-      boolean flag = super.hurt(p_34214_, p_34215_);
-      if (this.level.isClientSide) {
-         return false;
-      } else if (flag && p_34214_.getEntity() instanceof LivingEntity) {
-         LivingEntity livingentity = (LivingEntity)p_34214_.getEntity();
-         if (this.canAttack(livingentity) && !BehaviorUtils.isOtherTargetMuchFurtherAwayThanCurrentAttackTarget(this, livingentity, 4.0D)) {
-            this.setAttackTarget(livingentity);
-         }
+        if (this.level.isClientSide)
+        {
+            return false;
+        }
+        else if (flag && pSource.getEntity() instanceof LivingEntity)
+        {
+            LivingEntity livingentity = (LivingEntity)pSource.getEntity();
 
-         return flag;
-      } else {
-         return flag;
-      }
-   }
+            if (this.canAttack(livingentity) && !BehaviorUtils.isOtherTargetMuchFurtherAwayThanCurrentAttackTarget(this, livingentity, 4.0D))
+            {
+                this.setAttackTarget(livingentity);
+            }
 
-   private void setAttackTarget(LivingEntity p_34255_) {
-      this.brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
-      this.brain.setMemoryWithExpiry(MemoryModuleType.ATTACK_TARGET, p_34255_, 200L);
-   }
+            return flag;
+        }
+        else
+        {
+            return flag;
+        }
+    }
 
-   public Brain<Zoglin> getBrain() {
-      return (Brain<Zoglin>)super.getBrain();
-   }
+    private void setAttackTarget(LivingEntity p_34255_)
+    {
+        this.brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
+        this.brain.setMemoryWithExpiry(MemoryModuleType.ATTACK_TARGET, p_34255_, 200L);
+    }
 
-   protected void updateActivity() {
-      Activity activity = this.brain.getActiveNonCoreActivity().orElse((Activity)null);
-      this.brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.FIGHT, Activity.IDLE));
-      Activity activity1 = this.brain.getActiveNonCoreActivity().orElse((Activity)null);
-      if (activity1 == Activity.FIGHT && activity != Activity.FIGHT) {
-         this.playAngrySound();
-      }
+    public Brain<Zoglin> getBrain()
+    {
+        return (Brain<Zoglin>)super.getBrain();
+    }
 
-      this.setAggressive(this.brain.hasMemoryValue(MemoryModuleType.ATTACK_TARGET));
-   }
+    protected void updateActivity()
+    {
+        Activity activity = this.brain.getActiveNonCoreActivity().orElse((Activity)null);
+        this.brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.FIGHT, Activity.IDLE));
+        Activity activity1 = this.brain.getActiveNonCoreActivity().orElse((Activity)null);
 
-   protected void customServerAiStep() {
-      this.level.getProfiler().push("zoglinBrain");
-      this.getBrain().tick((ServerLevel)this.level, this);
-      this.level.getProfiler().pop();
-      this.updateActivity();
-   }
+        if (activity1 == Activity.FIGHT && activity != Activity.FIGHT)
+        {
+            this.playAngrySound();
+        }
 
-   public void setBaby(boolean p_34227_) {
-      this.getEntityData().set(DATA_BABY_ID, p_34227_);
-      if (!this.level.isClientSide && p_34227_) {
-         this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(0.5D);
-      }
+        this.setAggressive(this.brain.hasMemoryValue(MemoryModuleType.ATTACK_TARGET));
+    }
 
-   }
+    protected void customServerAiStep()
+    {
+        this.level.getProfiler().push("zoglinBrain");
+        this.getBrain().tick((ServerLevel)this.level, this);
+        this.level.getProfiler().pop();
+        this.updateActivity();
+    }
 
-   public boolean isBaby() {
-      return this.getEntityData().get(DATA_BABY_ID);
-   }
+    public void setBaby(boolean pChildZombie)
+    {
+        this.getEntityData().set(DATA_BABY_ID, pChildZombie);
 
-   public void aiStep() {
-      if (this.attackAnimationRemainingTicks > 0) {
-         --this.attackAnimationRemainingTicks;
-      }
+        if (!this.level.isClientSide && pChildZombie)
+        {
+            this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(0.5D);
+        }
+    }
 
-      super.aiStep();
-   }
+    public boolean isBaby()
+    {
+        return this.getEntityData().get(DATA_BABY_ID);
+    }
 
-   public void handleEntityEvent(byte p_34212_) {
-      if (p_34212_ == 4) {
-         this.attackAnimationRemainingTicks = 10;
-         this.playSound(SoundEvents.ZOGLIN_ATTACK, 1.0F, this.getVoicePitch());
-      } else {
-         super.handleEntityEvent(p_34212_);
-      }
+    public void aiStep()
+    {
+        if (this.attackAnimationRemainingTicks > 0)
+        {
+            --this.attackAnimationRemainingTicks;
+        }
 
-   }
+        super.aiStep();
+    }
 
-   public int getAttackAnimationRemainingTicks() {
-      return this.attackAnimationRemainingTicks;
-   }
+    public void handleEntityEvent(byte pId)
+    {
+        if (pId == 4)
+        {
+            this.attackAnimationRemainingTicks = 10;
+            this.playSound(SoundEvents.ZOGLIN_ATTACK, 1.0F, this.getVoicePitch());
+        }
+        else
+        {
+            super.handleEntityEvent(pId);
+        }
+    }
 
-   protected SoundEvent getAmbientSound() {
-      if (this.level.isClientSide) {
-         return null;
-      } else {
-         return this.brain.hasMemoryValue(MemoryModuleType.ATTACK_TARGET) ? SoundEvents.ZOGLIN_ANGRY : SoundEvents.ZOGLIN_AMBIENT;
-      }
-   }
+    public int getAttackAnimationRemainingTicks()
+    {
+        return this.attackAnimationRemainingTicks;
+    }
 
-   protected SoundEvent getHurtSound(DamageSource p_34244_) {
-      return SoundEvents.ZOGLIN_HURT;
-   }
+    protected SoundEvent getAmbientSound()
+    {
+        if (this.level.isClientSide)
+        {
+            return null;
+        }
+        else
+        {
+            return this.brain.hasMemoryValue(MemoryModuleType.ATTACK_TARGET) ? SoundEvents.ZOGLIN_ANGRY : SoundEvents.ZOGLIN_AMBIENT;
+        }
+    }
 
-   protected SoundEvent getDeathSound() {
-      return SoundEvents.ZOGLIN_DEATH;
-   }
+    protected SoundEvent getHurtSound(DamageSource pDamageSource)
+    {
+        return SoundEvents.ZOGLIN_HURT;
+    }
 
-   protected void playStepSound(BlockPos p_34231_, BlockState p_34232_) {
-      this.playSound(SoundEvents.ZOGLIN_STEP, 0.15F, 1.0F);
-   }
+    protected SoundEvent getDeathSound()
+    {
+        return SoundEvents.ZOGLIN_DEATH;
+    }
 
-   protected void playAngrySound() {
-      this.playSound(SoundEvents.ZOGLIN_ANGRY, 1.0F, this.getVoicePitch());
-   }
+    protected void playStepSound(BlockPos pPos, BlockState pBlock)
+    {
+        this.playSound(SoundEvents.ZOGLIN_STEP, 0.15F, 1.0F);
+    }
 
-   protected void sendDebugPackets() {
-      super.sendDebugPackets();
-      DebugPackets.sendEntityBrain(this);
-   }
+    protected void playAngrySound()
+    {
+        this.playSound(SoundEvents.ZOGLIN_ANGRY, 1.0F, this.getVoicePitch());
+    }
 
-   public MobType getMobType() {
-      return MobType.UNDEAD;
-   }
+    protected void sendDebugPackets()
+    {
+        super.sendDebugPackets();
+        DebugPackets.sendEntityBrain(this);
+    }
 
-   public void addAdditionalSaveData(CompoundTag p_34234_) {
-      super.addAdditionalSaveData(p_34234_);
-      if (this.isBaby()) {
-         p_34234_.putBoolean("IsBaby", true);
-      }
+    public MobType getMobType()
+    {
+        return MobType.UNDEAD;
+    }
 
-   }
+    public void addAdditionalSaveData(CompoundTag pCompound)
+    {
+        super.addAdditionalSaveData(pCompound);
 
-   public void readAdditionalSaveData(CompoundTag p_34223_) {
-      super.readAdditionalSaveData(p_34223_);
-      if (p_34223_.getBoolean("IsBaby")) {
-         this.setBaby(true);
-      }
+        if (this.isBaby())
+        {
+            pCompound.putBoolean("IsBaby", true);
+        }
+    }
 
-   }
+    public void readAdditionalSaveData(CompoundTag pCompound)
+    {
+        super.readAdditionalSaveData(pCompound);
+
+        if (pCompound.getBoolean("IsBaby"))
+        {
+            this.setBaby(true);
+        }
+    }
 }

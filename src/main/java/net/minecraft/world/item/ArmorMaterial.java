@@ -4,20 +4,21 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.crafting.Ingredient;
 
-public interface ArmorMaterial {
-   int getDurabilityForSlot(EquipmentSlot p_40410_);
+public interface ArmorMaterial
+{
+    int getDurabilityForSlot(EquipmentSlot pSlot);
 
-   int getDefenseForSlot(EquipmentSlot p_40411_);
+    int getDefenseForSlot(EquipmentSlot pSlot);
 
-   int getEnchantmentValue();
+    int getEnchantmentValue();
 
-   SoundEvent getEquipSound();
+    SoundEvent getEquipSound();
 
-   Ingredient getRepairIngredient();
+    Ingredient getRepairIngredient();
 
-   String getName();
+    String getName();
 
-   float getToughness();
+    float getToughness();
 
-   float getKnockbackResistance();
+    float getKnockbackResistance();
 }

@@ -2,94 +2,95 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.PacketListener;
 
-public interface ServerGamePacketListener extends PacketListener {
-   void handleAnimate(ServerboundSwingPacket p_133781_);
+public interface ServerGamePacketListener extends PacketListener
+{
+    void handleAnimate(ServerboundSwingPacket pPacket);
 
-   void handleChat(ServerboundChatPacket p_133743_);
+    void handleChat(ServerboundChatPacket pPacket);
 
-   void handleClientCommand(ServerboundClientCommandPacket p_133744_);
+    void handleClientCommand(ServerboundClientCommandPacket pPacket);
 
-   void handleClientInformation(ServerboundClientInformationPacket p_133745_);
+    void handleClientInformation(ServerboundClientInformationPacket pPacket);
 
-   void handleContainerButtonClick(ServerboundContainerButtonClickPacket p_133748_);
+    void handleContainerButtonClick(ServerboundContainerButtonClickPacket pPacket);
 
-   void handleContainerClick(ServerboundContainerClickPacket p_133749_);
+    void handleContainerClick(ServerboundContainerClickPacket pPacket);
 
-   void handlePlaceRecipe(ServerboundPlaceRecipePacket p_133762_);
+    void handlePlaceRecipe(ServerboundPlaceRecipePacket pPacket);
 
-   void handleContainerClose(ServerboundContainerClosePacket p_133750_);
+    void handleContainerClose(ServerboundContainerClosePacket pPacket);
 
-   void handleCustomPayload(ServerboundCustomPayloadPacket p_133751_);
+    void handleCustomPayload(ServerboundCustomPayloadPacket pPacket);
 
-   void handleInteract(ServerboundInteractPacket p_133754_);
+    void handleInteract(ServerboundInteractPacket pPacket);
 
-   void handleKeepAlive(ServerboundKeepAlivePacket p_133756_);
+    void handleKeepAlive(ServerboundKeepAlivePacket pPacket);
 
-   void handleMovePlayer(ServerboundMovePlayerPacket p_133758_);
+    void handleMovePlayer(ServerboundMovePlayerPacket pPacket);
 
-   void handlePong(ServerboundPongPacket p_179536_);
+    void handlePong(ServerboundPongPacket p_179536_);
 
-   void handlePlayerAbilities(ServerboundPlayerAbilitiesPacket p_133763_);
+    void handlePlayerAbilities(ServerboundPlayerAbilitiesPacket pPacket);
 
-   void handlePlayerAction(ServerboundPlayerActionPacket p_133764_);
+    void handlePlayerAction(ServerboundPlayerActionPacket pPacket);
 
-   void handlePlayerCommand(ServerboundPlayerCommandPacket p_133765_);
+    void handlePlayerCommand(ServerboundPlayerCommandPacket pPacket);
 
-   void handlePlayerInput(ServerboundPlayerInputPacket p_133766_);
+    void handlePlayerInput(ServerboundPlayerInputPacket pPacket);
 
-   void handleSetCarriedItem(ServerboundSetCarriedItemPacket p_133774_);
+    void handleSetCarriedItem(ServerboundSetCarriedItemPacket pPacket);
 
-   void handleSetCreativeModeSlot(ServerboundSetCreativeModeSlotPacket p_133777_);
+    void handleSetCreativeModeSlot(ServerboundSetCreativeModeSlotPacket pPacket);
 
-   void handleSignUpdate(ServerboundSignUpdatePacket p_133780_);
+    void handleSignUpdate(ServerboundSignUpdatePacket pPacket);
 
-   void handleUseItemOn(ServerboundUseItemOnPacket p_133783_);
+    void handleUseItemOn(ServerboundUseItemOnPacket pPacket);
 
-   void handleUseItem(ServerboundUseItemPacket p_133784_);
+    void handleUseItem(ServerboundUseItemPacket pPacket);
 
-   void handleTeleportToEntityPacket(ServerboundTeleportToEntityPacket p_133782_);
+    void handleTeleportToEntityPacket(ServerboundTeleportToEntityPacket pPacket);
 
-   void handleResourcePackResponse(ServerboundResourcePackPacket p_133770_);
+    void handleResourcePackResponse(ServerboundResourcePackPacket pPacket);
 
-   void handlePaddleBoat(ServerboundPaddleBoatPacket p_133760_);
+    void handlePaddleBoat(ServerboundPaddleBoatPacket pPacket);
 
-   void handleMoveVehicle(ServerboundMoveVehiclePacket p_133759_);
+    void handleMoveVehicle(ServerboundMoveVehiclePacket pPacket);
 
-   void handleAcceptTeleportPacket(ServerboundAcceptTeleportationPacket p_133740_);
+    void handleAcceptTeleportPacket(ServerboundAcceptTeleportationPacket pPacket);
 
-   void handleRecipeBookSeenRecipePacket(ServerboundRecipeBookSeenRecipePacket p_133768_);
+    void handleRecipeBookSeenRecipePacket(ServerboundRecipeBookSeenRecipePacket pPacket);
 
-   void handleRecipeBookChangeSettingsPacket(ServerboundRecipeBookChangeSettingsPacket p_133767_);
+    void handleRecipeBookChangeSettingsPacket(ServerboundRecipeBookChangeSettingsPacket p_133767_);
 
-   void handleSeenAdvancements(ServerboundSeenAdvancementsPacket p_133771_);
+    void handleSeenAdvancements(ServerboundSeenAdvancementsPacket pPacket);
 
-   void handleCustomCommandSuggestions(ServerboundCommandSuggestionPacket p_133746_);
+    void handleCustomCommandSuggestions(ServerboundCommandSuggestionPacket pPacket);
 
-   void handleSetCommandBlock(ServerboundSetCommandBlockPacket p_133775_);
+    void handleSetCommandBlock(ServerboundSetCommandBlockPacket pPacket);
 
-   void handleSetCommandMinecart(ServerboundSetCommandMinecartPacket p_133776_);
+    void handleSetCommandMinecart(ServerboundSetCommandMinecartPacket pPacket);
 
-   void handlePickItem(ServerboundPickItemPacket p_133761_);
+    void handlePickItem(ServerboundPickItemPacket pPacket);
 
-   void handleRenameItem(ServerboundRenameItemPacket p_133769_);
+    void handleRenameItem(ServerboundRenameItemPacket pPacket);
 
-   void handleSetBeaconPacket(ServerboundSetBeaconPacket p_133773_);
+    void handleSetBeaconPacket(ServerboundSetBeaconPacket pPacket);
 
-   void handleSetStructureBlock(ServerboundSetStructureBlockPacket p_133779_);
+    void handleSetStructureBlock(ServerboundSetStructureBlockPacket pPacket);
 
-   void handleSelectTrade(ServerboundSelectTradePacket p_133772_);
+    void handleSelectTrade(ServerboundSelectTradePacket pPacket);
 
-   void handleEditBook(ServerboundEditBookPacket p_133752_);
+    void handleEditBook(ServerboundEditBookPacket pPacket);
 
-   void handleEntityTagQuery(ServerboundEntityTagQuery p_133753_);
+    void handleEntityTagQuery(ServerboundEntityTagQuery pPacket);
 
-   void handleBlockEntityTagQuery(ServerboundBlockEntityTagQuery p_133741_);
+    void handleBlockEntityTagQuery(ServerboundBlockEntityTagQuery pPacket);
 
-   void handleSetJigsawBlock(ServerboundSetJigsawBlockPacket p_133778_);
+    void handleSetJigsawBlock(ServerboundSetJigsawBlockPacket p_133778_);
 
-   void handleJigsawGenerate(ServerboundJigsawGeneratePacket p_133755_);
+    void handleJigsawGenerate(ServerboundJigsawGeneratePacket p_133755_);
 
-   void handleChangeDifficulty(ServerboundChangeDifficultyPacket p_133742_);
+    void handleChangeDifficulty(ServerboundChangeDifficultyPacket p_133742_);
 
-   void handleLockDifficulty(ServerboundLockDifficultyPacket p_133757_);
+    void handleLockDifficulty(ServerboundLockDifficultyPacket p_133757_);
 }

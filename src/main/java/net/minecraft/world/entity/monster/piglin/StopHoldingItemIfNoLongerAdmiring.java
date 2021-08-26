@@ -7,16 +7,20 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.item.Items;
 
-public class StopHoldingItemIfNoLongerAdmiring<E extends Piglin> extends Behavior<E> {
-   public StopHoldingItemIfNoLongerAdmiring() {
-      super(ImmutableMap.of(MemoryModuleType.ADMIRING_ITEM, MemoryStatus.VALUE_ABSENT));
-   }
+public class StopHoldingItemIfNoLongerAdmiring<E extends Piglin> extends Behavior<E>
+{
+    public StopHoldingItemIfNoLongerAdmiring()
+    {
+        super(ImmutableMap.of(MemoryModuleType.ADMIRING_ITEM, MemoryStatus.VALUE_ABSENT));
+    }
 
-   protected boolean checkExtraStartConditions(ServerLevel p_35255_, E p_35256_) {
-      return !p_35256_.getOffhandItem().isEmpty() && !p_35256_.getOffhandItem().is(Items.SHIELD);
-   }
+    protected boolean checkExtraStartConditions(ServerLevel pLevel, E pOwner)
+    {
+        return !pOwner.getOffhandItem().isEmpty() && !pOwner.getOffhandItem().is(Items.SHIELD);
+    }
 
-   protected void start(ServerLevel p_35258_, E p_35259_, long p_35260_) {
-      PiglinAi.stopHoldingOffHandItem(p_35259_, true);
-   }
+    protected void start(ServerLevel pLevel, E pEntity, long pGameTime)
+    {
+        PiglinAi.stopHoldingOffHandItem(pEntity, true);
+    }
 }

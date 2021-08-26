@@ -2,14 +2,15 @@ package net.minecraft.util;
 
 import net.minecraft.network.chat.Component;
 
-public interface ProgressListener {
-   void progressStartNoAbort(Component p_14212_);
+public interface ProgressListener
+{
+    void progressStartNoAbort(Component pComponent);
 
-   void progressStart(Component p_14213_);
+    void progressStart(Component pComponent);
 
-   void progressStage(Component p_14214_);
+    void progressStage(Component pComponent);
 
-   void progressStagePercentage(int p_14211_);
+    void progressStagePercentage(int pProgress);
 
-   void stop();
+    void stop();
 }

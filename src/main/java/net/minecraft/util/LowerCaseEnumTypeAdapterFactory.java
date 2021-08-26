@@ -13,43 +13,58 @@ import java.util.Locale;
 import java.util.Map;
 import javax.annotation.Nullable;
 
-public class LowerCaseEnumTypeAdapterFactory implements TypeAdapterFactory {
-   @Nullable
-   public <T> TypeAdapter<T> create(Gson p_13982_, TypeToken<T> p_13983_) {
-      Class<T> oclass = (Class<T>)p_13983_.getRawType();
-      if (!oclass.isEnum()) {
-         return null;
-      } else {
-         final Map<String, T> map = Maps.newHashMap();
+public class LowerCaseEnumTypeAdapterFactory implements TypeAdapterFactory
+{
+    @Nullable
+    public <T> TypeAdapter<T> create(Gson p_13982_, TypeToken<T> p_13983_)
+    {
+        Class<T> oclass = (Class<T>)p_13983_.getRawType();
 
-         for(T t : oclass.getEnumConstants()) {
-            map.put(this.toLowercase(t), t);
-         }
+        if (!oclass.isEnum())
+        {
+            return null;
+        }
+        else
+        {
+            final Map<String, T> map = Maps.newHashMap();
 
-         return new TypeAdapter<T>() {
-            public void write(JsonWriter p_13992_, T p_13993_) throws IOException {
-               if (p_13993_ == null) {
-                  p_13992_.nullValue();
-               } else {
-                  p_13992_.value(LowerCaseEnumTypeAdapterFactory.this.toLowercase(p_13993_));
-               }
-
+            for (T t : oclass.getEnumConstants())
+            {
+                map.put(this.toLowercase(t), t);
             }
 
-            @Nullable
-            public T read(JsonReader p_13990_) throws IOException {
-               if (p_13990_.peek() == JsonToken.NULL) {
-                  p_13990_.nextNull();
-                  return (T)null;
-               } else {
-                  return map.get(p_13990_.nextString());
-               }
-            }
-         };
-      }
-   }
+            return new TypeAdapter<T>()
+            {
+                public void write(JsonWriter p_13992_, T p_13993_) throws IOException
+                {
+                    if (p_13993_ == null)
+                    {
+                        p_13992_.nullValue();
+                    }
+                    else
+                    {
+                        p_13992_.value(LowerCaseEnumTypeAdapterFactory.this.toLowercase(p_13993_));
+                    }
+                }
+                @Nullable
+                public T read(JsonReader p_13990_) throws IOException
+                {
+                    if (p_13990_.peek() == JsonToken.NULL)
+                    {
+                        p_13990_.nextNull();
+                        return (T)null;
+                    }
+                    else
+                    {
+                        return map.get(p_13990_.nextString());
+                    }
+                }
+            };
+        }
+    }
 
-   String toLowercase(Object p_13980_) {
-      return p_13980_ instanceof Enum ? ((Enum)p_13980_).name().toLowerCase(Locale.ROOT) : p_13980_.toString().toLowerCase(Locale.ROOT);
-   }
+    String toLowercase(Object pObject)
+    {
+        return pObject instanceof Enum ? ((Enum)pObject).name().toLowerCase(Locale.ROOT) : pObject.toString().toLowerCase(Locale.ROOT);
+    }
 }

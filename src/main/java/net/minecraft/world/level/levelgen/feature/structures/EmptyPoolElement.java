@@ -14,41 +14,51 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
-public class EmptyPoolElement extends StructurePoolElement {
-   public static final Codec<EmptyPoolElement> CODEC;
-   public static final EmptyPoolElement INSTANCE = new EmptyPoolElement();
+public class EmptyPoolElement extends StructurePoolElement
+{
+    public static final Codec<EmptyPoolElement> CODEC;
+    public static final EmptyPoolElement INSTANCE = new EmptyPoolElement();
 
-   private EmptyPoolElement() {
-      super(StructureTemplatePool.Projection.TERRAIN_MATCHING);
-   }
+    private EmptyPoolElement()
+    {
+        super(StructureTemplatePool.Projection.TERRAIN_MATCHING);
+    }
 
-   public Vec3i getSize(StructureManager p_161602_, Rotation p_161603_) {
-      return Vec3i.ZERO;
-   }
+    public Vec3i getSize(StructureManager p_161602_, Rotation p_161603_)
+    {
+        return Vec3i.ZERO;
+    }
 
-   public List<StructureTemplate.StructureBlockInfo> getShuffledJigsawBlocks(StructureManager p_68876_, BlockPos p_68877_, Rotation p_68878_, Random p_68879_) {
-      return Collections.emptyList();
-   }
+    public List<StructureTemplate.StructureBlockInfo> getShuffledJigsawBlocks(StructureManager pTemplateManager, BlockPos pPos, Rotation pRotation, Random pRand)
+    {
+        return Collections.emptyList();
+    }
 
-   public BoundingBox getBoundingBox(StructureManager p_68872_, BlockPos p_68873_, Rotation p_68874_) {
-      throw new IllegalStateException("Invalid call to EmtyPoolElement.getBoundingBox, filter me!");
-   }
+    public BoundingBox getBoundingBox(StructureManager pTemplateManager, BlockPos pPos, Rotation pRotation)
+    {
+        throw new IllegalStateException("Invalid call to EmtyPoolElement.getBoundingBox, filter me!");
+    }
 
-   public boolean place(StructureManager p_68861_, WorldGenLevel p_68862_, StructureFeatureManager p_68863_, ChunkGenerator p_68864_, BlockPos p_68865_, BlockPos p_68866_, Rotation p_68867_, BoundingBox p_68868_, Random p_68869_, boolean p_68870_) {
-      return true;
-   }
+    public boolean place(StructureManager p_68861_, WorldGenLevel p_68862_, StructureFeatureManager p_68863_, ChunkGenerator p_68864_, BlockPos p_68865_, BlockPos p_68866_, Rotation p_68867_, BoundingBox p_68868_, Random p_68869_, boolean p_68870_)
+    {
+        return true;
+    }
 
-   public StructurePoolElementType<?> getType() {
-      return StructurePoolElementType.EMPTY;
-   }
+    public StructurePoolElementType<?> getType()
+    {
+        return StructurePoolElementType.EMPTY;
+    }
 
-   public String toString() {
-      return "Empty";
-   }
+    public String toString()
+    {
+        return "Empty";
+    }
 
-   static {
-      CODEC = Codec.unit(() -> {
-         return INSTANCE;
-      });
-   }
+    static
+    {
+        CODEC = Codec.unit(() ->
+        {
+            return INSTANCE;
+        });
+    }
 }

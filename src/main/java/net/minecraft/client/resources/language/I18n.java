@@ -2,31 +2,36 @@ package net.minecraft.client.resources.language;
 
 import java.util.IllegalFormatException;
 import net.minecraft.locale.Language;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
-public class I18n {
-   private static volatile Language language = Language.getInstance();
+public class I18n
+{
+    private static volatile Language language = Language.getInstance();
 
-   private I18n() {
-   }
+    private I18n()
+    {
+    }
 
-   static void setLanguage(Language p_118942_) {
-      language = p_118942_;
-   }
+    static void setLanguage(Language p_118942_)
+    {
+        language = p_118942_;
+    }
 
-   public static String get(String p_118939_, Object... p_118940_) {
-      String s = language.getOrDefault(p_118939_);
+    public static String m_118938_(String p_118939_, Object... p_118940_)
+    {
+        String s = language.getOrDefault(p_118939_);
 
-      try {
-         return String.format(s, p_118940_);
-      } catch (IllegalFormatException illegalformatexception) {
-         return "Format error: " + s;
-      }
-   }
+        try
+        {
+            return String.format(s, p_118940_);
+        }
+        catch (IllegalFormatException illegalformatexception)
+        {
+            return "Format error: " + s;
+        }
+    }
 
-   public static boolean exists(String p_118937_) {
-      return language.has(p_118937_);
-   }
+    public static boolean exists(String pKey)
+    {
+        return language.has(pKey);
+    }
 }

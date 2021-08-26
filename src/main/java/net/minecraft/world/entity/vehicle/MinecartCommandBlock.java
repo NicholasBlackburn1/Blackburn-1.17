@@ -18,100 +18,125 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-public class MinecartCommandBlock extends AbstractMinecart {
-   static final EntityDataAccessor<String> DATA_ID_COMMAND_NAME = SynchedEntityData.defineId(MinecartCommandBlock.class, EntityDataSerializers.STRING);
-   static final EntityDataAccessor<Component> DATA_ID_LAST_OUTPUT = SynchedEntityData.defineId(MinecartCommandBlock.class, EntityDataSerializers.COMPONENT);
-   private final BaseCommandBlock commandBlock = new MinecartCommandBlock.MinecartCommandBase();
-   private static final int ACTIVATION_DELAY = 4;
-   private int lastActivated;
+public class MinecartCommandBlock extends AbstractMinecart
+{
+    static final EntityDataAccessor<String> DATA_ID_COMMAND_NAME = SynchedEntityData.defineId(MinecartCommandBlock.class, EntityDataSerializers.STRING);
+    static final EntityDataAccessor<Component> DATA_ID_LAST_OUTPUT = SynchedEntityData.defineId(MinecartCommandBlock.class, EntityDataSerializers.COMPONENT);
+    private final BaseCommandBlock commandBlock = new MinecartCommandBlock.MinecartCommandBase();
+    private static final int ACTIVATION_DELAY = 4;
+    private int lastActivated;
 
-   public MinecartCommandBlock(EntityType<? extends MinecartCommandBlock> p_38509_, Level p_38510_) {
-      super(p_38509_, p_38510_);
-   }
+    public MinecartCommandBlock(EntityType <? extends MinecartCommandBlock > p_38509_, Level p_38510_)
+    {
+        super(p_38509_, p_38510_);
+    }
 
-   public MinecartCommandBlock(Level p_38512_, double p_38513_, double p_38514_, double p_38515_) {
-      super(EntityType.COMMAND_BLOCK_MINECART, p_38512_, p_38513_, p_38514_, p_38515_);
-   }
+    public MinecartCommandBlock(Level p_38512_, double p_38513_, double p_38514_, double p_38515_)
+    {
+        super(EntityType.COMMAND_BLOCK_MINECART, p_38512_, p_38513_, p_38514_, p_38515_);
+    }
 
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.getEntityData().define(DATA_ID_COMMAND_NAME, "");
-      this.getEntityData().define(DATA_ID_LAST_OUTPUT, TextComponent.EMPTY);
-   }
+    protected void defineSynchedData()
+    {
+        super.defineSynchedData();
+        this.getEntityData().define(DATA_ID_COMMAND_NAME, "");
+        this.getEntityData().define(DATA_ID_LAST_OUTPUT, TextComponent.EMPTY);
+    }
 
-   protected void readAdditionalSaveData(CompoundTag p_38525_) {
-      super.readAdditionalSaveData(p_38525_);
-      this.commandBlock.load(p_38525_);
-      this.getEntityData().set(DATA_ID_COMMAND_NAME, this.getCommandBlock().getCommand());
-      this.getEntityData().set(DATA_ID_LAST_OUTPUT, this.getCommandBlock().getLastOutput());
-   }
+    protected void readAdditionalSaveData(CompoundTag pCompound)
+    {
+        super.readAdditionalSaveData(pCompound);
+        this.commandBlock.load(pCompound);
+        this.getEntityData().set(DATA_ID_COMMAND_NAME, this.getCommandBlock().getCommand());
+        this.getEntityData().set(DATA_ID_LAST_OUTPUT, this.getCommandBlock().getLastOutput());
+    }
 
-   protected void addAdditionalSaveData(CompoundTag p_38529_) {
-      super.addAdditionalSaveData(p_38529_);
-      this.commandBlock.save(p_38529_);
-   }
+    protected void addAdditionalSaveData(CompoundTag pCompound)
+    {
+        super.addAdditionalSaveData(pCompound);
+        this.commandBlock.save(pCompound);
+    }
 
-   public AbstractMinecart.Type getMinecartType() {
-      return AbstractMinecart.Type.COMMAND_BLOCK;
-   }
+    public AbstractMinecart.Type getMinecartType()
+    {
+        return AbstractMinecart.Type.COMMAND_BLOCK;
+    }
 
-   public BlockState getDefaultDisplayBlockState() {
-      return Blocks.COMMAND_BLOCK.defaultBlockState();
-   }
+    public BlockState getDefaultDisplayBlockState()
+    {
+        return Blocks.COMMAND_BLOCK.defaultBlockState();
+    }
 
-   public BaseCommandBlock getCommandBlock() {
-      return this.commandBlock;
-   }
+    public BaseCommandBlock getCommandBlock()
+    {
+        return this.commandBlock;
+    }
 
-   public void activateMinecart(int p_38517_, int p_38518_, int p_38519_, boolean p_38520_) {
-      if (p_38520_ && this.tickCount - this.lastActivated >= 4) {
-         this.getCommandBlock().performCommand(this.level);
-         this.lastActivated = this.tickCount;
-      }
+    public void activateMinecart(int pX, int pY, int pZ, boolean pReceivingPower)
+    {
+        if (pReceivingPower && this.tickCount - this.lastActivated >= 4)
+        {
+            this.getCommandBlock().performCommand(this.level);
+            this.lastActivated = this.tickCount;
+        }
+    }
 
-   }
+    public InteractionResult interact(Player pPlayer, InteractionHand pHand)
+    {
+        return this.commandBlock.usedBy(pPlayer);
+    }
 
-   public InteractionResult interact(Player p_38522_, InteractionHand p_38523_) {
-      return this.commandBlock.usedBy(p_38522_);
-   }
+    public void onSyncedDataUpdated(EntityDataAccessor<?> pKey)
+    {
+        super.onSyncedDataUpdated(pKey);
 
-   public void onSyncedDataUpdated(EntityDataAccessor<?> p_38527_) {
-      super.onSyncedDataUpdated(p_38527_);
-      if (DATA_ID_LAST_OUTPUT.equals(p_38527_)) {
-         try {
-            this.commandBlock.setLastOutput(this.getEntityData().get(DATA_ID_LAST_OUTPUT));
-         } catch (Throwable throwable) {
-         }
-      } else if (DATA_ID_COMMAND_NAME.equals(p_38527_)) {
-         this.commandBlock.setCommand(this.getEntityData().get(DATA_ID_COMMAND_NAME));
-      }
+        if (DATA_ID_LAST_OUTPUT.equals(pKey))
+        {
+            try
+            {
+                this.commandBlock.setLastOutput(this.getEntityData().get(DATA_ID_LAST_OUTPUT));
+            }
+            catch (Throwable throwable)
+            {
+            }
+        }
+        else if (DATA_ID_COMMAND_NAME.equals(pKey))
+        {
+            this.commandBlock.setCommand(this.getEntityData().get(DATA_ID_COMMAND_NAME));
+        }
+    }
 
-   }
+    public boolean onlyOpCanSetNbt()
+    {
+        return true;
+    }
 
-   public boolean onlyOpCanSetNbt() {
-      return true;
-   }
+    public class MinecartCommandBase extends BaseCommandBlock
+    {
+        public ServerLevel getLevel()
+        {
+            return (ServerLevel)MinecartCommandBlock.this.level;
+        }
 
-   public class MinecartCommandBase extends BaseCommandBlock {
-      public ServerLevel getLevel() {
-         return (ServerLevel)MinecartCommandBlock.this.level;
-      }
+        public void onUpdated()
+        {
+            MinecartCommandBlock.this.getEntityData().set(MinecartCommandBlock.DATA_ID_COMMAND_NAME, this.getCommand());
+            MinecartCommandBlock.this.getEntityData().set(MinecartCommandBlock.DATA_ID_LAST_OUTPUT, this.getLastOutput());
+        }
 
-      public void onUpdated() {
-         MinecartCommandBlock.this.getEntityData().set(MinecartCommandBlock.DATA_ID_COMMAND_NAME, this.getCommand());
-         MinecartCommandBlock.this.getEntityData().set(MinecartCommandBlock.DATA_ID_LAST_OUTPUT, this.getLastOutput());
-      }
+        public Vec3 getPosition()
+        {
+            return MinecartCommandBlock.this.position();
+        }
 
-      public Vec3 getPosition() {
-         return MinecartCommandBlock.this.position();
-      }
+        public MinecartCommandBlock getMinecart()
+        {
+            return MinecartCommandBlock.this;
+        }
 
-      public MinecartCommandBlock getMinecart() {
-         return MinecartCommandBlock.this;
-      }
-
-      public CommandSourceStack createCommandSourceStack() {
-         return new CommandSourceStack(this, MinecartCommandBlock.this.position(), MinecartCommandBlock.this.getRotationVector(), this.getLevel(), 2, this.getName().getString(), MinecartCommandBlock.this.getDisplayName(), this.getLevel().getServer(), MinecartCommandBlock.this);
-      }
-   }
+        public CommandSourceStack createCommandSourceStack()
+        {
+            return new CommandSourceStack(this, MinecartCommandBlock.this.position(), MinecartCommandBlock.this.getRotationVector(), this.getLevel(), 2, this.getName().getString(), MinecartCommandBlock.this.getDisplayName(), this.getLevel().getServer(), MinecartCommandBlock.this);
+        }
+    }
 }

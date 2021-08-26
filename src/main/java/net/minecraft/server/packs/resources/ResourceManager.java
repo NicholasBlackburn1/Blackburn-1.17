@@ -12,42 +12,49 @@ import java.util.stream.Stream;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 
-public interface ResourceManager extends ResourceProvider {
-   Set<String> getNamespaces();
+public interface ResourceManager extends ResourceProvider
+{
+    Set<String> getNamespaces();
 
-   boolean hasResource(ResourceLocation p_10729_);
+    boolean hasResource(ResourceLocation pPath);
 
-   List<Resource> getResources(ResourceLocation p_10730_) throws IOException;
+    List<Resource> getResources(ResourceLocation pResourceLocation) throws IOException;
 
-   Collection<ResourceLocation> listResources(String p_10726_, Predicate<String> p_10727_);
+    Collection<ResourceLocation> listResources(String pPath, Predicate<String> pFilter);
 
-   Stream<PackResources> listPacks();
+    Stream<PackResources> listPacks();
 
-   public static enum Empty implements ResourceManager {
-      INSTANCE;
+    public static enum Empty implements ResourceManager
+    {
+        INSTANCE;
 
-      public Set<String> getNamespaces() {
-         return ImmutableSet.of();
-      }
+        public Set<String> getNamespaces()
+        {
+            return ImmutableSet.of();
+        }
 
-      public Resource getResource(ResourceLocation p_10742_) throws IOException {
-         throw new FileNotFoundException(p_10742_.toString());
-      }
+        public Resource getResource(ResourceLocation p_10742_) throws IOException {
+            throw new FileNotFoundException(p_10742_.toString());
+        }
 
-      public boolean hasResource(ResourceLocation p_10745_) {
-         return false;
-      }
+        public boolean hasResource(ResourceLocation pPath)
+        {
+            return false;
+        }
 
-      public List<Resource> getResources(ResourceLocation p_10747_) {
-         return ImmutableList.of();
-      }
+        public List<Resource> getResources(ResourceLocation pResourceLocation)
+        {
+            return ImmutableList.of();
+        }
 
-      public Collection<ResourceLocation> listResources(String p_10739_, Predicate<String> p_10740_) {
-         return ImmutableSet.of();
-      }
+        public Collection<ResourceLocation> listResources(String pPath, Predicate<String> pFilter)
+        {
+            return ImmutableSet.of();
+        }
 
-      public Stream<PackResources> listPacks() {
-         return Stream.of();
-      }
-   }
+        public Stream<PackResources> listPacks()
+        {
+            return Stream.of();
+        }
+    }
 }

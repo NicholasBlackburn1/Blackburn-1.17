@@ -8,29 +8,34 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
 
-public abstract class AbstractProjectileDispenseBehavior extends DefaultDispenseItemBehavior {
-   public ItemStack execute(BlockSource p_123366_, ItemStack p_123367_) {
-      Level level = p_123366_.getLevel();
-      Position position = DispenserBlock.getDispensePosition(p_123366_);
-      Direction direction = p_123366_.getBlockState().getValue(DispenserBlock.FACING);
-      Projectile projectile = this.getProjectile(level, position, p_123367_);
-      projectile.shoot((double)direction.getStepX(), (double)((float)direction.getStepY() + 0.1F), (double)direction.getStepZ(), this.getPower(), this.getUncertainty());
-      level.addFreshEntity(projectile);
-      p_123367_.shrink(1);
-      return p_123367_;
-   }
+public abstract class AbstractProjectileDispenseBehavior extends DefaultDispenseItemBehavior
+{
+    public ItemStack execute(BlockSource pSource, ItemStack pStack)
+    {
+        Level level = pSource.getLevel();
+        Position position = DispenserBlock.getDispensePosition(pSource);
+        Direction direction = pSource.getBlockState().getValue(DispenserBlock.FACING);
+        Projectile projectile = this.getProjectile(level, position, pStack);
+        projectile.shoot((double)direction.getStepX(), (double)((float)direction.getStepY() + 0.1F), (double)direction.getStepZ(), this.getPower(), this.getUncertainty());
+        level.addFreshEntity(projectile);
+        pStack.shrink(1);
+        return pStack;
+    }
 
-   protected void playSound(BlockSource p_123364_) {
-      p_123364_.getLevel().levelEvent(1002, p_123364_.getPos(), 0);
-   }
+    protected void playSound(BlockSource pSource)
+    {
+        pSource.getLevel().levelEvent(1002, pSource.getPos(), 0);
+    }
 
-   protected abstract Projectile getProjectile(Level p_123360_, Position p_123361_, ItemStack p_123362_);
+    protected abstract Projectile getProjectile(Level pLevel, Position pPosition, ItemStack pStack);
 
-   protected float getUncertainty() {
-      return 6.0F;
-   }
+    protected float getUncertainty()
+    {
+        return 6.0F;
+    }
 
-   protected float getPower() {
-      return 1.1F;
-   }
+    protected float getPower()
+    {
+        return 1.1F;
+    }
 }

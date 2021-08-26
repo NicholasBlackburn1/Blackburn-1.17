@@ -18,210 +18,267 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
-public abstract class AbstractWidget extends GuiComponent implements Widget, GuiEventListener, NarratableEntry {
-   public static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation("textures/gui/widgets.png");
-   protected int width;
-   protected int height;
-   public int x;
-   public int y;
-   private Component message;
-   protected boolean isHovered;
-   public boolean active = true;
-   public boolean visible = true;
-   protected float alpha = 1.0F;
-   private boolean focused;
+public abstract class AbstractWidget extends GuiComponent implements Widget, GuiEventListener, NarratableEntry
+{
+    public static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation("textures/gui/widgets.png");
+    protected int width;
+    protected int height;
+    public int x;
+    public int y;
+    private Component message;
+    protected boolean isHovered;
+    public boolean active = true;
+    public boolean visible = true;
+    protected float alpha = 1.0F;
+    private boolean focused;
 
-   public AbstractWidget(int p_93629_, int p_93630_, int p_93631_, int p_93632_, Component p_93633_) {
-      this.x = p_93629_;
-      this.y = p_93630_;
-      this.width = p_93631_;
-      this.height = p_93632_;
-      this.message = p_93633_;
-   }
+    public AbstractWidget(int p_93629_, int p_93630_, int p_93631_, int p_93632_, Component p_93633_)
+    {
+        this.x = p_93629_;
+        this.y = p_93630_;
+        this.width = p_93631_;
+        this.height = p_93632_;
+        this.message = p_93633_;
+    }
 
-   public int getHeight() {
-      return this.height;
-   }
+    public int getHeight()
+    {
+        return this.height;
+    }
 
-   protected int getYImage(boolean p_93668_) {
-      int i = 1;
-      if (!this.active) {
-         i = 0;
-      } else if (p_93668_) {
-         i = 2;
-      }
+    protected int getYImage(boolean pIsHovered)
+    {
+        int i = 1;
 
-      return i;
-   }
+        if (!this.active)
+        {
+            i = 0;
+        }
+        else if (pIsHovered)
+        {
+            i = 2;
+        }
 
-   public void render(PoseStack p_93657_, int p_93658_, int p_93659_, float p_93660_) {
-      if (this.visible) {
-         this.isHovered = p_93658_ >= this.x && p_93659_ >= this.y && p_93658_ < this.x + this.width && p_93659_ < this.y + this.height;
-         this.renderButton(p_93657_, p_93658_, p_93659_, p_93660_);
-      }
-   }
+        return i;
+    }
 
-   protected MutableComponent createNarrationMessage() {
-      return wrapDefaultNarrationMessage(this.getMessage());
-   }
+    public void render(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks)
+    {
+        if (this.visible)
+        {
+            this.isHovered = pMouseX >= this.x && pMouseY >= this.y && pMouseX < this.x + this.width && pMouseY < this.y + this.height;
+            this.renderButton(pMatrixStack, pMouseX, pMouseY, pPartialTicks);
+        }
+    }
 
-   public static MutableComponent wrapDefaultNarrationMessage(Component p_168800_) {
-      return new TranslatableComponent("gui.narrate.button", p_168800_);
-   }
+    protected MutableComponent createNarrationMessage()
+    {
+        return wrapDefaultNarrationMessage(this.getMessage());
+    }
 
-   public void renderButton(PoseStack p_93676_, int p_93677_, int p_93678_, float p_93679_) {
-      Minecraft minecraft = Minecraft.getInstance();
-      Font font = minecraft.font;
-      RenderSystem.setShader(GameRenderer::getPositionTexShader);
-      RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
-      RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
-      int i = this.getYImage(this.isHovered());
-      RenderSystem.enableBlend();
-      RenderSystem.defaultBlendFunc();
-      RenderSystem.enableDepthTest();
-      this.blit(p_93676_, this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height);
-      this.blit(p_93676_, this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
-      this.renderBg(p_93676_, minecraft, p_93677_, p_93678_);
-      int j = this.active ? 16777215 : 10526880;
-      drawCenteredString(p_93676_, font, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, j | Mth.ceil(this.alpha * 255.0F) << 24);
-   }
+    public static MutableComponent wrapDefaultNarrationMessage(Component p_168800_)
+    {
+        return new TranslatableComponent("gui.narrate.button", p_168800_);
+    }
 
-   protected void renderBg(PoseStack p_93661_, Minecraft p_93662_, int p_93663_, int p_93664_) {
-   }
+    public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks)
+    {
+        Minecraft minecraft = Minecraft.getInstance();
+        Font font = minecraft.font;
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
+        int i = this.getYImage(this.isHovered());
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.enableDepthTest();
+        this.blit(pMatrixStack, this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height);
+        this.blit(pMatrixStack, this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
+        this.renderBg(pMatrixStack, minecraft, pMouseX, pMouseY);
+        int j = this.active ? 16777215 : 10526880;
+        drawCenteredString(pMatrixStack, font, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, j | Mth.ceil(this.alpha * 255.0F) << 24);
+    }
 
-   public void onClick(double p_93634_, double p_93635_) {
-   }
+    protected void renderBg(PoseStack pMatrixStack, Minecraft pMinecraft, int pMouseX, int pMouseY)
+    {
+    }
 
-   public void onRelease(double p_93669_, double p_93670_) {
-   }
+    public void onClick(double pMouseX, double p_93635_)
+    {
+    }
 
-   protected void onDrag(double p_93636_, double p_93637_, double p_93638_, double p_93639_) {
-   }
+    public void onRelease(double pMouseX, double p_93670_)
+    {
+    }
 
-   public boolean mouseClicked(double p_93641_, double p_93642_, int p_93643_) {
-      if (this.active && this.visible) {
-         if (this.isValidClickButton(p_93643_)) {
-            boolean flag = this.clicked(p_93641_, p_93642_);
-            if (flag) {
-               this.playDownSound(Minecraft.getInstance().getSoundManager());
-               this.onClick(p_93641_, p_93642_);
-               return true;
+    protected void onDrag(double pMouseX, double p_93637_, double pMouseY, double p_93639_)
+    {
+    }
+
+    public boolean mouseClicked(double pMouseX, double p_93642_, int pMouseY)
+    {
+        if (this.active && this.visible)
+        {
+            if (this.isValidClickButton(pMouseY))
+            {
+                boolean flag = this.clicked(pMouseX, p_93642_);
+
+                if (flag)
+                {
+                    this.playDownSound(Minecraft.getInstance().getSoundManager());
+                    this.onClick(pMouseX, p_93642_);
+                    return true;
+                }
             }
-         }
 
-         return false;
-      } else {
-         return false;
-      }
-   }
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
-   public boolean mouseReleased(double p_93684_, double p_93685_, int p_93686_) {
-      if (this.isValidClickButton(p_93686_)) {
-         this.onRelease(p_93684_, p_93685_);
-         return true;
-      } else {
-         return false;
-      }
-   }
+    public boolean mouseReleased(double pMouseX, double p_93685_, int pMouseY)
+    {
+        if (this.isValidClickButton(pMouseY))
+        {
+            this.onRelease(pMouseX, p_93685_);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
-   protected boolean isValidClickButton(int p_93652_) {
-      return p_93652_ == 0;
-   }
+    protected boolean isValidClickButton(int pButton)
+    {
+        return pButton == 0;
+    }
 
-   public boolean mouseDragged(double p_93645_, double p_93646_, int p_93647_, double p_93648_, double p_93649_) {
-      if (this.isValidClickButton(p_93647_)) {
-         this.onDrag(p_93645_, p_93646_, p_93648_, p_93649_);
-         return true;
-      } else {
-         return false;
-      }
-   }
+    public boolean mouseDragged(double pMouseX, double p_93646_, int pMouseY, double p_93648_, double pButton)
+    {
+        if (this.isValidClickButton(pMouseY))
+        {
+            this.onDrag(pMouseX, p_93646_, p_93648_, pButton);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
-   protected boolean clicked(double p_93681_, double p_93682_) {
-      return this.active && this.visible && p_93681_ >= (double)this.x && p_93682_ >= (double)this.y && p_93681_ < (double)(this.x + this.width) && p_93682_ < (double)(this.y + this.height);
-   }
+    protected boolean clicked(double pMouseX, double p_93682_)
+    {
+        return this.active && this.visible && pMouseX >= (double)this.x && p_93682_ >= (double)this.y && pMouseX < (double)(this.x + this.width) && p_93682_ < (double)(this.y + this.height);
+    }
 
-   public boolean isHovered() {
-      return this.isHovered || this.focused;
-   }
+    public boolean isHovered()
+    {
+        return this.isHovered || this.focused;
+    }
 
-   public boolean changeFocus(boolean p_93691_) {
-      if (this.active && this.visible) {
-         this.focused = !this.focused;
-         this.onFocusedChanged(this.focused);
-         return this.focused;
-      } else {
-         return false;
-      }
-   }
+    public boolean changeFocus(boolean pFocus)
+    {
+        if (this.active && this.visible)
+        {
+            this.focused = !this.focused;
+            this.onFocusedChanged(this.focused);
+            return this.focused;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
-   protected void onFocusedChanged(boolean p_93689_) {
-   }
+    protected void onFocusedChanged(boolean pFocused)
+    {
+    }
 
-   public boolean isMouseOver(double p_93672_, double p_93673_) {
-      return this.active && this.visible && p_93672_ >= (double)this.x && p_93673_ >= (double)this.y && p_93672_ < (double)(this.x + this.width) && p_93673_ < (double)(this.y + this.height);
-   }
+    public boolean isMouseOver(double pMouseX, double p_93673_)
+    {
+        return this.active && this.visible && pMouseX >= (double)this.x && p_93673_ >= (double)this.y && pMouseX < (double)(this.x + this.width) && p_93673_ < (double)(this.y + this.height);
+    }
 
-   public void renderToolTip(PoseStack p_93653_, int p_93654_, int p_93655_) {
-   }
+    public void renderToolTip(PoseStack pMatrixStack, int pMouseX, int pMouseY)
+    {
+    }
 
-   public void playDownSound(SoundManager p_93665_) {
-      p_93665_.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-   }
+    public void playDownSound(SoundManager pHandler)
+    {
+        pHandler.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+    }
 
-   public int getWidth() {
-      return this.width;
-   }
+    public int getWidth()
+    {
+        return this.width;
+    }
 
-   public void setWidth(int p_93675_) {
-      this.width = p_93675_;
-   }
+    public void setWidth(int pWidth)
+    {
+        this.width = pWidth;
+    }
 
-   public void setAlpha(float p_93651_) {
-      this.alpha = p_93651_;
-   }
+    public void setAlpha(float pAlpha)
+    {
+        this.alpha = pAlpha;
+    }
 
-   public void setMessage(Component p_93667_) {
-      this.message = p_93667_;
-   }
+    public void setMessage(Component pMessage)
+    {
+        this.message = pMessage;
+    }
 
-   public Component getMessage() {
-      return this.message;
-   }
+    public Component getMessage()
+    {
+        return this.message;
+    }
 
-   public boolean isFocused() {
-      return this.focused;
-   }
+    public boolean isFocused()
+    {
+        return this.focused;
+    }
 
-   public boolean isActive() {
-      return this.visible && this.active;
-   }
+    public boolean isActive()
+    {
+        return this.visible && this.active;
+    }
 
-   protected void setFocused(boolean p_93693_) {
-      this.focused = p_93693_;
-   }
+    protected void setFocused(boolean pFocused)
+    {
+        this.focused = pFocused;
+    }
 
-   public NarratableEntry.NarrationPriority narrationPriority() {
-      if (this.focused) {
-         return NarratableEntry.NarrationPriority.FOCUSED;
-      } else {
-         return this.isHovered ? NarratableEntry.NarrationPriority.HOVERED : NarratableEntry.NarrationPriority.NONE;
-      }
-   }
+    public NarratableEntry.NarrationPriority narrationPriority()
+    {
+        if (this.focused)
+        {
+            return NarratableEntry.NarrationPriority.FOCUSED;
+        }
+        else
+        {
+            return this.isHovered ? NarratableEntry.NarrationPriority.HOVERED : NarratableEntry.NarrationPriority.NONE;
+        }
+    }
 
-   protected void defaultButtonNarrationText(NarrationElementOutput p_168803_) {
-      p_168803_.add(NarratedElementType.TITLE, this.createNarrationMessage());
-      if (this.active) {
-         if (this.isFocused()) {
-            p_168803_.add(NarratedElementType.USAGE, new TranslatableComponent("narration.button.usage.focused"));
-         } else {
-            p_168803_.add(NarratedElementType.USAGE, new TranslatableComponent("narration.button.usage.hovered"));
-         }
-      }
+    protected void defaultButtonNarrationText(NarrationElementOutput p_168803_)
+    {
+        p_168803_.add(NarratedElementType.TITLE, this.createNarrationMessage());
 
-   }
+        if (this.active)
+        {
+            if (this.isFocused())
+            {
+                p_168803_.add(NarratedElementType.USAGE, new TranslatableComponent("narration.button.usage.focused"));
+            }
+            else
+            {
+                p_168803_.add(NarratedElementType.USAGE, new TranslatableComponent("narration.button.usage.hovered"));
+            }
+        }
+    }
 }

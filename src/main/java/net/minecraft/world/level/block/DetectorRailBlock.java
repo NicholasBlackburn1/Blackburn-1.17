@@ -24,252 +24,339 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.RailShape;
 import net.minecraft.world.phys.AABB;
 
-public class DetectorRailBlock extends BaseRailBlock {
-   public static final EnumProperty<RailShape> SHAPE = BlockStateProperties.RAIL_SHAPE_STRAIGHT;
-   public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
-   private static final int PRESSED_CHECK_PERIOD = 20;
+public class DetectorRailBlock extends BaseRailBlock
+{
+    public static final EnumProperty<RailShape> SHAPE = BlockStateProperties.RAIL_SHAPE_STRAIGHT;
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+    private static final int PRESSED_CHECK_PERIOD = 20;
 
-   public DetectorRailBlock(BlockBehaviour.Properties p_52431_) {
-      super(true, p_52431_);
-      this.registerDefaultState(this.stateDefinition.any().setValue(POWERED, Boolean.valueOf(false)).setValue(SHAPE, RailShape.NORTH_SOUTH).setValue(WATERLOGGED, Boolean.valueOf(false)));
-   }
+    public DetectorRailBlock(BlockBehaviour.Properties p_52431_)
+    {
+        super(true, p_52431_);
+        this.registerDefaultState(this.stateDefinition.any().setValue(POWERED, Boolean.valueOf(false)).setValue(SHAPE, RailShape.NORTH_SOUTH).setValue(WATERLOGGED, Boolean.valueOf(false)));
+    }
 
-   public boolean isSignalSource(BlockState p_52489_) {
-      return true;
-   }
+    public boolean isSignalSource(BlockState pState)
+    {
+        return true;
+    }
 
-   public void entityInside(BlockState p_52458_, Level p_52459_, BlockPos p_52460_, Entity p_52461_) {
-      if (!p_52459_.isClientSide) {
-         if (!p_52458_.getValue(POWERED)) {
-            this.checkPressed(p_52459_, p_52460_, p_52458_);
-         }
-      }
-   }
+    public void entityInside(BlockState pState, Level pLevel, BlockPos pPos, Entity pEntity)
+    {
+        if (!pLevel.isClientSide)
+        {
+            if (!pState.getValue(POWERED))
+            {
+                this.checkPressed(pLevel, pPos, pState);
+            }
+        }
+    }
 
-   public void tick(BlockState p_52444_, ServerLevel p_52445_, BlockPos p_52446_, Random p_52447_) {
-      if (p_52444_.getValue(POWERED)) {
-         this.checkPressed(p_52445_, p_52446_, p_52444_);
-      }
-   }
+    public void tick(BlockState pState, ServerLevel pLevel, BlockPos pPos, Random pRand)
+    {
+        if (pState.getValue(POWERED))
+        {
+            this.checkPressed(pLevel, pPos, pState);
+        }
+    }
 
-   public int getSignal(BlockState p_52449_, BlockGetter p_52450_, BlockPos p_52451_, Direction p_52452_) {
-      return p_52449_.getValue(POWERED) ? 15 : 0;
-   }
+    public int getSignal(BlockState pBlockState, BlockGetter pBlockAccess, BlockPos pPos, Direction pSide)
+    {
+        return pBlockState.getValue(POWERED) ? 15 : 0;
+    }
 
-   public int getDirectSignal(BlockState p_52478_, BlockGetter p_52479_, BlockPos p_52480_, Direction p_52481_) {
-      if (!p_52478_.getValue(POWERED)) {
-         return 0;
-      } else {
-         return p_52481_ == Direction.UP ? 15 : 0;
-      }
-   }
+    public int getDirectSignal(BlockState pBlockState, BlockGetter pBlockAccess, BlockPos pPos, Direction pSide)
+    {
+        if (!pBlockState.getValue(POWERED))
+        {
+            return 0;
+        }
+        else
+        {
+            return pSide == Direction.UP ? 15 : 0;
+        }
+    }
 
-   private void checkPressed(Level p_52433_, BlockPos p_52434_, BlockState p_52435_) {
-      if (this.canSurvive(p_52435_, p_52433_, p_52434_)) {
-         boolean flag = p_52435_.getValue(POWERED);
-         boolean flag1 = false;
-         List<AbstractMinecart> list = this.getInteractingMinecartOfType(p_52433_, p_52434_, AbstractMinecart.class, (p_153125_) -> {
-            return true;
-         });
-         if (!list.isEmpty()) {
-            flag1 = true;
-         }
+    private void checkPressed(Level pLevel, BlockPos pPos, BlockState pState)
+    {
+        if (this.canSurvive(pState, pLevel, pPos))
+        {
+            boolean flag = pState.getValue(POWERED);
+            boolean flag1 = false;
+            List<AbstractMinecart> list = this.getInteractingMinecartOfType(pLevel, pPos, AbstractMinecart.class, (p_153125_) ->
+            {
+                return true;
+            });
 
-         if (flag1 && !flag) {
-            BlockState blockstate = p_52435_.setValue(POWERED, Boolean.valueOf(true));
-            p_52433_.setBlock(p_52434_, blockstate, 3);
-            this.updatePowerToConnected(p_52433_, p_52434_, blockstate, true);
-            p_52433_.updateNeighborsAt(p_52434_, this);
-            p_52433_.updateNeighborsAt(p_52434_.below(), this);
-            p_52433_.setBlocksDirty(p_52434_, p_52435_, blockstate);
-         }
+            if (!list.isEmpty())
+            {
+                flag1 = true;
+            }
 
-         if (!flag1 && flag) {
-            BlockState blockstate1 = p_52435_.setValue(POWERED, Boolean.valueOf(false));
-            p_52433_.setBlock(p_52434_, blockstate1, 3);
-            this.updatePowerToConnected(p_52433_, p_52434_, blockstate1, false);
-            p_52433_.updateNeighborsAt(p_52434_, this);
-            p_52433_.updateNeighborsAt(p_52434_.below(), this);
-            p_52433_.setBlocksDirty(p_52434_, p_52435_, blockstate1);
-         }
+            if (flag1 && !flag)
+            {
+                BlockState blockstate = pState.setValue(POWERED, Boolean.valueOf(true));
+                pLevel.setBlock(pPos, blockstate, 3);
+                this.updatePowerToConnected(pLevel, pPos, blockstate, true);
+                pLevel.updateNeighborsAt(pPos, this);
+                pLevel.updateNeighborsAt(pPos.below(), this);
+                pLevel.setBlocksDirty(pPos, pState, blockstate);
+            }
 
-         if (flag1) {
-            p_52433_.getBlockTicks().scheduleTick(p_52434_, this, 20);
-         }
+            if (!flag1 && flag)
+            {
+                BlockState blockstate1 = pState.setValue(POWERED, Boolean.valueOf(false));
+                pLevel.setBlock(pPos, blockstate1, 3);
+                this.updatePowerToConnected(pLevel, pPos, blockstate1, false);
+                pLevel.updateNeighborsAt(pPos, this);
+                pLevel.updateNeighborsAt(pPos.below(), this);
+                pLevel.setBlocksDirty(pPos, pState, blockstate1);
+            }
 
-         p_52433_.updateNeighbourForOutputSignal(p_52434_, this);
-      }
-   }
+            if (flag1)
+            {
+                pLevel.getBlockTicks().scheduleTick(pPos, this, 20);
+            }
 
-   protected void updatePowerToConnected(Level p_52473_, BlockPos p_52474_, BlockState p_52475_, boolean p_52476_) {
-      RailState railstate = new RailState(p_52473_, p_52474_, p_52475_);
+            pLevel.updateNeighbourForOutputSignal(pPos, this);
+        }
+    }
 
-      for(BlockPos blockpos : railstate.getConnections()) {
-         BlockState blockstate = p_52473_.getBlockState(blockpos);
-         blockstate.neighborChanged(p_52473_, blockpos, blockstate.getBlock(), p_52474_, false);
-      }
+    protected void updatePowerToConnected(Level pLevel, BlockPos pPos, BlockState pState, boolean pPowered)
+    {
+        RailState railstate = new RailState(pLevel, pPos, pState);
 
-   }
+        for (BlockPos blockpos : railstate.getConnections())
+        {
+            BlockState blockstate = pLevel.getBlockState(blockpos);
+            blockstate.neighborChanged(pLevel, blockpos, blockstate.getBlock(), pPos, false);
+        }
+    }
 
-   public void onPlace(BlockState p_52483_, Level p_52484_, BlockPos p_52485_, BlockState p_52486_, boolean p_52487_) {
-      if (!p_52486_.is(p_52483_.getBlock())) {
-         BlockState blockstate = this.updateState(p_52483_, p_52484_, p_52485_, p_52487_);
-         this.checkPressed(p_52484_, p_52485_, blockstate);
-      }
-   }
+    public void onPlace(BlockState pState, Level pLevel, BlockPos pPos, BlockState pOldState, boolean pIsMoving)
+    {
+        if (!pOldState.is(pState.getBlock()))
+        {
+            BlockState blockstate = this.updateState(pState, pLevel, pPos, pIsMoving);
+            this.checkPressed(pLevel, pPos, blockstate);
+        }
+    }
 
-   public Property<RailShape> getShapeProperty() {
-      return SHAPE;
-   }
+    public Property<RailShape> getShapeProperty()
+    {
+        return SHAPE;
+    }
 
-   public boolean hasAnalogOutputSignal(BlockState p_52442_) {
-      return true;
-   }
+    public boolean hasAnalogOutputSignal(BlockState pState)
+    {
+        return true;
+    }
 
-   public int getAnalogOutputSignal(BlockState p_52454_, Level p_52455_, BlockPos p_52456_) {
-      if (p_52454_.getValue(POWERED)) {
-         List<MinecartCommandBlock> list = this.getInteractingMinecartOfType(p_52455_, p_52456_, MinecartCommandBlock.class, (p_153123_) -> {
-            return true;
-         });
-         if (!list.isEmpty()) {
-            return list.get(0).getCommandBlock().getSuccessCount();
-         }
+    public int getAnalogOutputSignal(BlockState pBlockState, Level pLevel, BlockPos pPos)
+    {
+        if (pBlockState.getValue(POWERED))
+        {
+            List<MinecartCommandBlock> list = this.getInteractingMinecartOfType(pLevel, pPos, MinecartCommandBlock.class, (p_153123_) ->
+            {
+                return true;
+            });
 
-         List<AbstractMinecart> list1 = this.getInteractingMinecartOfType(p_52455_, p_52456_, AbstractMinecart.class, EntitySelector.CONTAINER_ENTITY_SELECTOR);
-         if (!list1.isEmpty()) {
-            return AbstractContainerMenu.getRedstoneSignalFromContainer((Container)list1.get(0));
-         }
-      }
+            if (!list.isEmpty())
+            {
+                return list.get(0).getCommandBlock().getSuccessCount();
+            }
 
-      return 0;
-   }
+            List<AbstractMinecart> list1 = this.getInteractingMinecartOfType(pLevel, pPos, AbstractMinecart.class, EntitySelector.CONTAINER_ENTITY_SELECTOR);
 
-   private <T extends AbstractMinecart> List<T> getInteractingMinecartOfType(Level p_52437_, BlockPos p_52438_, Class<T> p_52439_, Predicate<Entity> p_52440_) {
-      return p_52437_.getEntitiesOfClass(p_52439_, this.getSearchBB(p_52438_), p_52440_);
-   }
+            if (!list1.isEmpty())
+            {
+                return AbstractContainerMenu.getRedstoneSignalFromContainer((Container)list1.get(0));
+            }
+        }
 
-   private AABB getSearchBB(BlockPos p_52471_) {
-      double d0 = 0.2D;
-      return new AABB((double)p_52471_.getX() + 0.2D, (double)p_52471_.getY(), (double)p_52471_.getZ() + 0.2D, (double)(p_52471_.getX() + 1) - 0.2D, (double)(p_52471_.getY() + 1) - 0.2D, (double)(p_52471_.getZ() + 1) - 0.2D);
-   }
+        return 0;
+    }
 
-   public BlockState rotate(BlockState p_52466_, Rotation p_52467_) {
-      switch(p_52467_) {
-      case CLOCKWISE_180:
-         switch((RailShape)p_52466_.getValue(SHAPE)) {
-         case ASCENDING_EAST:
-            return p_52466_.setValue(SHAPE, RailShape.ASCENDING_WEST);
-         case ASCENDING_WEST:
-            return p_52466_.setValue(SHAPE, RailShape.ASCENDING_EAST);
-         case ASCENDING_NORTH:
-            return p_52466_.setValue(SHAPE, RailShape.ASCENDING_SOUTH);
-         case ASCENDING_SOUTH:
-            return p_52466_.setValue(SHAPE, RailShape.ASCENDING_NORTH);
-         case SOUTH_EAST:
-            return p_52466_.setValue(SHAPE, RailShape.NORTH_WEST);
-         case SOUTH_WEST:
-            return p_52466_.setValue(SHAPE, RailShape.NORTH_EAST);
-         case NORTH_WEST:
-            return p_52466_.setValue(SHAPE, RailShape.SOUTH_EAST);
-         case NORTH_EAST:
-            return p_52466_.setValue(SHAPE, RailShape.SOUTH_WEST);
-         }
-      case COUNTERCLOCKWISE_90:
-         switch((RailShape)p_52466_.getValue(SHAPE)) {
-         case ASCENDING_EAST:
-            return p_52466_.setValue(SHAPE, RailShape.ASCENDING_NORTH);
-         case ASCENDING_WEST:
-            return p_52466_.setValue(SHAPE, RailShape.ASCENDING_SOUTH);
-         case ASCENDING_NORTH:
-            return p_52466_.setValue(SHAPE, RailShape.ASCENDING_WEST);
-         case ASCENDING_SOUTH:
-            return p_52466_.setValue(SHAPE, RailShape.ASCENDING_EAST);
-         case SOUTH_EAST:
-            return p_52466_.setValue(SHAPE, RailShape.NORTH_EAST);
-         case SOUTH_WEST:
-            return p_52466_.setValue(SHAPE, RailShape.SOUTH_EAST);
-         case NORTH_WEST:
-            return p_52466_.setValue(SHAPE, RailShape.SOUTH_WEST);
-         case NORTH_EAST:
-            return p_52466_.setValue(SHAPE, RailShape.NORTH_WEST);
-         case NORTH_SOUTH:
-            return p_52466_.setValue(SHAPE, RailShape.EAST_WEST);
-         case EAST_WEST:
-            return p_52466_.setValue(SHAPE, RailShape.NORTH_SOUTH);
-         }
-      case CLOCKWISE_90:
-         switch((RailShape)p_52466_.getValue(SHAPE)) {
-         case ASCENDING_EAST:
-            return p_52466_.setValue(SHAPE, RailShape.ASCENDING_SOUTH);
-         case ASCENDING_WEST:
-            return p_52466_.setValue(SHAPE, RailShape.ASCENDING_NORTH);
-         case ASCENDING_NORTH:
-            return p_52466_.setValue(SHAPE, RailShape.ASCENDING_EAST);
-         case ASCENDING_SOUTH:
-            return p_52466_.setValue(SHAPE, RailShape.ASCENDING_WEST);
-         case SOUTH_EAST:
-            return p_52466_.setValue(SHAPE, RailShape.SOUTH_WEST);
-         case SOUTH_WEST:
-            return p_52466_.setValue(SHAPE, RailShape.NORTH_WEST);
-         case NORTH_WEST:
-            return p_52466_.setValue(SHAPE, RailShape.NORTH_EAST);
-         case NORTH_EAST:
-            return p_52466_.setValue(SHAPE, RailShape.SOUTH_EAST);
-         case NORTH_SOUTH:
-            return p_52466_.setValue(SHAPE, RailShape.EAST_WEST);
-         case EAST_WEST:
-            return p_52466_.setValue(SHAPE, RailShape.NORTH_SOUTH);
-         }
-      default:
-         return p_52466_;
-      }
-   }
+    private <T extends AbstractMinecart> List<T> getInteractingMinecartOfType(Level pLevel, BlockPos pPos, Class<T> pCartType, Predicate<Entity> pFilter)
+    {
+        return pLevel.getEntitiesOfClass(pCartType, this.getSearchBB(pPos), pFilter);
+    }
 
-   public BlockState mirror(BlockState p_52463_, Mirror p_52464_) {
-      RailShape railshape = p_52463_.getValue(SHAPE);
-      switch(p_52464_) {
-      case LEFT_RIGHT:
-         switch(railshape) {
-         case ASCENDING_NORTH:
-            return p_52463_.setValue(SHAPE, RailShape.ASCENDING_SOUTH);
-         case ASCENDING_SOUTH:
-            return p_52463_.setValue(SHAPE, RailShape.ASCENDING_NORTH);
-         case SOUTH_EAST:
-            return p_52463_.setValue(SHAPE, RailShape.NORTH_EAST);
-         case SOUTH_WEST:
-            return p_52463_.setValue(SHAPE, RailShape.NORTH_WEST);
-         case NORTH_WEST:
-            return p_52463_.setValue(SHAPE, RailShape.SOUTH_WEST);
-         case NORTH_EAST:
-            return p_52463_.setValue(SHAPE, RailShape.SOUTH_EAST);
-         default:
-            return super.mirror(p_52463_, p_52464_);
-         }
-      case FRONT_BACK:
-         switch(railshape) {
-         case ASCENDING_EAST:
-            return p_52463_.setValue(SHAPE, RailShape.ASCENDING_WEST);
-         case ASCENDING_WEST:
-            return p_52463_.setValue(SHAPE, RailShape.ASCENDING_EAST);
-         case ASCENDING_NORTH:
-         case ASCENDING_SOUTH:
-         default:
-            break;
-         case SOUTH_EAST:
-            return p_52463_.setValue(SHAPE, RailShape.SOUTH_WEST);
-         case SOUTH_WEST:
-            return p_52463_.setValue(SHAPE, RailShape.SOUTH_EAST);
-         case NORTH_WEST:
-            return p_52463_.setValue(SHAPE, RailShape.NORTH_EAST);
-         case NORTH_EAST:
-            return p_52463_.setValue(SHAPE, RailShape.NORTH_WEST);
-         }
-      }
+    private AABB getSearchBB(BlockPos pPos)
+    {
+        double d0 = 0.2D;
+        return new AABB((double)pPos.getX() + 0.2D, (double)pPos.getY(), (double)pPos.getZ() + 0.2D, (double)(pPos.getX() + 1) - 0.2D, (double)(pPos.getY() + 1) - 0.2D, (double)(pPos.getZ() + 1) - 0.2D);
+    }
 
-      return super.mirror(p_52463_, p_52464_);
-   }
+    public BlockState rotate(BlockState pState, Rotation pRot)
+    {
+        switch (pRot)
+        {
+            case CLOCKWISE_180:
+                switch ((RailShape)pState.getValue(SHAPE))
+                {
+                    case ASCENDING_EAST:
+                        return pState.setValue(SHAPE, RailShape.ASCENDING_WEST);
 
-   protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> p_52469_) {
-      p_52469_.add(SHAPE, POWERED, WATERLOGGED);
-   }
+                    case ASCENDING_WEST:
+                        return pState.setValue(SHAPE, RailShape.ASCENDING_EAST);
+
+                    case ASCENDING_NORTH:
+                        return pState.setValue(SHAPE, RailShape.ASCENDING_SOUTH);
+
+                    case ASCENDING_SOUTH:
+                        return pState.setValue(SHAPE, RailShape.ASCENDING_NORTH);
+
+                    case SOUTH_EAST:
+                        return pState.setValue(SHAPE, RailShape.NORTH_WEST);
+
+                    case SOUTH_WEST:
+                        return pState.setValue(SHAPE, RailShape.NORTH_EAST);
+
+                    case NORTH_WEST:
+                        return pState.setValue(SHAPE, RailShape.SOUTH_EAST);
+
+                    case NORTH_EAST:
+                        return pState.setValue(SHAPE, RailShape.SOUTH_WEST);
+                }
+
+            case COUNTERCLOCKWISE_90:
+                switch ((RailShape)pState.getValue(SHAPE))
+                {
+                    case ASCENDING_EAST:
+                        return pState.setValue(SHAPE, RailShape.ASCENDING_NORTH);
+
+                    case ASCENDING_WEST:
+                        return pState.setValue(SHAPE, RailShape.ASCENDING_SOUTH);
+
+                    case ASCENDING_NORTH:
+                        return pState.setValue(SHAPE, RailShape.ASCENDING_WEST);
+
+                    case ASCENDING_SOUTH:
+                        return pState.setValue(SHAPE, RailShape.ASCENDING_EAST);
+
+                    case SOUTH_EAST:
+                        return pState.setValue(SHAPE, RailShape.NORTH_EAST);
+
+                    case SOUTH_WEST:
+                        return pState.setValue(SHAPE, RailShape.SOUTH_EAST);
+
+                    case NORTH_WEST:
+                        return pState.setValue(SHAPE, RailShape.SOUTH_WEST);
+
+                    case NORTH_EAST:
+                        return pState.setValue(SHAPE, RailShape.NORTH_WEST);
+
+                    case NORTH_SOUTH:
+                        return pState.setValue(SHAPE, RailShape.EAST_WEST);
+
+                    case EAST_WEST:
+                        return pState.setValue(SHAPE, RailShape.NORTH_SOUTH);
+                }
+
+            case CLOCKWISE_90:
+                switch ((RailShape)pState.getValue(SHAPE))
+                {
+                    case ASCENDING_EAST:
+                        return pState.setValue(SHAPE, RailShape.ASCENDING_SOUTH);
+
+                    case ASCENDING_WEST:
+                        return pState.setValue(SHAPE, RailShape.ASCENDING_NORTH);
+
+                    case ASCENDING_NORTH:
+                        return pState.setValue(SHAPE, RailShape.ASCENDING_EAST);
+
+                    case ASCENDING_SOUTH:
+                        return pState.setValue(SHAPE, RailShape.ASCENDING_WEST);
+
+                    case SOUTH_EAST:
+                        return pState.setValue(SHAPE, RailShape.SOUTH_WEST);
+
+                    case SOUTH_WEST:
+                        return pState.setValue(SHAPE, RailShape.NORTH_WEST);
+
+                    case NORTH_WEST:
+                        return pState.setValue(SHAPE, RailShape.NORTH_EAST);
+
+                    case NORTH_EAST:
+                        return pState.setValue(SHAPE, RailShape.SOUTH_EAST);
+
+                    case NORTH_SOUTH:
+                        return pState.setValue(SHAPE, RailShape.EAST_WEST);
+
+                    case EAST_WEST:
+                        return pState.setValue(SHAPE, RailShape.NORTH_SOUTH);
+                }
+
+            default:
+                return pState;
+        }
+    }
+
+    public BlockState mirror(BlockState pState, Mirror pMirror)
+    {
+        RailShape railshape = pState.getValue(SHAPE);
+
+        switch (pMirror)
+        {
+            case LEFT_RIGHT:
+                switch (railshape)
+                {
+                    case ASCENDING_NORTH:
+                        return pState.setValue(SHAPE, RailShape.ASCENDING_SOUTH);
+
+                    case ASCENDING_SOUTH:
+                        return pState.setValue(SHAPE, RailShape.ASCENDING_NORTH);
+
+                    case SOUTH_EAST:
+                        return pState.setValue(SHAPE, RailShape.NORTH_EAST);
+
+                    case SOUTH_WEST:
+                        return pState.setValue(SHAPE, RailShape.NORTH_WEST);
+
+                    case NORTH_WEST:
+                        return pState.setValue(SHAPE, RailShape.SOUTH_WEST);
+
+                    case NORTH_EAST:
+                        return pState.setValue(SHAPE, RailShape.SOUTH_EAST);
+
+                    default:
+                        return super.mirror(pState, pMirror);
+                }
+
+            case FRONT_BACK:
+                switch (railshape)
+                {
+                    case ASCENDING_EAST:
+                        return pState.setValue(SHAPE, RailShape.ASCENDING_WEST);
+
+                    case ASCENDING_WEST:
+                        return pState.setValue(SHAPE, RailShape.ASCENDING_EAST);
+
+                    case ASCENDING_NORTH:
+                    case ASCENDING_SOUTH:
+                    default:
+                        break;
+
+                    case SOUTH_EAST:
+                        return pState.setValue(SHAPE, RailShape.SOUTH_WEST);
+
+                    case SOUTH_WEST:
+                        return pState.setValue(SHAPE, RailShape.SOUTH_EAST);
+
+                    case NORTH_WEST:
+                        return pState.setValue(SHAPE, RailShape.NORTH_EAST);
+
+                    case NORTH_EAST:
+                        return pState.setValue(SHAPE, RailShape.NORTH_WEST);
+                }
+        }
+
+        return super.mirror(pState, pMirror);
+    }
+
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder)
+    {
+        pBuilder.m_61104_(SHAPE, POWERED, WATERLOGGED);
+    }
 }

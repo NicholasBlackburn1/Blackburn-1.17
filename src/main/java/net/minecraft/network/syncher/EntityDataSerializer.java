@@ -2,14 +2,16 @@ package net.minecraft.network.syncher;
 
 import net.minecraft.network.FriendlyByteBuf;
 
-public interface EntityDataSerializer<T> {
-   void write(FriendlyByteBuf p_135025_, T p_135026_);
+public interface EntityDataSerializer<T>
+{
+    void write(FriendlyByteBuf pBuf, T pValue);
 
-   T read(FriendlyByteBuf p_135024_);
+    T read(FriendlyByteBuf pBuf);
 
-   default EntityDataAccessor<T> createAccessor(int p_135022_) {
-      return new EntityDataAccessor<>(p_135022_, this);
-   }
+default EntityDataAccessor<T> createAccessor(int pId)
+    {
+        return new EntityDataAccessor<>(pId, this);
+    }
 
-   T copy(T p_135023_);
+    T copy(T pValue);
 }

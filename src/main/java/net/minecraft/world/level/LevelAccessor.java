@@ -17,62 +17,72 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.LevelData;
 
-public interface LevelAccessor extends CommonLevelAccessor, LevelTimeAccess {
-   default long dayTime() {
-      return this.getLevelData().getDayTime();
-   }
+public interface LevelAccessor extends CommonLevelAccessor, LevelTimeAccess
+{
+default long dayTime()
+    {
+        return this.getLevelData().getDayTime();
+    }
 
-   TickList<Block> getBlockTicks();
+    TickList<Block> getBlockTicks();
 
-   TickList<Fluid> getLiquidTicks();
+    TickList<Fluid> getLiquidTicks();
 
-   LevelData getLevelData();
+    LevelData getLevelData();
 
-   DifficultyInstance getCurrentDifficultyAt(BlockPos p_46800_);
+    DifficultyInstance getCurrentDifficultyAt(BlockPos pPos);
 
-   @Nullable
-   MinecraftServer getServer();
+    @Nullable
+    MinecraftServer getServer();
 
-   default Difficulty getDifficulty() {
-      return this.getLevelData().getDifficulty();
-   }
+default Difficulty getDifficulty()
+    {
+        return this.getLevelData().getDifficulty();
+    }
 
-   ChunkSource getChunkSource();
+    ChunkSource getChunkSource();
 
-   default boolean hasChunk(int p_46794_, int p_46795_) {
-      return this.getChunkSource().hasChunk(p_46794_, p_46795_);
-   }
+default boolean hasChunk(int pChunkX, int pChunkZ)
+    {
+        return this.getChunkSource().hasChunk(pChunkX, pChunkZ);
+    }
 
-   Random getRandom();
+    Random getRandom();
 
-   default void blockUpdated(BlockPos p_46781_, Block p_46782_) {
-   }
+default void blockUpdated(BlockPos pPos, Block pBlock)
+    {
+    }
 
-   void playSound(@Nullable Player p_46775_, BlockPos p_46776_, SoundEvent p_46777_, SoundSource p_46778_, float p_46779_, float p_46780_);
+    void playSound(@Nullable Player pPlayer, BlockPos pPos, SoundEvent pSound, SoundSource pCategory, float pVolume, float pPitch);
 
-   void addParticle(ParticleOptions p_46783_, double p_46784_, double p_46785_, double p_46786_, double p_46787_, double p_46788_, double p_46789_);
+    void addParticle(ParticleOptions pParticleData, double pX, double p_46785_, double pY, double p_46787_, double pZ, double p_46789_);
 
-   void levelEvent(@Nullable Player p_46771_, int p_46772_, BlockPos p_46773_, int p_46774_);
+    void levelEvent(@Nullable Player pType, int pPos, BlockPos pData, int p_46774_);
 
-   default int getLogicalHeight() {
-      return this.dimensionType().logicalHeight();
-   }
+default int getLogicalHeight()
+    {
+        return this.dimensionType().logicalHeight();
+    }
 
-   default void levelEvent(int p_46797_, BlockPos p_46798_, int p_46799_) {
-      this.levelEvent((Player)null, p_46797_, p_46798_, p_46799_);
-   }
+default void levelEvent(int pType, BlockPos pPos, int pData)
+    {
+        this.levelEvent((Player)null, pType, pPos, pData);
+    }
 
-   void gameEvent(@Nullable Entity p_151549_, GameEvent p_151550_, BlockPos p_151551_);
+    void gameEvent(@Nullable Entity p_151549_, GameEvent p_151550_, BlockPos p_151551_);
 
-   default void gameEvent(GameEvent p_151556_, BlockPos p_151557_) {
-      this.gameEvent((Entity)null, p_151556_, p_151557_);
-   }
+default void gameEvent(GameEvent p_151556_, BlockPos p_151557_)
+    {
+        this.gameEvent((Entity)null, p_151556_, p_151557_);
+    }
 
-   default void gameEvent(GameEvent p_151553_, Entity p_151554_) {
-      this.gameEvent((Entity)null, p_151553_, p_151554_.blockPosition());
-   }
+default void gameEvent(GameEvent p_151553_, Entity p_151554_)
+    {
+        this.gameEvent((Entity)null, p_151553_, p_151554_.blockPosition());
+    }
 
-   default void gameEvent(@Nullable Entity p_151546_, GameEvent p_151547_, Entity p_151548_) {
-      this.gameEvent(p_151546_, p_151547_, p_151548_.blockPosition());
-   }
+default void gameEvent(@Nullable Entity p_151546_, GameEvent p_151547_, Entity p_151548_)
+    {
+        this.gameEvent(p_151546_, p_151547_, p_151548_.blockPosition());
+    }
 }

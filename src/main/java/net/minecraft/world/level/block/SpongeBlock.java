@@ -13,77 +13,100 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Material;
 
-public class SpongeBlock extends Block {
-   public static final int MAX_DEPTH = 6;
-   public static final int MAX_COUNT = 64;
+public class SpongeBlock extends Block
+{
+    public static final int MAX_DEPTH = 6;
+    public static final int MAX_COUNT = 64;
 
-   protected SpongeBlock(BlockBehaviour.Properties p_56796_) {
-      super(p_56796_);
-   }
+    protected SpongeBlock(BlockBehaviour.Properties p_56796_)
+    {
+        super(p_56796_);
+    }
 
-   public void onPlace(BlockState p_56811_, Level p_56812_, BlockPos p_56813_, BlockState p_56814_, boolean p_56815_) {
-      if (!p_56814_.is(p_56811_.getBlock())) {
-         this.tryAbsorbWater(p_56812_, p_56813_);
-      }
-   }
+    public void onPlace(BlockState pState, Level pLevel, BlockPos pPos, BlockState pOldState, boolean pIsMoving)
+    {
+        if (!pOldState.is(pState.getBlock()))
+        {
+            this.tryAbsorbWater(pLevel, pPos);
+        }
+    }
 
-   public void neighborChanged(BlockState p_56801_, Level p_56802_, BlockPos p_56803_, Block p_56804_, BlockPos p_56805_, boolean p_56806_) {
-      this.tryAbsorbWater(p_56802_, p_56803_);
-      super.neighborChanged(p_56801_, p_56802_, p_56803_, p_56804_, p_56805_, p_56806_);
-   }
+    public void neighborChanged(BlockState pState, Level pLevel, BlockPos pPos, Block pBlock, BlockPos pFromPos, boolean pIsMoving)
+    {
+        this.tryAbsorbWater(pLevel, pPos);
+        super.neighborChanged(pState, pLevel, pPos, pBlock, pFromPos, pIsMoving);
+    }
 
-   protected void tryAbsorbWater(Level p_56798_, BlockPos p_56799_) {
-      if (this.removeWaterBreadthFirstSearch(p_56798_, p_56799_)) {
-         p_56798_.setBlock(p_56799_, Blocks.WET_SPONGE.defaultBlockState(), 2);
-         p_56798_.levelEvent(2001, p_56799_, Block.getId(Blocks.WATER.defaultBlockState()));
-      }
+    protected void tryAbsorbWater(Level pLevel, BlockPos pPos)
+    {
+        if (this.removeWaterBreadthFirstSearch(pLevel, pPos))
+        {
+            pLevel.setBlock(pPos, Blocks.WET_SPONGE.defaultBlockState(), 2);
+            pLevel.levelEvent(2001, pPos, Block.getId(Blocks.WATER.defaultBlockState()));
+        }
+    }
 
-   }
+    private boolean removeWaterBreadthFirstSearch(Level pLevel, BlockPos pPos)
+    {
+        Queue<Tuple<BlockPos, Integer>> queue = Lists.newLinkedList();
+        queue.add(new Tuple<>(pPos, 0));
+        int i = 0;
 
-   private boolean removeWaterBreadthFirstSearch(Level p_56808_, BlockPos p_56809_) {
-      Queue<Tuple<BlockPos, Integer>> queue = Lists.newLinkedList();
-      queue.add(new Tuple<>(p_56809_, 0));
-      int i = 0;
+        while (!queue.isEmpty())
+        {
+            Tuple<BlockPos, Integer> tuple = queue.poll();
+            BlockPos blockpos = tuple.getA();
+            int j = tuple.getB();
 
-      while(!queue.isEmpty()) {
-         Tuple<BlockPos, Integer> tuple = queue.poll();
-         BlockPos blockpos = tuple.getA();
-         int j = tuple.getB();
+            for (Direction direction : Direction.values())
+            {
+                BlockPos blockpos1 = blockpos.relative(direction);
+                BlockState blockstate = pLevel.getBlockState(blockpos1);
+                FluidState fluidstate = pLevel.getFluidState(blockpos1);
+                Material material = blockstate.getMaterial();
 
-         for(Direction direction : Direction.values()) {
-            BlockPos blockpos1 = blockpos.relative(direction);
-            BlockState blockstate = p_56808_.getBlockState(blockpos1);
-            FluidState fluidstate = p_56808_.getFluidState(blockpos1);
-            Material material = blockstate.getMaterial();
-            if (fluidstate.is(FluidTags.WATER)) {
-               if (blockstate.getBlock() instanceof BucketPickup && !((BucketPickup)blockstate.getBlock()).pickupBlock(p_56808_, blockpos1, blockstate).isEmpty()) {
-                  ++i;
-                  if (j < 6) {
-                     queue.add(new Tuple<>(blockpos1, j + 1));
-                  }
-               } else if (blockstate.getBlock() instanceof LiquidBlock) {
-                  p_56808_.setBlock(blockpos1, Blocks.AIR.defaultBlockState(), 3);
-                  ++i;
-                  if (j < 6) {
-                     queue.add(new Tuple<>(blockpos1, j + 1));
-                  }
-               } else if (material == Material.WATER_PLANT || material == Material.REPLACEABLE_WATER_PLANT) {
-                  BlockEntity blockentity = blockstate.hasBlockEntity() ? p_56808_.getBlockEntity(blockpos1) : null;
-                  dropResources(blockstate, p_56808_, blockpos1, blockentity);
-                  p_56808_.setBlock(blockpos1, Blocks.AIR.defaultBlockState(), 3);
-                  ++i;
-                  if (j < 6) {
-                     queue.add(new Tuple<>(blockpos1, j + 1));
-                  }
-               }
+                if (fluidstate.is(FluidTags.WATER))
+                {
+                    if (blockstate.getBlock() instanceof BucketPickup && !((BucketPickup)blockstate.getBlock()).pickupBlock(pLevel, blockpos1, blockstate).isEmpty())
+                    {
+                        ++i;
+
+                        if (j < 6)
+                        {
+                            queue.add(new Tuple<>(blockpos1, j + 1));
+                        }
+                    }
+                    else if (blockstate.getBlock() instanceof LiquidBlock)
+                    {
+                        pLevel.setBlock(blockpos1, Blocks.AIR.defaultBlockState(), 3);
+                        ++i;
+
+                        if (j < 6)
+                        {
+                            queue.add(new Tuple<>(blockpos1, j + 1));
+                        }
+                    }
+                    else if (material == Material.WATER_PLANT || material == Material.REPLACEABLE_WATER_PLANT)
+                    {
+                        BlockEntity blockentity = blockstate.hasBlockEntity() ? pLevel.getBlockEntity(blockpos1) : null;
+                        dropResources(blockstate, pLevel, blockpos1, blockentity);
+                        pLevel.setBlock(blockpos1, Blocks.AIR.defaultBlockState(), 3);
+                        ++i;
+
+                        if (j < 6)
+                        {
+                            queue.add(new Tuple<>(blockpos1, j + 1));
+                        }
+                    }
+                }
             }
-         }
 
-         if (i > 64) {
-            break;
-         }
-      }
+            if (i > 64)
+            {
+                break;
+            }
+        }
 
-      return i > 0;
-   }
+        return i > 0;
+    }
 }

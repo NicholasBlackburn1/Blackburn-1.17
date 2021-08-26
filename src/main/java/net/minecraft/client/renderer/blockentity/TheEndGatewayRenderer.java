@@ -7,44 +7,49 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
-public class TheEndGatewayRenderer extends TheEndPortalRenderer<TheEndGatewayBlockEntity> {
-   private static final ResourceLocation BEAM_LOCATION = new ResourceLocation("textures/entity/end_gateway_beam.png");
+public class TheEndGatewayRenderer extends TheEndPortalRenderer<TheEndGatewayBlockEntity>
+{
+    private static final ResourceLocation BEAM_LOCATION = new ResourceLocation("textures/entity/end_gateway_beam.png");
 
-   public TheEndGatewayRenderer(BlockEntityRendererProvider.Context p_173683_) {
-      super(p_173683_);
-   }
+    public TheEndGatewayRenderer(BlockEntityRendererProvider.Context p_173683_)
+    {
+        super(p_173683_);
+    }
 
-   public void render(TheEndGatewayBlockEntity p_112613_, float p_112614_, PoseStack p_112615_, MultiBufferSource p_112616_, int p_112617_, int p_112618_) {
-      if (p_112613_.isSpawning() || p_112613_.isCoolingDown()) {
-         float f = p_112613_.isSpawning() ? p_112613_.getSpawnPercent(p_112614_) : p_112613_.getCooldownPercent(p_112614_);
-         double d0 = p_112613_.isSpawning() ? (double)p_112613_.getLevel().getMaxBuildHeight() : 50.0D;
-         f = Mth.sin(f * (float)Math.PI);
-         int i = Mth.floor((double)f * d0);
-         float[] afloat = p_112613_.isSpawning() ? DyeColor.MAGENTA.getTextureDiffuseColors() : DyeColor.PURPLE.getTextureDiffuseColors();
-         long j = p_112613_.getLevel().getGameTime();
-         BeaconRenderer.renderBeaconBeam(p_112615_, p_112616_, BEAM_LOCATION, p_112614_, f, j, -i, i * 2, afloat, 0.15F, 0.175F);
-      }
+    public void render(TheEndGatewayBlockEntity pBlockEntity, float pPartialTicks, PoseStack pMatrixStack, MultiBufferSource pBuffer, int pCombinedLight, int pCombinedOverlay)
+    {
+        if (pBlockEntity.isSpawning() || pBlockEntity.isCoolingDown())
+        {
+            float f = pBlockEntity.isSpawning() ? pBlockEntity.getSpawnPercent(pPartialTicks) : pBlockEntity.getCooldownPercent(pPartialTicks);
+            double d0 = pBlockEntity.isSpawning() ? (double)pBlockEntity.getLevel().getMaxBuildHeight() : 50.0D;
+            f = Mth.sin(f * (float)Math.PI);
+            int i = Mth.floor((double)f * d0);
+            float[] afloat = pBlockEntity.isSpawning() ? DyeColor.MAGENTA.getTextureDiffuseColors() : DyeColor.PURPLE.getTextureDiffuseColors();
+            long j = pBlockEntity.getLevel().getGameTime();
+            BeaconRenderer.m_112184_(pMatrixStack, pBuffer, BEAM_LOCATION, pPartialTicks, f, j, -i, i * 2, afloat, 0.15F, 0.175F);
+        }
 
-      super.render(p_112613_, p_112614_, p_112615_, p_112616_, p_112617_, p_112618_);
-   }
+        super.render(pBlockEntity, pPartialTicks, pMatrixStack, pBuffer, pCombinedLight, pCombinedOverlay);
+    }
 
-   protected float getOffsetUp() {
-      return 1.0F;
-   }
+    protected float getOffsetUp()
+    {
+        return 1.0F;
+    }
 
-   protected float getOffsetDown() {
-      return 0.0F;
-   }
+    protected float getOffsetDown()
+    {
+        return 0.0F;
+    }
 
-   protected RenderType renderType() {
-      return RenderType.endGateway();
-   }
+    protected RenderType renderType()
+    {
+        return RenderType.endGateway();
+    }
 
-   public int getViewDistance() {
-      return 256;
-   }
+    public int getViewDistance()
+    {
+        return 256;
+    }
 }

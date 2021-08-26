@@ -4,32 +4,40 @@ import net.minecraft.world.level.newbiome.context.Context;
 import net.minecraft.world.level.newbiome.layer.traits.C0Transformer;
 import net.minecraft.world.level.newbiome.layer.traits.CastleTransformer;
 
-public class AddEdgeLayer {
-   public static enum CoolWarm implements CastleTransformer {
-      INSTANCE;
+public class AddEdgeLayer
+{
+    public static enum CoolWarm implements CastleTransformer
+    {
+        INSTANCE;
 
-      public int apply(Context p_76576_, int p_76577_, int p_76578_, int p_76579_, int p_76580_, int p_76581_) {
-         return p_76581_ != 1 || p_76577_ != 3 && p_76578_ != 3 && p_76580_ != 3 && p_76579_ != 3 && p_76577_ != 4 && p_76578_ != 4 && p_76580_ != 4 && p_76579_ != 4 ? p_76581_ : 2;
-      }
-   }
+        public int apply(Context pContext, int pNorth, int pWest, int pSouth, int pEast, int pCenter)
+        {
+            return pCenter != 1 || pNorth != 3 && pWest != 3 && pEast != 3 && pSouth != 3 && pNorth != 4 && pWest != 4 && pEast != 4 && pSouth != 4 ? pCenter : 2;
+        }
+    }
 
-   public static enum HeatIce implements CastleTransformer {
-      INSTANCE;
+    public static enum HeatIce implements CastleTransformer
+    {
+        INSTANCE;
 
-      public int apply(Context p_76592_, int p_76593_, int p_76594_, int p_76595_, int p_76596_, int p_76597_) {
-         return p_76597_ != 4 || p_76593_ != 1 && p_76594_ != 1 && p_76596_ != 1 && p_76595_ != 1 && p_76593_ != 2 && p_76594_ != 2 && p_76596_ != 2 && p_76595_ != 2 ? p_76597_ : 3;
-      }
-   }
+        public int apply(Context pContext, int pNorth, int pWest, int pSouth, int pEast, int pCenter)
+        {
+            return pCenter != 4 || pNorth != 1 && pWest != 1 && pEast != 1 && pSouth != 1 && pNorth != 2 && pWest != 2 && pEast != 2 && pSouth != 2 ? pCenter : 3;
+        }
+    }
 
-   public static enum IntroduceSpecial implements C0Transformer {
-      INSTANCE;
+    public static enum IntroduceSpecial implements C0Transformer
+    {
+        INSTANCE;
 
-      public int apply(Context p_76608_, int p_76609_) {
-         if (!Layers.isShallowOcean(p_76609_) && p_76608_.nextRandom(13) == 0) {
-            p_76609_ |= 1 + p_76608_.nextRandom(15) << 8 & 3840;
-         }
+        public int apply(Context pContext, int pValue)
+        {
+            if (!Layers.isShallowOcean(pValue) && pContext.nextRandom(13) == 0)
+            {
+                pValue |= 1 + pContext.nextRandom(15) << 8 & 3840;
+            }
 
-         return p_76609_;
-      }
-   }
+            return pValue;
+        }
+    }
 }

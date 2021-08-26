@@ -104,273 +104,341 @@ import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class Commands {
-   private static final Logger LOGGER = LogManager.getLogger();
-   public static final int LEVEL_ALL = 0;
-   public static final int LEVEL_MODERATORS = 1;
-   public static final int LEVEL_GAMEMASTERS = 2;
-   public static final int LEVEL_ADMINS = 3;
-   public static final int LEVEL_OWNERS = 4;
-   private final CommandDispatcher<CommandSourceStack> dispatcher = new CommandDispatcher<>();
+public class Commands
+{
+    private static final Logger LOGGER = LogManager.getLogger();
+    public static final int LEVEL_ALL = 0;
+    public static final int LEVEL_MODERATORS = 1;
+    public static final int LEVEL_GAMEMASTERS = 2;
+    public static final int LEVEL_ADMINS = 3;
+    public static final int LEVEL_OWNERS = 4;
+    private final CommandDispatcher<CommandSourceStack> dispatcher = new CommandDispatcher<>();
 
-   public Commands(Commands.CommandSelection p_82093_) {
-      AdvancementCommands.register(this.dispatcher);
-      AttributeCommand.register(this.dispatcher);
-      ExecuteCommand.register(this.dispatcher);
-      BossBarCommands.register(this.dispatcher);
-      ClearInventoryCommands.register(this.dispatcher);
-      CloneCommands.register(this.dispatcher);
-      DataCommands.register(this.dispatcher);
-      DataPackCommand.register(this.dispatcher);
-      DebugCommand.register(this.dispatcher);
-      DefaultGameModeCommands.register(this.dispatcher);
-      DifficultyCommand.register(this.dispatcher);
-      EffectCommands.register(this.dispatcher);
-      EmoteCommands.register(this.dispatcher);
-      EnchantCommand.register(this.dispatcher);
-      ExperienceCommand.register(this.dispatcher);
-      FillCommand.register(this.dispatcher);
-      ForceLoadCommand.register(this.dispatcher);
-      FunctionCommand.register(this.dispatcher);
-      GameModeCommand.register(this.dispatcher);
-      GameRuleCommand.register(this.dispatcher);
-      GiveCommand.register(this.dispatcher);
-      HelpCommand.register(this.dispatcher);
-      ItemCommands.register(this.dispatcher);
-      KickCommand.register(this.dispatcher);
-      KillCommand.register(this.dispatcher);
-      ListPlayersCommand.register(this.dispatcher);
-      LocateCommand.register(this.dispatcher);
-      LocateBiomeCommand.register(this.dispatcher);
-      LootCommand.register(this.dispatcher);
-      MsgCommand.register(this.dispatcher);
-      ParticleCommand.register(this.dispatcher);
-      PlaySoundCommand.register(this.dispatcher);
-      ReloadCommand.register(this.dispatcher);
-      RecipeCommand.register(this.dispatcher);
-      SayCommand.register(this.dispatcher);
-      ScheduleCommand.register(this.dispatcher);
-      ScoreboardCommand.register(this.dispatcher);
-      SeedCommand.register(this.dispatcher, p_82093_ != Commands.CommandSelection.INTEGRATED);
-      SetBlockCommand.register(this.dispatcher);
-      SetSpawnCommand.register(this.dispatcher);
-      SetWorldSpawnCommand.register(this.dispatcher);
-      SpectateCommand.register(this.dispatcher);
-      SpreadPlayersCommand.register(this.dispatcher);
-      StopSoundCommand.register(this.dispatcher);
-      SummonCommand.register(this.dispatcher);
-      TagCommand.register(this.dispatcher);
-      TeamCommand.register(this.dispatcher);
-      TeamMsgCommand.register(this.dispatcher);
-      TeleportCommand.register(this.dispatcher);
-      TellRawCommand.register(this.dispatcher);
-      TimeCommand.register(this.dispatcher);
-      TitleCommand.register(this.dispatcher);
-      TriggerCommand.register(this.dispatcher);
-      WeatherCommand.register(this.dispatcher);
-      WorldBorderCommand.register(this.dispatcher);
-      if (SharedConstants.IS_RUNNING_IN_IDE) {
-         TestCommand.register(this.dispatcher);
-      }
+    public Commands(Commands.CommandSelection p_82093_)
+    {
+        AdvancementCommands.register(this.dispatcher);
+        AttributeCommand.register(this.dispatcher);
+        ExecuteCommand.register(this.dispatcher);
+        BossBarCommands.register(this.dispatcher);
+        ClearInventoryCommands.register(this.dispatcher);
+        CloneCommands.register(this.dispatcher);
+        DataCommands.register(this.dispatcher);
+        DataPackCommand.register(this.dispatcher);
+        DebugCommand.register(this.dispatcher);
+        DefaultGameModeCommands.register(this.dispatcher);
+        DifficultyCommand.register(this.dispatcher);
+        EffectCommands.register(this.dispatcher);
+        EmoteCommands.register(this.dispatcher);
+        EnchantCommand.register(this.dispatcher);
+        ExperienceCommand.register(this.dispatcher);
+        FillCommand.register(this.dispatcher);
+        ForceLoadCommand.register(this.dispatcher);
+        FunctionCommand.register(this.dispatcher);
+        GameModeCommand.register(this.dispatcher);
+        GameRuleCommand.register(this.dispatcher);
+        GiveCommand.register(this.dispatcher);
+        HelpCommand.register(this.dispatcher);
+        ItemCommands.register(this.dispatcher);
+        KickCommand.register(this.dispatcher);
+        KillCommand.register(this.dispatcher);
+        ListPlayersCommand.register(this.dispatcher);
+        LocateCommand.register(this.dispatcher);
+        LocateBiomeCommand.register(this.dispatcher);
+        LootCommand.register(this.dispatcher);
+        MsgCommand.register(this.dispatcher);
+        ParticleCommand.register(this.dispatcher);
+        PlaySoundCommand.register(this.dispatcher);
+        ReloadCommand.register(this.dispatcher);
+        RecipeCommand.register(this.dispatcher);
+        SayCommand.register(this.dispatcher);
+        ScheduleCommand.register(this.dispatcher);
+        ScoreboardCommand.register(this.dispatcher);
+        SeedCommand.register(this.dispatcher, p_82093_ != Commands.CommandSelection.INTEGRATED);
+        SetBlockCommand.register(this.dispatcher);
+        SetSpawnCommand.register(this.dispatcher);
+        SetWorldSpawnCommand.register(this.dispatcher);
+        SpectateCommand.register(this.dispatcher);
+        SpreadPlayersCommand.register(this.dispatcher);
+        StopSoundCommand.register(this.dispatcher);
+        SummonCommand.register(this.dispatcher);
+        TagCommand.register(this.dispatcher);
+        TeamCommand.register(this.dispatcher);
+        TeamMsgCommand.register(this.dispatcher);
+        TeleportCommand.register(this.dispatcher);
+        TellRawCommand.register(this.dispatcher);
+        TimeCommand.register(this.dispatcher);
+        TitleCommand.register(this.dispatcher);
+        TriggerCommand.register(this.dispatcher);
+        WeatherCommand.register(this.dispatcher);
+        WorldBorderCommand.register(this.dispatcher);
 
-      if (p_82093_.includeDedicated) {
-         BanIpCommands.register(this.dispatcher);
-         BanListCommands.register(this.dispatcher);
-         BanPlayerCommands.register(this.dispatcher);
-         DeOpCommands.register(this.dispatcher);
-         OpCommand.register(this.dispatcher);
-         PardonCommand.register(this.dispatcher);
-         PardonIpCommand.register(this.dispatcher);
-         PerfCommand.register(this.dispatcher);
-         SaveAllCommand.register(this.dispatcher);
-         SaveOffCommand.register(this.dispatcher);
-         SaveOnCommand.register(this.dispatcher);
-         SetPlayerIdleTimeoutCommand.register(this.dispatcher);
-         StopCommand.register(this.dispatcher);
-         WhitelistCommand.register(this.dispatcher);
-      }
+        if (SharedConstants.IS_RUNNING_IN_IDE)
+        {
+            TestCommand.register(this.dispatcher);
+        }
 
-      if (p_82093_.includeIntegrated) {
-         PublishCommand.register(this.dispatcher);
-      }
+        if (p_82093_.includeDedicated)
+        {
+            BanIpCommands.register(this.dispatcher);
+            BanListCommands.register(this.dispatcher);
+            BanPlayerCommands.register(this.dispatcher);
+            DeOpCommands.register(this.dispatcher);
+            OpCommand.register(this.dispatcher);
+            PardonCommand.register(this.dispatcher);
+            PardonIpCommand.register(this.dispatcher);
+            PerfCommand.register(this.dispatcher);
+            SaveAllCommand.register(this.dispatcher);
+            SaveOffCommand.register(this.dispatcher);
+            SaveOnCommand.register(this.dispatcher);
+            SetPlayerIdleTimeoutCommand.register(this.dispatcher);
+            StopCommand.register(this.dispatcher);
+            WhitelistCommand.register(this.dispatcher);
+        }
 
-      this.dispatcher.findAmbiguities((p_82108_, p_82109_, p_82110_, p_82111_) -> {
-         LOGGER.warn("Ambiguity between arguments {} and {} with inputs: {}", this.dispatcher.getPath(p_82109_), this.dispatcher.getPath(p_82110_), p_82111_);
-      });
-      this.dispatcher.setConsumer((p_82104_, p_82105_, p_82106_) -> {
-         p_82104_.getSource().onCommandComplete(p_82104_, p_82105_, p_82106_);
-      });
-   }
+        if (p_82093_.includeIntegrated)
+        {
+            PublishCommand.register(this.dispatcher);
+        }
 
-   public int performCommand(CommandSourceStack p_82118_, String p_82119_) {
-      StringReader stringreader = new StringReader(p_82119_);
-      if (stringreader.canRead() && stringreader.peek() == '/') {
-         stringreader.skip();
-      }
+        this.dispatcher.findAmbiguities((p_82108_, p_82109_, p_82110_, p_82111_) ->
+        {
+            LOGGER.warn("Ambiguity between arguments {} and {} with inputs: {}", this.dispatcher.getPath(p_82109_), this.dispatcher.getPath(p_82110_), p_82111_);
+        });
+        this.dispatcher.setConsumer((p_82104_, p_82105_, p_82106_) ->
+        {
+            p_82104_.getSource().onCommandComplete(p_82104_, p_82105_, p_82106_);
+        });
+    }
 
-      p_82118_.getServer().getProfiler().push(p_82119_);
+    public int performCommand(CommandSourceStack pSource, String pCommand)
+    {
+        StringReader stringreader = new StringReader(pCommand);
 
-      try {
-         try {
-            return this.dispatcher.execute(stringreader, p_82118_);
-         } catch (CommandRuntimeException commandruntimeexception) {
-            p_82118_.sendFailure(commandruntimeexception.getComponent());
+        if (stringreader.canRead() && stringreader.peek() == '/')
+        {
+            stringreader.skip();
+        }
+
+        pSource.getServer().getProfiler().push(pCommand);
+
+        try
+        {
+            try
+            {
+                return this.dispatcher.execute(stringreader, pSource);
+            }
+            catch (CommandRuntimeException commandruntimeexception)
+            {
+                pSource.sendFailure(commandruntimeexception.getComponent());
+                return 0;
+            }
+            catch (CommandSyntaxException commandsyntaxexception)
+            {
+                pSource.sendFailure(ComponentUtils.fromMessage(commandsyntaxexception.getRawMessage()));
+
+                if (commandsyntaxexception.getInput() != null && commandsyntaxexception.getCursor() >= 0)
+                {
+                    int j = Math.min(commandsyntaxexception.getInput().length(), commandsyntaxexception.getCursor());
+                    MutableComponent mutablecomponent1 = (new TextComponent("")).withStyle(ChatFormatting.GRAY).withStyle((p_82134_) ->
+                    {
+                        return p_82134_.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, pCommand));
+                    });
+
+                    if (j > 10)
+                    {
+                        mutablecomponent1.append("...");
+                    }
+
+                    mutablecomponent1.append(commandsyntaxexception.getInput().substring(Math.max(0, j - 10), j));
+
+                    if (j < commandsyntaxexception.getInput().length())
+                    {
+                        Component component = (new TextComponent(commandsyntaxexception.getInput().substring(j))).m_130944_(new ChatFormatting[] {ChatFormatting.RED, ChatFormatting.UNDERLINE});
+                        mutablecomponent1.append(component);
+                    }
+
+                    mutablecomponent1.append((new TranslatableComponent("command.context.here")).m_130944_(new ChatFormatting[] {ChatFormatting.RED, ChatFormatting.ITALIC}));
+                    pSource.sendFailure(mutablecomponent1);
+                }
+            }
+            catch (Exception exception)
+            {
+                MutableComponent mutablecomponent = new TextComponent(exception.getMessage() == null ? exception.getClass().getName() : exception.getMessage());
+
+                if (LOGGER.isDebugEnabled())
+                {
+                    LOGGER.error("Command exception: {}", pCommand, exception);
+                    StackTraceElement[] astacktraceelement = exception.getStackTrace();
+
+                    for (int i = 0; i < Math.min(astacktraceelement.length, 3); ++i)
+                    {
+                        mutablecomponent.append("\n\n").append(astacktraceelement[i].getMethodName()).append("\n ").append(astacktraceelement[i].getFileName()).append(":").append(String.valueOf(astacktraceelement[i].getLineNumber()));
+                    }
+                }
+
+                pSource.sendFailure((new TranslatableComponent("command.failed")).withStyle((p_82137_) ->
+                {
+                    return p_82137_.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, mutablecomponent));
+                }));
+
+                if (SharedConstants.IS_RUNNING_IN_IDE)
+                {
+                    pSource.sendFailure(new TextComponent(Util.describeError(exception)));
+                    LOGGER.error("'{}' threw an exception", pCommand, exception);
+                }
+
+                return 0;
+            }
+
             return 0;
-         } catch (CommandSyntaxException commandsyntaxexception) {
-            p_82118_.sendFailure(ComponentUtils.fromMessage(commandsyntaxexception.getRawMessage()));
-            if (commandsyntaxexception.getInput() != null && commandsyntaxexception.getCursor() >= 0) {
-               int j = Math.min(commandsyntaxexception.getInput().length(), commandsyntaxexception.getCursor());
-               MutableComponent mutablecomponent1 = (new TextComponent("")).withStyle(ChatFormatting.GRAY).withStyle((p_82134_) -> {
-                  return p_82134_.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, p_82119_));
-               });
-               if (j > 10) {
-                  mutablecomponent1.append("...");
-               }
+        }
+        finally
+        {
+            pSource.getServer().getProfiler().pop();
+        }
+    }
 
-               mutablecomponent1.append(commandsyntaxexception.getInput().substring(Math.max(0, j - 10), j));
-               if (j < commandsyntaxexception.getInput().length()) {
-                  Component component = (new TextComponent(commandsyntaxexception.getInput().substring(j))).withStyle(new ChatFormatting[]{ChatFormatting.RED, ChatFormatting.UNDERLINE});
-                  mutablecomponent1.append(component);
-               }
+    public void sendCommands(ServerPlayer pPlayer)
+    {
+        Map<CommandNode<CommandSourceStack>, CommandNode<SharedSuggestionProvider>> map = Maps.newHashMap();
+        RootCommandNode<SharedSuggestionProvider> rootcommandnode = new RootCommandNode<>();
+        map.put(this.dispatcher.getRoot(), rootcommandnode);
+        this.fillUsableCommands(this.dispatcher.getRoot(), rootcommandnode, pPlayer.createCommandSourceStack(), map);
+        pPlayer.connection.send(new ClientboundCommandsPacket(rootcommandnode));
+    }
 
-               mutablecomponent1.append((new TranslatableComponent("command.context.here")).withStyle(new ChatFormatting[]{ChatFormatting.RED, ChatFormatting.ITALIC}));
-               p_82118_.sendFailure(mutablecomponent1);
+    private void fillUsableCommands(CommandNode<CommandSourceStack> pRootCommandSource, CommandNode<SharedSuggestionProvider> pRootSuggestion, CommandSourceStack pSource, Map<CommandNode<CommandSourceStack>, CommandNode<SharedSuggestionProvider>> pCommandNodeToSuggestionNode)
+    {
+        for (CommandNode<CommandSourceStack> commandnode : pRootCommandSource.getChildren())
+        {
+            if (commandnode.canUse(pSource))
+            {
+                ArgumentBuilder < SharedSuggestionProvider, ? > argumentbuilder = (ArgumentBuilder)commandnode.createBuilder();
+                argumentbuilder.requires((p_82126_) ->
+                {
+                    return true;
+                });
+
+                if (argumentbuilder.getCommand() != null)
+                {
+                    argumentbuilder.executes((p_82102_) ->
+                    {
+                        return 0;
+                    });
+                }
+
+                if (argumentbuilder instanceof RequiredArgumentBuilder)
+                {
+                    RequiredArgumentBuilder < SharedSuggestionProvider, ? > requiredargumentbuilder = (RequiredArgumentBuilder)argumentbuilder;
+
+                    if (requiredargumentbuilder.getSuggestionsProvider() != null)
+                    {
+                        requiredargumentbuilder.suggests(SuggestionProviders.safelySwap(requiredargumentbuilder.getSuggestionsProvider()));
+                    }
+                }
+
+                if (argumentbuilder.getRedirect() != null)
+                {
+                    argumentbuilder.redirect(pCommandNodeToSuggestionNode.get(argumentbuilder.getRedirect()));
+                }
+
+                CommandNode<SharedSuggestionProvider> commandnode1 = argumentbuilder.build();
+                pCommandNodeToSuggestionNode.put(commandnode, commandnode1);
+                pRootSuggestion.addChild(commandnode1);
+
+                if (!commandnode.getChildren().isEmpty())
+                {
+                    this.fillUsableCommands(commandnode, commandnode1, pSource, pCommandNodeToSuggestionNode);
+                }
             }
-         } catch (Exception exception) {
-            MutableComponent mutablecomponent = new TextComponent(exception.getMessage() == null ? exception.getClass().getName() : exception.getMessage());
-            if (LOGGER.isDebugEnabled()) {
-               LOGGER.error("Command exception: {}", p_82119_, exception);
-               StackTraceElement[] astacktraceelement = exception.getStackTrace();
+        }
+    }
 
-               for(int i = 0; i < Math.min(astacktraceelement.length, 3); ++i) {
-                  mutablecomponent.append("\n\n").append(astacktraceelement[i].getMethodName()).append("\n ").append(astacktraceelement[i].getFileName()).append(":").append(String.valueOf(astacktraceelement[i].getLineNumber()));
-               }
+    public static LiteralArgumentBuilder<CommandSourceStack> literal(String pName)
+    {
+        return LiteralArgumentBuilder.literal(pName);
+    }
+
+    public static <T> RequiredArgumentBuilder<CommandSourceStack, T> argument(String pName, ArgumentType<T> pType)
+    {
+        return RequiredArgumentBuilder.argument(pName, pType);
+    }
+
+    public static Predicate<String> createValidator(Commands.ParseFunction pParser)
+    {
+        return (p_82124_) ->
+        {
+            try {
+                pParser.parse(new StringReader(p_82124_));
+                return true;
             }
-
-            p_82118_.sendFailure((new TranslatableComponent("command.failed")).withStyle((p_82137_) -> {
-               return p_82137_.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, mutablecomponent));
-            }));
-            if (SharedConstants.IS_RUNNING_IN_IDE) {
-               p_82118_.sendFailure(new TextComponent(Util.describeError(exception)));
-               LOGGER.error("'{}' threw an exception", p_82119_, exception);
+            catch (CommandSyntaxException commandsyntaxexception)
+            {
+                return false;
             }
+        };
+    }
 
-            return 0;
-         }
+    public CommandDispatcher<CommandSourceStack> getDispatcher()
+    {
+        return this.dispatcher;
+    }
 
-         return 0;
-      } finally {
-         p_82118_.getServer().getProfiler().pop();
-      }
-   }
+    @Nullable
+    public static <S> CommandSyntaxException getParseException(ParseResults<S> p_82098_)
+    {
+        if (!p_82098_.getReader().canRead())
+        {
+            return null;
+        }
+        else if (p_82098_.getExceptions().size() == 1)
+        {
+            return p_82098_.getExceptions().values().iterator().next();
+        }
+        else
+        {
+            return p_82098_.getContext().getRange().isEmpty() ? CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand().createWithContext(p_82098_.getReader()) : CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownArgument().createWithContext(p_82098_.getReader());
+        }
+    }
 
-   public void sendCommands(ServerPlayer p_82096_) {
-      Map<CommandNode<CommandSourceStack>, CommandNode<SharedSuggestionProvider>> map = Maps.newHashMap();
-      RootCommandNode<SharedSuggestionProvider> rootcommandnode = new RootCommandNode<>();
-      map.put(this.dispatcher.getRoot(), rootcommandnode);
-      this.fillUsableCommands(this.dispatcher.getRoot(), rootcommandnode, p_82096_.createCommandSourceStack(), map);
-      p_82096_.connection.send(new ClientboundCommandsPacket(rootcommandnode));
-   }
+    public static void validate()
+    {
+        RootCommandNode<CommandSourceStack> rootcommandnode = (new Commands(Commands.CommandSelection.ALL)).getDispatcher().getRoot();
+        Set < ArgumentType<? >> set = ArgumentTypes.findUsedArgumentTypes(rootcommandnode);
+        Set < ArgumentType<? >> set1 = set.stream().filter((p_82140_) ->
+        {
+            return !ArgumentTypes.isTypeRegistered(p_82140_);
+        }).collect(Collectors.toSet());
 
-   private void fillUsableCommands(CommandNode<CommandSourceStack> p_82113_, CommandNode<SharedSuggestionProvider> p_82114_, CommandSourceStack p_82115_, Map<CommandNode<CommandSourceStack>, CommandNode<SharedSuggestionProvider>> p_82116_) {
-      for(CommandNode<CommandSourceStack> commandnode : p_82113_.getChildren()) {
-         if (commandnode.canUse(p_82115_)) {
-            ArgumentBuilder<SharedSuggestionProvider, ?> argumentbuilder = (ArgumentBuilder)commandnode.createBuilder();
-            argumentbuilder.requires((p_82126_) -> {
-               return true;
-            });
-            if (argumentbuilder.getCommand() != null) {
-               argumentbuilder.executes((p_82102_) -> {
-                  return 0;
-               });
-            }
+        if (!set1.isEmpty())
+        {
+            LOGGER.warn("Missing type registration for following arguments:\n {}", set1.stream().map((p_82100_) ->
+            {
+                return "\t" + p_82100_;
+            }).collect(Collectors.joining(",\n")));
+            throw new IllegalStateException("Unregistered argument types");
+        }
+    }
 
-            if (argumentbuilder instanceof RequiredArgumentBuilder) {
-               RequiredArgumentBuilder<SharedSuggestionProvider, ?> requiredargumentbuilder = (RequiredArgumentBuilder)argumentbuilder;
-               if (requiredargumentbuilder.getSuggestionsProvider() != null) {
-                  requiredargumentbuilder.suggests(SuggestionProviders.safelySwap(requiredargumentbuilder.getSuggestionsProvider()));
-               }
-            }
+    public static enum CommandSelection
+    {
+        ALL(true, true),
+        DEDICATED(false, true),
+        INTEGRATED(true, false);
 
-            if (argumentbuilder.getRedirect() != null) {
-               argumentbuilder.redirect(p_82116_.get(argumentbuilder.getRedirect()));
-            }
+        final boolean includeIntegrated;
+        final boolean includeDedicated;
 
-            CommandNode<SharedSuggestionProvider> commandnode1 = argumentbuilder.build();
-            p_82116_.put(commandnode, commandnode1);
-            p_82114_.addChild(commandnode1);
-            if (!commandnode.getChildren().isEmpty()) {
-               this.fillUsableCommands(commandnode, commandnode1, p_82115_, p_82116_);
-            }
-         }
-      }
+        private CommandSelection(boolean p_82151_, boolean p_82152_)
+        {
+            this.includeIntegrated = p_82151_;
+            this.includeDedicated = p_82152_;
+        }
+    }
 
-   }
-
-   public static LiteralArgumentBuilder<CommandSourceStack> literal(String p_82128_) {
-      return LiteralArgumentBuilder.literal(p_82128_);
-   }
-
-   public static <T> RequiredArgumentBuilder<CommandSourceStack, T> argument(String p_82130_, ArgumentType<T> p_82131_) {
-      return RequiredArgumentBuilder.argument(p_82130_, p_82131_);
-   }
-
-   public static Predicate<String> createValidator(Commands.ParseFunction p_82121_) {
-      return (p_82124_) -> {
-         try {
-            p_82121_.parse(new StringReader(p_82124_));
-            return true;
-         } catch (CommandSyntaxException commandsyntaxexception) {
-            return false;
-         }
-      };
-   }
-
-   public CommandDispatcher<CommandSourceStack> getDispatcher() {
-      return this.dispatcher;
-   }
-
-   @Nullable
-   public static <S> CommandSyntaxException getParseException(ParseResults<S> p_82098_) {
-      if (!p_82098_.getReader().canRead()) {
-         return null;
-      } else if (p_82098_.getExceptions().size() == 1) {
-         return p_82098_.getExceptions().values().iterator().next();
-      } else {
-         return p_82098_.getContext().getRange().isEmpty() ? CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand().createWithContext(p_82098_.getReader()) : CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownArgument().createWithContext(p_82098_.getReader());
-      }
-   }
-
-   public static void validate() {
-      RootCommandNode<CommandSourceStack> rootcommandnode = (new Commands(Commands.CommandSelection.ALL)).getDispatcher().getRoot();
-      Set<ArgumentType<?>> set = ArgumentTypes.findUsedArgumentTypes(rootcommandnode);
-      Set<ArgumentType<?>> set1 = set.stream().filter((p_82140_) -> {
-         return !ArgumentTypes.isTypeRegistered(p_82140_);
-      }).collect(Collectors.toSet());
-      if (!set1.isEmpty()) {
-         LOGGER.warn("Missing type registration for following arguments:\n {}", set1.stream().map((p_82100_) -> {
-            return "\t" + p_82100_;
-         }).collect(Collectors.joining(",\n")));
-         throw new IllegalStateException("Unregistered argument types");
-      }
-   }
-
-   public static enum CommandSelection {
-      ALL(true, true),
-      DEDICATED(false, true),
-      INTEGRATED(true, false);
-
-      final boolean includeIntegrated;
-      final boolean includeDedicated;
-
-      private CommandSelection(boolean p_82151_, boolean p_82152_) {
-         this.includeIntegrated = p_82151_;
-         this.includeDedicated = p_82152_;
-      }
-   }
-
-   @FunctionalInterface
-   public interface ParseFunction {
-      void parse(StringReader p_82161_) throws CommandSyntaxException;
-   }
+    @FunctionalInterface
+    public interface ParseFunction
+    {
+        void parse(StringReader p_82161_) throws CommandSyntaxException;
+    }
 }

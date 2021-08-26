@@ -46,382 +46,477 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class Item implements ItemLike {
-   private static final Logger LOGGER = LogManager.getLogger();
-   public static final Map<Block, Item> BY_BLOCK = Maps.newHashMap();
-   protected static final UUID BASE_ATTACK_DAMAGE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
-   protected static final UUID BASE_ATTACK_SPEED_UUID = UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3");
-   public static final int MAX_STACK_SIZE = 64;
-   public static final int EAT_DURATION = 32;
-   public static final int MAX_BAR_WIDTH = 13;
-   protected final CreativeModeTab category;
-   private final Rarity rarity;
-   private final int maxStackSize;
-   private final int maxDamage;
-   private final boolean isFireResistant;
-   private final Item craftingRemainingItem;
-   @Nullable
-   private String descriptionId;
-   @Nullable
-   private final FoodProperties foodProperties;
+public class Item implements ItemLike
+{
+    private static final Logger LOGGER = LogManager.getLogger();
+    public static final Map<Block, Item> BY_BLOCK = Maps.newHashMap();
+    protected static final UUID BASE_ATTACK_DAMAGE_UUID = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
+    protected static final UUID BASE_ATTACK_SPEED_UUID = UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3");
+    public static final int MAX_STACK_SIZE = 64;
+    public static final int EAT_DURATION = 32;
+    public static final int MAX_BAR_WIDTH = 13;
+    protected final CreativeModeTab category;
+    private final Rarity rarity;
+    private final int maxStackSize;
+    private final int maxDamage;
+    private final boolean isFireResistant;
+    private final Item craftingRemainingItem;
+    @Nullable
+    private String descriptionId;
+    @Nullable
+    private final FoodProperties foodProperties;
 
-   public static int getId(Item p_41394_) {
-      return p_41394_ == null ? 0 : Registry.ITEM.getId(p_41394_);
-   }
+    public static int getId(Item pItem)
+    {
+        return pItem == null ? 0 : Registry.ITEM.getId(pItem);
+    }
 
-   public static Item byId(int p_41446_) {
-      return Registry.ITEM.byId(p_41446_);
-   }
+    public static Item byId(int pId)
+    {
+        return Registry.ITEM.byId(pId);
+    }
 
-   @Deprecated
-   public static Item byBlock(Block p_41440_) {
-      return BY_BLOCK.getOrDefault(p_41440_, Items.AIR);
-   }
+    @Deprecated
+    public static Item byBlock(Block pBlock)
+    {
+        return BY_BLOCK.getOrDefault(pBlock, Items.AIR);
+    }
 
-   public Item(Item.Properties p_41383_) {
-      this.category = p_41383_.category;
-      this.rarity = p_41383_.rarity;
-      this.craftingRemainingItem = p_41383_.craftingRemainingItem;
-      this.maxDamage = p_41383_.maxDamage;
-      this.maxStackSize = p_41383_.maxStackSize;
-      this.foodProperties = p_41383_.foodProperties;
-      this.isFireResistant = p_41383_.isFireResistant;
-      if (SharedConstants.IS_RUNNING_IN_IDE) {
-         String s = this.getClass().getSimpleName();
-         if (!s.endsWith("Item")) {
-            LOGGER.error("Item classes should end with Item and {} doesn't.", (Object)s);
-         }
-      }
+    public Item(Item.Properties p_41383_)
+    {
+        this.category = p_41383_.category;
+        this.rarity = p_41383_.rarity;
+        this.craftingRemainingItem = p_41383_.craftingRemainingItem;
+        this.maxDamage = p_41383_.maxDamage;
+        this.maxStackSize = p_41383_.maxStackSize;
+        this.foodProperties = p_41383_.foodProperties;
+        this.isFireResistant = p_41383_.isFireResistant;
 
-   }
+        if (SharedConstants.IS_RUNNING_IN_IDE)
+        {
+            String s = this.getClass().getSimpleName();
 
-   public void onUseTick(Level p_41428_, LivingEntity p_41429_, ItemStack p_41430_, int p_41431_) {
-   }
+            if (!s.endsWith("Item"))
+            {
+                LOGGER.error("Item classes should end with Item and {} doesn't.", (Object)s);
+            }
+        }
+    }
 
-   public void onDestroyed(ItemEntity p_150887_) {
-   }
+    public void onUseTick(Level pLevel, LivingEntity pLivingEntity, ItemStack pStack, int pCount)
+    {
+    }
 
-   public void verifyTagAfterLoad(CompoundTag p_150898_) {
-   }
+    public void onDestroyed(ItemEntity p_150887_)
+    {
+    }
 
-   public boolean canAttackBlock(BlockState p_41441_, Level p_41442_, BlockPos p_41443_, Player p_41444_) {
-      return true;
-   }
+    public void verifyTagAfterLoad(CompoundTag p_150898_)
+    {
+    }
 
-   public Item asItem() {
-      return this;
-   }
+    public boolean canAttackBlock(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer)
+    {
+        return true;
+    }
 
-   public InteractionResult useOn(UseOnContext p_41427_) {
-      return InteractionResult.PASS;
-   }
+    public Item asItem()
+    {
+        return this;
+    }
 
-   public float getDestroySpeed(ItemStack p_41425_, BlockState p_41426_) {
-      return 1.0F;
-   }
+    public InteractionResult useOn(UseOnContext pContext)
+    {
+        return InteractionResult.PASS;
+    }
 
-   public InteractionResultHolder<ItemStack> use(Level p_41432_, Player p_41433_, InteractionHand p_41434_) {
-      if (this.isEdible()) {
-         ItemStack itemstack = p_41433_.getItemInHand(p_41434_);
-         if (p_41433_.canEat(this.getFoodProperties().canAlwaysEat())) {
-            p_41433_.startUsingItem(p_41434_);
-            return InteractionResultHolder.consume(itemstack);
-         } else {
-            return InteractionResultHolder.fail(itemstack);
-         }
-      } else {
-         return InteractionResultHolder.pass(p_41433_.getItemInHand(p_41434_));
-      }
-   }
+    public float getDestroySpeed(ItemStack pStack, BlockState pState)
+    {
+        return 1.0F;
+    }
 
-   public ItemStack finishUsingItem(ItemStack p_41409_, Level p_41410_, LivingEntity p_41411_) {
-      return this.isEdible() ? p_41411_.eat(p_41410_, p_41409_) : p_41409_;
-   }
+    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand)
+    {
+        if (this.isEdible())
+        {
+            ItemStack itemstack = pPlayer.getItemInHand(pHand);
 
-   public final int getMaxStackSize() {
-      return this.maxStackSize;
-   }
+            if (pPlayer.canEat(this.getFoodProperties().canAlwaysEat()))
+            {
+                pPlayer.startUsingItem(pHand);
+                return InteractionResultHolder.consume(itemstack);
+            }
+            else
+            {
+                return InteractionResultHolder.fail(itemstack);
+            }
+        }
+        else
+        {
+            return InteractionResultHolder.pass(pPlayer.getItemInHand(pHand));
+        }
+    }
 
-   public final int getMaxDamage() {
-      return this.maxDamage;
-   }
+    public ItemStack finishUsingItem(ItemStack pStack, Level pLevel, LivingEntity pEntityLiving)
+    {
+        return this.isEdible() ? pEntityLiving.eat(pLevel, pStack) : pStack;
+    }
 
-   public boolean canBeDepleted() {
-      return this.maxDamage > 0;
-   }
+    public final int getMaxStackSize()
+    {
+        return this.maxStackSize;
+    }
 
-   public boolean isBarVisible(ItemStack p_150899_) {
-      return p_150899_.isDamaged();
-   }
+    public final int getMaxDamage()
+    {
+        return this.maxDamage;
+    }
 
-   public int getBarWidth(ItemStack p_150900_) {
-      return Math.round(13.0F - (float)p_150900_.getDamageValue() * 13.0F / (float)this.maxDamage);
-   }
+    public boolean canBeDepleted()
+    {
+        return this.maxDamage > 0;
+    }
 
-   public int getBarColor(ItemStack p_150901_) {
-      float f = Math.max(0.0F, ((float)this.maxDamage - (float)p_150901_.getDamageValue()) / (float)this.maxDamage);
-      return Mth.hsvToRgb(f / 3.0F, 1.0F, 1.0F);
-   }
+    public boolean isBarVisible(ItemStack p_150899_)
+    {
+        return p_150899_.isDamaged();
+    }
 
-   public boolean overrideStackedOnOther(ItemStack p_150888_, Slot p_150889_, ClickAction p_150890_, Player p_150891_) {
-      return false;
-   }
+    public int getBarWidth(ItemStack p_150900_)
+    {
+        return Math.round(13.0F - (float)p_150900_.getDamageValue() * 13.0F / (float)this.maxDamage);
+    }
 
-   public boolean overrideOtherStackedOnMe(ItemStack p_150892_, ItemStack p_150893_, Slot p_150894_, ClickAction p_150895_, Player p_150896_, SlotAccess p_150897_) {
-      return false;
-   }
+    public int getBarColor(ItemStack p_150901_)
+    {
+        float f = Math.max(0.0F, ((float)this.maxDamage - (float)p_150901_.getDamageValue()) / (float)this.maxDamage);
+        return Mth.hsvToRgb(f / 3.0F, 1.0F, 1.0F);
+    }
 
-   public boolean hurtEnemy(ItemStack p_41395_, LivingEntity p_41396_, LivingEntity p_41397_) {
-      return false;
-   }
+    public boolean overrideStackedOnOther(ItemStack p_150888_, Slot p_150889_, ClickAction p_150890_, Player p_150891_)
+    {
+        return false;
+    }
 
-   public boolean mineBlock(ItemStack p_41416_, Level p_41417_, BlockState p_41418_, BlockPos p_41419_, LivingEntity p_41420_) {
-      return false;
-   }
+    public boolean overrideOtherStackedOnMe(ItemStack p_150892_, ItemStack p_150893_, Slot p_150894_, ClickAction p_150895_, Player p_150896_, SlotAccess p_150897_)
+    {
+        return false;
+    }
 
-   public boolean isCorrectToolForDrops(BlockState p_41450_) {
-      return false;
-   }
+    public boolean hurtEnemy(ItemStack pStack, LivingEntity pTarget, LivingEntity pAttacker)
+    {
+        return false;
+    }
 
-   public InteractionResult interactLivingEntity(ItemStack p_41398_, Player p_41399_, LivingEntity p_41400_, InteractionHand p_41401_) {
-      return InteractionResult.PASS;
-   }
+    public boolean mineBlock(ItemStack pStack, Level pLevel, BlockState pState, BlockPos pPos, LivingEntity pEntityLiving)
+    {
+        return false;
+    }
 
-   public Component getDescription() {
-      return new TranslatableComponent(this.getDescriptionId());
-   }
+    public boolean isCorrectToolForDrops(BlockState pBlock)
+    {
+        return false;
+    }
 
-   public String toString() {
-      return Registry.ITEM.getKey(this).getPath();
-   }
+    public InteractionResult interactLivingEntity(ItemStack pStack, Player pPlayer, LivingEntity pTarget, InteractionHand pHand)
+    {
+        return InteractionResult.PASS;
+    }
 
-   protected String getOrCreateDescriptionId() {
-      if (this.descriptionId == null) {
-         this.descriptionId = Util.makeDescriptionId("item", Registry.ITEM.getKey(this));
-      }
+    public Component getDescription()
+    {
+        return new TranslatableComponent(this.getDescriptionId());
+    }
 
-      return this.descriptionId;
-   }
+    public String toString()
+    {
+        return Registry.ITEM.getKey(this).getPath();
+    }
 
-   public String getDescriptionId() {
-      return this.getOrCreateDescriptionId();
-   }
+    protected String getOrCreateDescriptionId()
+    {
+        if (this.descriptionId == null)
+        {
+            this.descriptionId = Util.makeDescriptionId("item", Registry.ITEM.getKey(this));
+        }
 
-   public String getDescriptionId(ItemStack p_41455_) {
-      return this.getDescriptionId();
-   }
+        return this.descriptionId;
+    }
 
-   public boolean shouldOverrideMultiplayerNbt() {
-      return true;
-   }
+    public String getDescriptionId()
+    {
+        return this.getOrCreateDescriptionId();
+    }
 
-   @Nullable
-   public final Item getCraftingRemainingItem() {
-      return this.craftingRemainingItem;
-   }
+    public String getDescriptionId(ItemStack p_41455_)
+    {
+        return this.getDescriptionId();
+    }
 
-   public boolean hasCraftingRemainingItem() {
-      return this.craftingRemainingItem != null;
-   }
+    public boolean shouldOverrideMultiplayerNbt()
+    {
+        return true;
+    }
 
-   public void inventoryTick(ItemStack p_41404_, Level p_41405_, Entity p_41406_, int p_41407_, boolean p_41408_) {
-   }
+    @Nullable
+    public final Item getCraftingRemainingItem()
+    {
+        return this.craftingRemainingItem;
+    }
 
-   public void onCraftedBy(ItemStack p_41447_, Level p_41448_, Player p_41449_) {
-   }
+    public boolean hasCraftingRemainingItem()
+    {
+        return this.craftingRemainingItem != null;
+    }
 
-   public boolean isComplex() {
-      return false;
-   }
+    public void inventoryTick(ItemStack pStack, Level pLevel, Entity pEntity, int pItemSlot, boolean pIsSelected)
+    {
+    }
 
-   public UseAnim getUseAnimation(ItemStack p_41452_) {
-      return p_41452_.getItem().isEdible() ? UseAnim.EAT : UseAnim.NONE;
-   }
+    public void onCraftedBy(ItemStack pStack, Level pLevel, Player pPlayer)
+    {
+    }
 
-   public int getUseDuration(ItemStack p_41454_) {
-      if (p_41454_.getItem().isEdible()) {
-         return this.getFoodProperties().isFastFood() ? 16 : 32;
-      } else {
-         return 0;
-      }
-   }
+    public boolean isComplex()
+    {
+        return false;
+    }
 
-   public void releaseUsing(ItemStack p_41412_, Level p_41413_, LivingEntity p_41414_, int p_41415_) {
-   }
+    public UseAnim getUseAnimation(ItemStack pStack)
+    {
+        return pStack.getItem().isEdible() ? UseAnim.EAT : UseAnim.NONE;
+    }
 
-   public void appendHoverText(ItemStack p_41421_, @Nullable Level p_41422_, List<Component> p_41423_, TooltipFlag p_41424_) {
-   }
+    public int getUseDuration(ItemStack pStack)
+    {
+        if (pStack.getItem().isEdible())
+        {
+            return this.getFoodProperties().isFastFood() ? 16 : 32;
+        }
+        else
+        {
+            return 0;
+        }
+    }
 
-   public Optional<TooltipComponent> getTooltipImage(ItemStack p_150902_) {
-      return Optional.empty();
-   }
+    public void releaseUsing(ItemStack pStack, Level pLevel, LivingEntity pEntityLiving, int pTimeLeft)
+    {
+    }
 
-   public Component getName(ItemStack p_41458_) {
-      return new TranslatableComponent(this.getDescriptionId(p_41458_));
-   }
+    public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltip, TooltipFlag pFlag)
+    {
+    }
 
-   public boolean isFoil(ItemStack p_41453_) {
-      return p_41453_.isEnchanted();
-   }
+    public Optional<TooltipComponent> getTooltipImage(ItemStack p_150902_)
+    {
+        return Optional.empty();
+    }
 
-   public Rarity getRarity(ItemStack p_41461_) {
-      if (!p_41461_.isEnchanted()) {
-         return this.rarity;
-      } else {
-         switch(this.rarity) {
-         case COMMON:
-         case UNCOMMON:
-            return Rarity.RARE;
-         case RARE:
-            return Rarity.EPIC;
-         case EPIC:
-         default:
+    public Component getName(ItemStack pStack)
+    {
+        return new TranslatableComponent(this.getDescriptionId(pStack));
+    }
+
+    public boolean isFoil(ItemStack pStack)
+    {
+        return pStack.isEnchanted();
+    }
+
+    public Rarity getRarity(ItemStack pStack)
+    {
+        if (!pStack.isEnchanted())
+        {
             return this.rarity;
-         }
-      }
-   }
+        }
+        else
+        {
+            switch (this.rarity)
+            {
+                case COMMON:
+                case UNCOMMON:
+                    return Rarity.RARE;
 
-   public boolean isEnchantable(ItemStack p_41456_) {
-      return this.getMaxStackSize() == 1 && this.canBeDepleted();
-   }
+                case RARE:
+                    return Rarity.EPIC;
 
-   protected static BlockHitResult getPlayerPOVHitResult(Level p_41436_, Player p_41437_, ClipContext.Fluid p_41438_) {
-      float f = p_41437_.getXRot();
-      float f1 = p_41437_.getYRot();
-      Vec3 vec3 = p_41437_.getEyePosition();
-      float f2 = Mth.cos(-f1 * ((float)Math.PI / 180F) - (float)Math.PI);
-      float f3 = Mth.sin(-f1 * ((float)Math.PI / 180F) - (float)Math.PI);
-      float f4 = -Mth.cos(-f * ((float)Math.PI / 180F));
-      float f5 = Mth.sin(-f * ((float)Math.PI / 180F));
-      float f6 = f3 * f4;
-      float f7 = f2 * f4;
-      double d0 = 5.0D;
-      Vec3 vec31 = vec3.add((double)f6 * 5.0D, (double)f5 * 5.0D, (double)f7 * 5.0D);
-      return p_41436_.clip(new ClipContext(vec3, vec31, ClipContext.Block.OUTLINE, p_41438_, p_41437_));
-   }
+                case EPIC:
+                default:
+                    return this.rarity;
+            }
+        }
+    }
 
-   public int getEnchantmentValue() {
-      return 0;
-   }
+    public boolean isEnchantable(ItemStack pStack)
+    {
+        return this.getMaxStackSize() == 1 && this.canBeDepleted();
+    }
 
-   public void fillItemCategory(CreativeModeTab p_41391_, NonNullList<ItemStack> p_41392_) {
-      if (this.allowdedIn(p_41391_)) {
-         p_41392_.add(new ItemStack(this));
-      }
+    protected static BlockHitResult getPlayerPOVHitResult(Level pLevel, Player pPlayer, ClipContext.Fluid pFluidMode)
+    {
+        float f = pPlayer.getXRot();
+        float f1 = pPlayer.getYRot();
+        Vec3 vec3 = pPlayer.getEyePosition();
+        float f2 = Mth.cos(-f1 * ((float)Math.PI / 180F) - (float)Math.PI);
+        float f3 = Mth.sin(-f1 * ((float)Math.PI / 180F) - (float)Math.PI);
+        float f4 = -Mth.cos(-f * ((float)Math.PI / 180F));
+        float f5 = Mth.sin(-f * ((float)Math.PI / 180F));
+        float f6 = f3 * f4;
+        float f7 = f2 * f4;
+        double d0 = 5.0D;
+        Vec3 vec31 = vec3.add((double)f6 * 5.0D, (double)f5 * 5.0D, (double)f7 * 5.0D);
+        return pLevel.clip(new ClipContext(vec3, vec31, ClipContext.Block.OUTLINE, pFluidMode, pPlayer));
+    }
 
-   }
+    public int getEnchantmentValue()
+    {
+        return 0;
+    }
 
-   protected boolean allowdedIn(CreativeModeTab p_41390_) {
-      CreativeModeTab creativemodetab = this.getItemCategory();
-      return creativemodetab != null && (p_41390_ == CreativeModeTab.TAB_SEARCH || p_41390_ == creativemodetab);
-   }
+    public void fillItemCategory(CreativeModeTab pGroup, NonNullList<ItemStack> pItems)
+    {
+        if (this.allowdedIn(pGroup))
+        {
+            pItems.add(new ItemStack(this));
+        }
+    }
 
-   @Nullable
-   public final CreativeModeTab getItemCategory() {
-      return this.category;
-   }
+    protected boolean allowdedIn(CreativeModeTab pGroup)
+    {
+        CreativeModeTab creativemodetab = this.getItemCategory();
+        return creativemodetab != null && (pGroup == CreativeModeTab.TAB_SEARCH || pGroup == creativemodetab);
+    }
 
-   public boolean isValidRepairItem(ItemStack p_41402_, ItemStack p_41403_) {
-      return false;
-   }
+    @Nullable
+    public final CreativeModeTab getItemCategory()
+    {
+        return this.category;
+    }
 
-   public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot p_41388_) {
-      return ImmutableMultimap.of();
-   }
+    public boolean isValidRepairItem(ItemStack pToRepair, ItemStack pRepair)
+    {
+        return false;
+    }
 
-   public boolean useOnRelease(ItemStack p_41464_) {
-      return false;
-   }
+    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot pEquipmentSlot)
+    {
+        return ImmutableMultimap.of();
+    }
 
-   public ItemStack getDefaultInstance() {
-      return new ItemStack(this);
-   }
+    public boolean useOnRelease(ItemStack pStack)
+    {
+        return false;
+    }
 
-   public boolean isEdible() {
-      return this.foodProperties != null;
-   }
+    public ItemStack getDefaultInstance()
+    {
+        return new ItemStack(this);
+    }
 
-   @Nullable
-   public FoodProperties getFoodProperties() {
-      return this.foodProperties;
-   }
+    public boolean isEdible()
+    {
+        return this.foodProperties != null;
+    }
 
-   public SoundEvent getDrinkingSound() {
-      return SoundEvents.GENERIC_DRINK;
-   }
+    @Nullable
+    public FoodProperties getFoodProperties()
+    {
+        return this.foodProperties;
+    }
 
-   public SoundEvent getEatingSound() {
-      return SoundEvents.GENERIC_EAT;
-   }
+    public SoundEvent getDrinkingSound()
+    {
+        return SoundEvents.GENERIC_DRINK;
+    }
 
-   public boolean isFireResistant() {
-      return this.isFireResistant;
-   }
+    public SoundEvent getEatingSound()
+    {
+        return SoundEvents.GENERIC_EAT;
+    }
 
-   public boolean canBeHurtBy(DamageSource p_41387_) {
-      return !this.isFireResistant || !p_41387_.isFire();
-   }
+    public boolean isFireResistant()
+    {
+        return this.isFireResistant;
+    }
 
-   @Nullable
-   public SoundEvent getEquipSound() {
-      return null;
-   }
+    public boolean canBeHurtBy(DamageSource pDamageSource)
+    {
+        return !this.isFireResistant || !pDamageSource.isFire();
+    }
 
-   public boolean canFitInsideContainerItems() {
-      return true;
-   }
+    @Nullable
+    public SoundEvent getEquipSound()
+    {
+        return null;
+    }
 
-   public static class Properties {
-      int maxStackSize = 64;
-      int maxDamage;
-      Item craftingRemainingItem;
-      CreativeModeTab category;
-      Rarity rarity = Rarity.COMMON;
-      FoodProperties foodProperties;
-      boolean isFireResistant;
+    public boolean canFitInsideContainerItems()
+    {
+        return true;
+    }
 
-      public Item.Properties food(FoodProperties p_41490_) {
-         this.foodProperties = p_41490_;
-         return this;
-      }
+    public static class Properties
+    {
+        int maxStackSize = 64;
+        int maxDamage;
+        Item craftingRemainingItem;
+        CreativeModeTab category;
+        Rarity rarity = Rarity.COMMON;
+        FoodProperties foodProperties;
+        boolean isFireResistant;
 
-      public Item.Properties stacksTo(int p_41488_) {
-         if (this.maxDamage > 0) {
-            throw new RuntimeException("Unable to have damage AND stack.");
-         } else {
-            this.maxStackSize = p_41488_;
+        public Item.Properties food(FoodProperties pFood)
+        {
+            this.foodProperties = pFood;
             return this;
-         }
-      }
+        }
 
-      public Item.Properties defaultDurability(int p_41500_) {
-         return this.maxDamage == 0 ? this.durability(p_41500_) : this;
-      }
+        public Item.Properties stacksTo(int pMaxStackSize)
+        {
+            if (this.maxDamage > 0)
+            {
+                throw new RuntimeException("Unable to have damage AND stack.");
+            }
+            else
+            {
+                this.maxStackSize = pMaxStackSize;
+                return this;
+            }
+        }
 
-      public Item.Properties durability(int p_41504_) {
-         this.maxDamage = p_41504_;
-         this.maxStackSize = 1;
-         return this;
-      }
+        public Item.Properties defaultDurability(int pMaxDamage)
+        {
+            return this.maxDamage == 0 ? this.durability(pMaxDamage) : this;
+        }
 
-      public Item.Properties craftRemainder(Item p_41496_) {
-         this.craftingRemainingItem = p_41496_;
-         return this;
-      }
+        public Item.Properties durability(int pMaxDamage)
+        {
+            this.maxDamage = pMaxDamage;
+            this.maxStackSize = 1;
+            return this;
+        }
 
-      public Item.Properties tab(CreativeModeTab p_41492_) {
-         this.category = p_41492_;
-         return this;
-      }
+        public Item.Properties craftRemainder(Item pContainerItem)
+        {
+            this.craftingRemainingItem = pContainerItem;
+            return this;
+        }
 
-      public Item.Properties rarity(Rarity p_41498_) {
-         this.rarity = p_41498_;
-         return this;
-      }
+        public Item.Properties tab(CreativeModeTab pGroup)
+        {
+            this.category = pGroup;
+            return this;
+        }
 
-      public Item.Properties fireResistant() {
-         this.isFireResistant = true;
-         return this;
-      }
-   }
+        public Item.Properties rarity(Rarity pRarity)
+        {
+            this.rarity = pRarity;
+            return this;
+        }
+
+        public Item.Properties fireResistant()
+        {
+            this.isFireResistant = true;
+            return this;
+        }
+    }
 }

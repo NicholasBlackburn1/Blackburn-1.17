@@ -2,10 +2,11 @@ package net.minecraft.network.protocol.login;
 
 import net.minecraft.network.PacketListener;
 
-public interface ServerLoginPacketListener extends PacketListener {
-   void handleHello(ServerboundHelloPacket p_134823_);
+public interface ServerLoginPacketListener extends PacketListener
+{
+    void handleHello(ServerboundHelloPacket pPacket);
 
-   void handleKey(ServerboundKeyPacket p_134824_);
+    void handleKey(ServerboundKeyPacket pPacket);
 
-   void handleCustomQueryPacket(ServerboundCustomQueryPacket p_134822_);
+    void handleCustomQueryPacket(ServerboundCustomQueryPacket p_134822_);
 }

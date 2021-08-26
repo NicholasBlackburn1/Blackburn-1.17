@@ -10,73 +10,96 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class SlideDownBlockTrigger extends SimpleCriterionTrigger<SlideDownBlockTrigger.TriggerInstance> {
-   static final ResourceLocation ID = new ResourceLocation("slide_down_block");
+public class SlideDownBlockTrigger extends SimpleCriterionTrigger<SlideDownBlockTrigger.TriggerInstance>
+{
+    static final ResourceLocation ID = new ResourceLocation("slide_down_block");
 
-   public ResourceLocation getId() {
-      return ID;
-   }
+    public ResourceLocation getId()
+    {
+        return ID;
+    }
 
-   public SlideDownBlockTrigger.TriggerInstance createInstance(JsonObject p_66990_, EntityPredicate.Composite p_66991_, DeserializationContext p_66992_) {
-      Block block = deserializeBlock(p_66990_);
-      StatePropertiesPredicate statepropertiespredicate = StatePropertiesPredicate.fromJson(p_66990_.get("state"));
-      if (block != null) {
-         statepropertiespredicate.checkState(block.getStateDefinition(), (p_66983_) -> {
-            throw new JsonSyntaxException("Block " + block + " has no property " + p_66983_);
-         });
-      }
+    public SlideDownBlockTrigger.TriggerInstance createInstance(JsonObject pJson, EntityPredicate.Composite pEntityPredicate, DeserializationContext pConditionsParser)
+    {
+        Block block = deserializeBlock(pJson);
+        StatePropertiesPredicate statepropertiespredicate = StatePropertiesPredicate.fromJson(pJson.get("state"));
 
-      return new SlideDownBlockTrigger.TriggerInstance(p_66991_, block, statepropertiespredicate);
-   }
+        if (block != null)
+        {
+            statepropertiespredicate.checkState(block.getStateDefinition(), (p_66983_) ->
+            {
+                throw new JsonSyntaxException("Block " + block + " has no property " + p_66983_);
+            });
+        }
 
-   @Nullable
-   private static Block deserializeBlock(JsonObject p_66988_) {
-      if (p_66988_.has("block")) {
-         ResourceLocation resourcelocation = new ResourceLocation(GsonHelper.getAsString(p_66988_, "block"));
-         return Registry.BLOCK.getOptional(resourcelocation).orElseThrow(() -> {
-            return new JsonSyntaxException("Unknown block type '" + resourcelocation + "'");
-         });
-      } else {
-         return null;
-      }
-   }
+        return new SlideDownBlockTrigger.TriggerInstance(pEntityPredicate, block, statepropertiespredicate);
+    }
 
-   public void trigger(ServerPlayer p_66979_, BlockState p_66980_) {
-      this.trigger(p_66979_, (p_66986_) -> {
-         return p_66986_.matches(p_66980_);
-      });
-   }
+    @Nullable
+    private static Block deserializeBlock(JsonObject pObject)
+    {
+        if (pObject.has("block"))
+        {
+            ResourceLocation resourcelocation = new ResourceLocation(GsonHelper.getAsString(pObject, "block"));
+            return Registry.BLOCK.getOptional(resourcelocation).orElseThrow(() ->
+            {
+                return new JsonSyntaxException("Unknown block type '" + resourcelocation + "'");
+            });
+        }
+        else
+        {
+            return null;
+        }
+    }
 
-   public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-      private final Block block;
-      private final StatePropertiesPredicate state;
+    public void trigger(ServerPlayer pPlayer, BlockState pState)
+    {
+        this.trigger(pPlayer, (p_66986_) ->
+        {
+            return p_66986_.matches(pState);
+        });
+    }
 
-      public TriggerInstance(EntityPredicate.Composite p_67003_, @Nullable Block p_67004_, StatePropertiesPredicate p_67005_) {
-         super(SlideDownBlockTrigger.ID, p_67003_);
-         this.block = p_67004_;
-         this.state = p_67005_;
-      }
+    public static class TriggerInstance extends AbstractCriterionTriggerInstance
+    {
+        private final Block block;
+        private final StatePropertiesPredicate state;
 
-      public static SlideDownBlockTrigger.TriggerInstance slidesDownBlock(Block p_67007_) {
-         return new SlideDownBlockTrigger.TriggerInstance(EntityPredicate.Composite.ANY, p_67007_, StatePropertiesPredicate.ANY);
-      }
+        public TriggerInstance(EntityPredicate.Composite p_67003_, @Nullable Block p_67004_, StatePropertiesPredicate p_67005_)
+        {
+            super(SlideDownBlockTrigger.ID, p_67003_);
+            this.block = p_67004_;
+            this.state = p_67005_;
+        }
 
-      public JsonObject serializeToJson(SerializationContext p_67011_) {
-         JsonObject jsonobject = super.serializeToJson(p_67011_);
-         if (this.block != null) {
-            jsonobject.addProperty("block", Registry.BLOCK.getKey(this.block).toString());
-         }
+        public static SlideDownBlockTrigger.TriggerInstance slidesDownBlock(Block pBlock)
+        {
+            return new SlideDownBlockTrigger.TriggerInstance(EntityPredicate.Composite.ANY, pBlock, StatePropertiesPredicate.ANY);
+        }
 
-         jsonobject.add("state", this.state.serializeToJson());
-         return jsonobject;
-      }
+        public JsonObject serializeToJson(SerializationContext pConditions)
+        {
+            JsonObject jsonobject = super.serializeToJson(pConditions);
 
-      public boolean matches(BlockState p_67009_) {
-         if (this.block != null && !p_67009_.is(this.block)) {
-            return false;
-         } else {
-            return this.state.matches(p_67009_);
-         }
-      }
-   }
+            if (this.block != null)
+            {
+                jsonobject.addProperty("block", Registry.BLOCK.getKey(this.block).toString());
+            }
+
+            jsonobject.add("state", this.state.serializeToJson());
+            return jsonobject;
+        }
+
+        public boolean matches(BlockState pState)
+        {
+            if (this.block != null && !pState.is(this.block))
+            {
+                return false;
+            }
+            else
+            {
+                return this.state.matches(pState);
+            }
+        }
+    }
 }

@@ -12,21 +12,25 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
 
-public class CommandsReport implements DataProvider {
-   private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
-   private final DataGenerator generator;
+public class CommandsReport implements DataProvider
+{
+    private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
+    private final DataGenerator generator;
 
-   public CommandsReport(DataGenerator p_124045_) {
-      this.generator = p_124045_;
-   }
+    public CommandsReport(DataGenerator p_124045_)
+    {
+        this.generator = p_124045_;
+    }
 
-   public void run(HashCache p_124048_) throws IOException {
-      Path path = this.generator.getOutputFolder().resolve("reports/commands.json");
-      CommandDispatcher<CommandSourceStack> commanddispatcher = (new Commands(Commands.CommandSelection.ALL)).getDispatcher();
-      DataProvider.save(GSON, p_124048_, ArgumentTypes.serializeNodeToJson(commanddispatcher, commanddispatcher.getRoot()), path);
-   }
+    public void run(HashCache pCache) throws IOException
+    {
+        Path path = this.generator.getOutputFolder().resolve("reports/commands.json");
+        CommandDispatcher<CommandSourceStack> commanddispatcher = (new Commands(Commands.CommandSelection.ALL)).getDispatcher();
+        DataProvider.save(GSON, pCache, ArgumentTypes.serializeNodeToJson(commanddispatcher, commanddispatcher.getRoot()), path);
+    }
 
-   public String getName() {
-      return "Command Syntax";
-   }
+    public String getName()
+    {
+        return "Command Syntax";
+    }
 }

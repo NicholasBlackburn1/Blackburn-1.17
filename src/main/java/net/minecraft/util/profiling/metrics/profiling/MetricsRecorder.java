@@ -2,14 +2,15 @@ package net.minecraft.util.profiling.metrics.profiling;
 
 import net.minecraft.util.profiling.ProfilerFiller;
 
-public interface MetricsRecorder {
-   void end();
+public interface MetricsRecorder
+{
+    void end();
 
-   void startTick();
+    void startTick();
 
-   boolean isRecording();
+    boolean isRecording();
 
-   ProfilerFiller getProfiler();
+    ProfilerFiller getProfiler();
 
-   void endTick();
+    void endTick();
 }

@@ -7,24 +7,30 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.RandomPatchConfiguration;
 
-public class DefaultFlowerFeature extends AbstractFlowerFeature<RandomPatchConfiguration> {
-   public DefaultFlowerFeature(Codec<RandomPatchConfiguration> p_65517_) {
-      super(p_65517_);
-   }
+public class DefaultFlowerFeature extends AbstractFlowerFeature<RandomPatchConfiguration>
+{
+    public DefaultFlowerFeature(Codec<RandomPatchConfiguration> p_65517_)
+    {
+        super(p_65517_);
+    }
 
-   public boolean isValid(LevelAccessor p_65523_, BlockPos p_65524_, RandomPatchConfiguration p_65525_) {
-      return !p_65525_.blacklist.contains(p_65523_.getBlockState(p_65524_));
-   }
+    public boolean isValid(LevelAccessor pLevel, BlockPos pPos, RandomPatchConfiguration pConfig)
+    {
+        return !pConfig.blacklist.contains(pLevel.getBlockState(pPos));
+    }
 
-   public int getCount(RandomPatchConfiguration p_65529_) {
-      return p_65529_.tries;
-   }
+    public int getCount(RandomPatchConfiguration pConfig)
+    {
+        return pConfig.tries;
+    }
 
-   public BlockPos getPos(Random p_65535_, BlockPos p_65536_, RandomPatchConfiguration p_65537_) {
-      return p_65536_.offset(p_65535_.nextInt(p_65537_.xspread) - p_65535_.nextInt(p_65537_.xspread), p_65535_.nextInt(p_65537_.yspread) - p_65535_.nextInt(p_65537_.yspread), p_65535_.nextInt(p_65537_.zspread) - p_65535_.nextInt(p_65537_.zspread));
-   }
+    public BlockPos getPos(Random pRand, BlockPos pPos, RandomPatchConfiguration pConfig)
+    {
+        return pPos.offset(pRand.nextInt(pConfig.xspread) - pRand.nextInt(pConfig.xspread), pRand.nextInt(pConfig.yspread) - pRand.nextInt(pConfig.yspread), pRand.nextInt(pConfig.zspread) - pRand.nextInt(pConfig.zspread));
+    }
 
-   public BlockState getRandomFlower(Random p_65543_, BlockPos p_65544_, RandomPatchConfiguration p_65545_) {
-      return p_65545_.stateProvider.getState(p_65543_, p_65544_);
-   }
+    public BlockState getRandomFlower(Random pRand, BlockPos pPos, RandomPatchConfiguration pConfgi)
+    {
+        return pConfgi.stateProvider.getState(pRand, pPos);
+    }
 }

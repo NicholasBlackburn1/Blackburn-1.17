@@ -13,47 +13,56 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
 import net.minecraft.resources.ResourceLocation;
 
-public class RegistryDumpReport implements DataProvider {
-   private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().create();
-   private final DataGenerator generator;
+public class RegistryDumpReport implements DataProvider
+{
+    private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().create();
+    private final DataGenerator generator;
 
-   public RegistryDumpReport(DataGenerator p_124053_) {
-      this.generator = p_124053_;
-   }
+    public RegistryDumpReport(DataGenerator p_124053_)
+    {
+        this.generator = p_124053_;
+    }
 
-   public void run(HashCache p_124061_) throws IOException {
-      JsonObject jsonobject = new JsonObject();
-      Registry.REGISTRY.keySet().forEach((p_124057_) -> {
-         jsonobject.add(p_124057_.toString(), dumpRegistry(Registry.REGISTRY.get(p_124057_)));
-      });
-      Path path = this.generator.getOutputFolder().resolve("reports/registries.json");
-      DataProvider.save(GSON, p_124061_, jsonobject, path);
-   }
+    public void run(HashCache pCache) throws IOException
+    {
+        JsonObject jsonobject = new JsonObject();
+        Registry.REGISTRY.keySet().forEach((p_124057_) ->
+        {
+            jsonobject.add(p_124057_.toString(), dumpRegistry(Registry.REGISTRY.get(p_124057_)));
+        });
+        Path path = this.generator.getOutputFolder().resolve("reports/registries.json");
+        DataProvider.save(GSON, pCache, jsonobject, path);
+    }
 
-   private static <T> JsonElement dumpRegistry(Registry<T> p_124059_) {
-      JsonObject jsonobject = new JsonObject();
-      if (p_124059_ instanceof DefaultedRegistry) {
-         ResourceLocation resourcelocation = ((DefaultedRegistry)p_124059_).getDefaultKey();
-         jsonobject.addProperty("default", resourcelocation.toString());
-      }
+    private static <T> JsonElement dumpRegistry(Registry<T> pRegistry)
+    {
+        JsonObject jsonobject = new JsonObject();
 
-      int j = ((Registry)Registry.REGISTRY).getId(p_124059_);
-      jsonobject.addProperty("protocol_id", j);
-      JsonObject jsonobject1 = new JsonObject();
+        if (pRegistry instanceof DefaultedRegistry)
+        {
+            ResourceLocation resourcelocation = ((DefaultedRegistry)pRegistry).getDefaultKey();
+            jsonobject.addProperty("default", resourcelocation.toString());
+        }
 
-      for(ResourceLocation resourcelocation1 : p_124059_.keySet()) {
-         T t = p_124059_.get(resourcelocation1);
-         int i = p_124059_.getId(t);
-         JsonObject jsonobject2 = new JsonObject();
-         jsonobject2.addProperty("protocol_id", i);
-         jsonobject1.add(resourcelocation1.toString(), jsonobject2);
-      }
+        int j = ((Registry)Registry.REGISTRY).getId(pRegistry);
+        jsonobject.addProperty("protocol_id", j);
+        JsonObject jsonobject1 = new JsonObject();
 
-      jsonobject.add("entries", jsonobject1);
-      return jsonobject;
-   }
+        for (ResourceLocation resourcelocation1 : pRegistry.keySet())
+        {
+            T t = pRegistry.get(resourcelocation1);
+            int i = pRegistry.getId(t);
+            JsonObject jsonobject2 = new JsonObject();
+            jsonobject2.addProperty("protocol_id", i);
+            jsonobject1.add(resourcelocation1.toString(), jsonobject2);
+        }
 
-   public String getName() {
-      return "Registry Dump";
-   }
+        jsonobject.add("entries", jsonobject1);
+        return jsonobject;
+    }
+
+    public String getName()
+    {
+        return "Registry Dump";
+    }
 }

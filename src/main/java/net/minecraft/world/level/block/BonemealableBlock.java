@@ -7,10 +7,11 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-public interface BonemealableBlock {
-   boolean isValidBonemealTarget(BlockGetter p_50897_, BlockPos p_50898_, BlockState p_50899_, boolean p_50900_);
+public interface BonemealableBlock
+{
+    boolean isValidBonemealTarget(BlockGetter pLevel, BlockPos pPos, BlockState pState, boolean pIsClient);
 
-   boolean isBonemealSuccess(Level p_50901_, Random p_50902_, BlockPos p_50903_, BlockState p_50904_);
+    boolean isBonemealSuccess(Level pLevel, Random pRand, BlockPos pPos, BlockState pState);
 
-   void performBonemeal(ServerLevel p_50893_, Random p_50894_, BlockPos p_50895_, BlockState p_50896_);
+    void performBonemeal(ServerLevel pLevel, Random pRand, BlockPos pPos, BlockState pState);
 }

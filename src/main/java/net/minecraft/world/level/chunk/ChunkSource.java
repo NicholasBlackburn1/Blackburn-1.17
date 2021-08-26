@@ -7,43 +7,51 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 
-public abstract class ChunkSource implements LightChunkGetter, AutoCloseable {
-   @Nullable
-   public LevelChunk getChunk(int p_62228_, int p_62229_, boolean p_62230_) {
-      return (LevelChunk)this.getChunk(p_62228_, p_62229_, ChunkStatus.FULL, p_62230_);
-   }
+public abstract class ChunkSource implements LightChunkGetter, AutoCloseable
+{
+    @Nullable
+    public LevelChunk getChunk(int pChunkX, int pChunkZ, boolean pRequiredStatus)
+    {
+        return (LevelChunk)this.getChunk(pChunkX, pChunkZ, ChunkStatus.FULL, pRequiredStatus);
+    }
 
-   @Nullable
-   public LevelChunk getChunkNow(int p_62221_, int p_62222_) {
-      return this.getChunk(p_62221_, p_62222_, false);
-   }
+    @Nullable
+    public LevelChunk getChunkNow(int pChunkX, int pChunkZ)
+    {
+        return this.getChunk(pChunkX, pChunkZ, false);
+    }
 
-   @Nullable
-   public BlockGetter getChunkForLighting(int p_62241_, int p_62242_) {
-      return this.getChunk(p_62241_, p_62242_, ChunkStatus.EMPTY, false);
-   }
+    @Nullable
+    public BlockGetter getChunkForLighting(int pChunkX, int pChunkZ)
+    {
+        return this.getChunk(pChunkX, pChunkZ, ChunkStatus.EMPTY, false);
+    }
 
-   public boolean hasChunk(int p_62238_, int p_62239_) {
-      return this.getChunk(p_62238_, p_62239_, ChunkStatus.FULL, false) != null;
-   }
+    public boolean hasChunk(int pX, int pZ)
+    {
+        return this.getChunk(pX, pZ, ChunkStatus.FULL, false) != null;
+    }
 
-   @Nullable
-   public abstract ChunkAccess getChunk(int p_62223_, int p_62224_, ChunkStatus p_62225_, boolean p_62226_);
+    @Nullable
+    public abstract ChunkAccess getChunk(int pChunkX, int pChunkZ, ChunkStatus pRequiredStatus, boolean pLoad);
 
-   public abstract void tick(BooleanSupplier p_156184_);
+    public abstract void tick(BooleanSupplier pHasTimeLeft);
 
-   public abstract String gatherStats();
+    public abstract String gatherStats();
 
-   public abstract int getLoadedChunksCount();
+    public abstract int getLoadedChunksCount();
 
-   public void close() throws IOException {
-   }
+    public void close() throws IOException
+    {
+    }
 
-   public abstract LevelLightEngine getLightEngine();
+    public abstract LevelLightEngine getLightEngine();
 
-   public void setSpawnSettings(boolean p_62236_, boolean p_62237_) {
-   }
+    public void setSpawnSettings(boolean pHostile, boolean pPeaceful)
+    {
+    }
 
-   public void updateChunkForced(ChunkPos p_62233_, boolean p_62234_) {
-   }
+    public void updateChunkForced(ChunkPos pPos, boolean pAdd)
+    {
+    }
 }

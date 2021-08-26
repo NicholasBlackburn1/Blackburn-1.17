@@ -15,125 +15,155 @@ import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.MerchantOffer;
 
-public class ShowTradesToPlayer extends Behavior<Villager> {
-   private static final int MAX_LOOK_TIME = 900;
-   private static final int STARTING_LOOK_TIME = 40;
-   @Nullable
-   private ItemStack playerItemStack;
-   private final List<ItemStack> displayItems = Lists.newArrayList();
-   private int cycleCounter;
-   private int displayIndex;
-   private int lookTime;
+public class ShowTradesToPlayer extends Behavior<Villager>
+{
+    private static final int MAX_LOOK_TIME = 900;
+    private static final int STARTING_LOOK_TIME = 40;
+    @Nullable
+    private ItemStack playerItemStack;
+    private final List<ItemStack> displayItems = Lists.newArrayList();
+    private int cycleCounter;
+    private int displayIndex;
+    private int lookTime;
 
-   public ShowTradesToPlayer(int p_24096_, int p_24097_) {
-      super(ImmutableMap.of(MemoryModuleType.INTERACTION_TARGET, MemoryStatus.VALUE_PRESENT), p_24096_, p_24097_);
-   }
+    public ShowTradesToPlayer(int p_24096_, int p_24097_)
+    {
+        super(ImmutableMap.of(MemoryModuleType.INTERACTION_TARGET, MemoryStatus.VALUE_PRESENT), p_24096_, p_24097_);
+    }
 
-   public boolean checkExtraStartConditions(ServerLevel p_24106_, Villager p_24107_) {
-      Brain<?> brain = p_24107_.getBrain();
-      if (!brain.getMemory(MemoryModuleType.INTERACTION_TARGET).isPresent()) {
-         return false;
-      } else {
-         LivingEntity livingentity = brain.getMemory(MemoryModuleType.INTERACTION_TARGET).get();
-         return livingentity.getType() == EntityType.PLAYER && p_24107_.isAlive() && livingentity.isAlive() && !p_24107_.isBaby() && p_24107_.distanceToSqr(livingentity) <= 17.0D;
-      }
-   }
+    public boolean checkExtraStartConditions(ServerLevel pLevel, Villager pOwner)
+    {
+        Brain<?> brain = pOwner.getBrain();
 
-   public boolean canStillUse(ServerLevel p_24109_, Villager p_24110_, long p_24111_) {
-      return this.checkExtraStartConditions(p_24109_, p_24110_) && this.lookTime > 0 && p_24110_.getBrain().getMemory(MemoryModuleType.INTERACTION_TARGET).isPresent();
-   }
+        if (!brain.getMemory(MemoryModuleType.INTERACTION_TARGET).isPresent())
+        {
+            return false;
+        }
+        else
+        {
+            LivingEntity livingentity = brain.getMemory(MemoryModuleType.INTERACTION_TARGET).get();
+            return livingentity.getType() == EntityType.PLAYER && pOwner.isAlive() && livingentity.isAlive() && !pOwner.isBaby() && pOwner.distanceToSqr(livingentity) <= 17.0D;
+        }
+    }
 
-   public void start(ServerLevel p_24124_, Villager p_24125_, long p_24126_) {
-      super.start(p_24124_, p_24125_, p_24126_);
-      this.lookAtTarget(p_24125_);
-      this.cycleCounter = 0;
-      this.displayIndex = 0;
-      this.lookTime = 40;
-   }
+    public boolean canStillUse(ServerLevel pLevel, Villager pEntity, long pGameTime)
+    {
+        return this.checkExtraStartConditions(pLevel, pEntity) && this.lookTime > 0 && pEntity.getBrain().getMemory(MemoryModuleType.INTERACTION_TARGET).isPresent();
+    }
 
-   public void tick(ServerLevel p_24134_, Villager p_24135_, long p_24136_) {
-      LivingEntity livingentity = this.lookAtTarget(p_24135_);
-      this.findItemsToDisplay(livingentity, p_24135_);
-      if (!this.displayItems.isEmpty()) {
-         this.displayCyclingItems(p_24135_);
-      } else {
-         clearHeldItem(p_24135_);
-         this.lookTime = Math.min(this.lookTime, 40);
-      }
+    public void start(ServerLevel pLevel, Villager pEntity, long pGameTime)
+    {
+        super.start(pLevel, pEntity, pGameTime);
+        this.lookAtTarget(pEntity);
+        this.cycleCounter = 0;
+        this.displayIndex = 0;
+        this.lookTime = 40;
+    }
 
-      --this.lookTime;
-   }
+    public void tick(ServerLevel pLevel, Villager pOwner, long pGameTime)
+    {
+        LivingEntity livingentity = this.lookAtTarget(pOwner);
+        this.findItemsToDisplay(livingentity, pOwner);
 
-   public void stop(ServerLevel p_24144_, Villager p_24145_, long p_24146_) {
-      super.stop(p_24144_, p_24145_, p_24146_);
-      p_24145_.getBrain().eraseMemory(MemoryModuleType.INTERACTION_TARGET);
-      clearHeldItem(p_24145_);
-      this.playerItemStack = null;
-   }
+        if (!this.displayItems.isEmpty())
+        {
+            this.displayCyclingItems(pOwner);
+        }
+        else
+        {
+            m_182373_(pOwner);
+            this.lookTime = Math.min(this.lookTime, 40);
+        }
 
-   private void findItemsToDisplay(LivingEntity p_24113_, Villager p_24114_) {
-      boolean flag = false;
-      ItemStack itemstack = p_24113_.getMainHandItem();
-      if (this.playerItemStack == null || !ItemStack.isSame(this.playerItemStack, itemstack)) {
-         this.playerItemStack = itemstack;
-         flag = true;
-         this.displayItems.clear();
-      }
+        --this.lookTime;
+    }
 
-      if (flag && !this.playerItemStack.isEmpty()) {
-         this.updateDisplayItems(p_24114_);
-         if (!this.displayItems.isEmpty()) {
-            this.lookTime = 900;
-            this.displayFirstItem(p_24114_);
-         }
-      }
+    public void stop(ServerLevel pLevel, Villager pEntity, long pGameTime)
+    {
+        super.stop(pLevel, pEntity, pGameTime);
+        pEntity.getBrain().eraseMemory(MemoryModuleType.INTERACTION_TARGET);
+        m_182373_(pEntity);
+        this.playerItemStack = null;
+    }
 
-   }
+    private void findItemsToDisplay(LivingEntity p_24113_, Villager p_24114_)
+    {
+        boolean flag = false;
+        ItemStack itemstack = p_24113_.getMainHandItem();
 
-   private void displayFirstItem(Villager p_24116_) {
-      displayAsHeldItem(p_24116_, this.displayItems.get(0));
-   }
+        if (this.playerItemStack == null || !ItemStack.isSame(this.playerItemStack, itemstack))
+        {
+            this.playerItemStack = itemstack;
+            flag = true;
+            this.displayItems.clear();
+        }
 
-   private void updateDisplayItems(Villager p_24128_) {
-      for(MerchantOffer merchantoffer : p_24128_.getOffers()) {
-         if (!merchantoffer.isOutOfStock() && this.playerItemStackMatchesCostOfOffer(merchantoffer)) {
-            this.displayItems.add(merchantoffer.getResult());
-         }
-      }
+        if (flag && !this.playerItemStack.isEmpty())
+        {
+            this.updateDisplayItems(p_24114_);
 
-   }
+            if (!this.displayItems.isEmpty())
+            {
+                this.lookTime = 900;
+                this.displayFirstItem(p_24114_);
+            }
+        }
+    }
 
-   private boolean playerItemStackMatchesCostOfOffer(MerchantOffer p_24118_) {
-      return ItemStack.isSame(this.playerItemStack, p_24118_.getCostA()) || ItemStack.isSame(this.playerItemStack, p_24118_.getCostB());
-   }
+    private void displayFirstItem(Villager p_24116_)
+    {
+        m_182370_(p_24116_, this.displayItems.get(0));
+    }
 
-   private static void clearHeldItem(Villager p_182374_) {
-      p_182374_.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
-      p_182374_.setDropChance(EquipmentSlot.MAINHAND, 0.085F);
-   }
+    private void updateDisplayItems(Villager p_24128_)
+    {
+        for (MerchantOffer merchantoffer : p_24128_.getOffers())
+        {
+            if (!merchantoffer.isOutOfStock() && this.playerItemStackMatchesCostOfOffer(merchantoffer))
+            {
+                this.displayItems.add(merchantoffer.getResult());
+            }
+        }
+    }
 
-   private static void displayAsHeldItem(Villager p_182371_, ItemStack p_182372_) {
-      p_182371_.setItemSlot(EquipmentSlot.MAINHAND, p_182372_);
-      p_182371_.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
-   }
+    private boolean playerItemStackMatchesCostOfOffer(MerchantOffer p_24118_)
+    {
+        return ItemStack.isSame(this.playerItemStack, p_24118_.getCostA()) || ItemStack.isSame(this.playerItemStack, p_24118_.getCostB());
+    }
 
-   private LivingEntity lookAtTarget(Villager p_24138_) {
-      Brain<?> brain = p_24138_.getBrain();
-      LivingEntity livingentity = brain.getMemory(MemoryModuleType.INTERACTION_TARGET).get();
-      brain.setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(livingentity, true));
-      return livingentity;
-   }
+    private static void m_182373_(Villager p_182374_)
+    {
+        p_182374_.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+        p_182374_.setDropChance(EquipmentSlot.MAINHAND, 0.085F);
+    }
 
-   private void displayCyclingItems(Villager p_24148_) {
-      if (this.displayItems.size() >= 2 && ++this.cycleCounter >= 40) {
-         ++this.displayIndex;
-         this.cycleCounter = 0;
-         if (this.displayIndex > this.displayItems.size() - 1) {
-            this.displayIndex = 0;
-         }
+    private static void m_182370_(Villager p_182371_, ItemStack p_182372_)
+    {
+        p_182371_.setItemSlot(EquipmentSlot.MAINHAND, p_182372_);
+        p_182371_.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
+    }
 
-         displayAsHeldItem(p_24148_, this.displayItems.get(this.displayIndex));
-      }
+    private LivingEntity lookAtTarget(Villager p_24138_)
+    {
+        Brain<?> brain = p_24138_.getBrain();
+        LivingEntity livingentity = brain.getMemory(MemoryModuleType.INTERACTION_TARGET).get();
+        brain.setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(livingentity, true));
+        return livingentity;
+    }
 
-   }
+    private void displayCyclingItems(Villager p_24148_)
+    {
+        if (this.displayItems.size() >= 2 && ++this.cycleCounter >= 40)
+        {
+            ++this.displayIndex;
+            this.cycleCounter = 0;
+
+            if (this.displayIndex > this.displayItems.size() - 1)
+            {
+                this.displayIndex = 0;
+            }
+
+            m_182370_(p_24148_, this.displayItems.get(this.displayIndex));
+        }
+    }
 }

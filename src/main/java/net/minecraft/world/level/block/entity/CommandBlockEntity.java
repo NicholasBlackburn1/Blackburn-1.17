@@ -15,159 +15,199 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
-public class CommandBlockEntity extends BlockEntity {
-   private boolean powered;
-   private boolean auto;
-   private boolean conditionMet;
-   private boolean sendToClient;
-   private final BaseCommandBlock commandBlock = new BaseCommandBlock() {
-      public void setCommand(String p_59157_) {
-         super.setCommand(p_59157_);
-         CommandBlockEntity.this.setChanged();
-      }
+public class CommandBlockEntity extends BlockEntity
+{
+    private boolean powered;
+    private boolean auto;
+    private boolean conditionMet;
+    private boolean sendToClient;
+    private final BaseCommandBlock commandBlock = new BaseCommandBlock()
+    {
+        public void setCommand(String pCommand)
+        {
+            super.setCommand(pCommand);
+            CommandBlockEntity.this.setChanged();
+        }
+        public ServerLevel getLevel()
+        {
+            return (ServerLevel)CommandBlockEntity.this.level;
+        }
+        public void onUpdated()
+        {
+            BlockState blockstate = CommandBlockEntity.this.level.getBlockState(CommandBlockEntity.this.worldPosition);
+            this.getLevel().sendBlockUpdated(CommandBlockEntity.this.worldPosition, blockstate, blockstate, 3);
+        }
+        public Vec3 getPosition()
+        {
+            return Vec3.atCenterOf(CommandBlockEntity.this.worldPosition);
+        }
+        public CommandSourceStack createCommandSourceStack()
+        {
+            return new CommandSourceStack(this, Vec3.atCenterOf(CommandBlockEntity.this.worldPosition), Vec2.ZERO, this.getLevel(), 2, this.getName().getString(), this.getName(), this.getLevel().getServer(), (Entity)null);
+        }
+    };
 
-      public ServerLevel getLevel() {
-         return (ServerLevel)CommandBlockEntity.this.level;
-      }
+    public CommandBlockEntity(BlockPos p_155380_, BlockState p_155381_)
+    {
+        super(BlockEntityType.COMMAND_BLOCK, p_155380_, p_155381_);
+    }
 
-      public void onUpdated() {
-         BlockState blockstate = CommandBlockEntity.this.level.getBlockState(CommandBlockEntity.this.worldPosition);
-         this.getLevel().sendBlockUpdated(CommandBlockEntity.this.worldPosition, blockstate, blockstate, 3);
-      }
+    public CompoundTag save(CompoundTag pCompound)
+    {
+        super.save(pCompound);
+        this.commandBlock.save(pCompound);
+        pCompound.putBoolean("powered", this.isPowered());
+        pCompound.putBoolean("conditionMet", this.wasConditionMet());
+        pCompound.putBoolean("auto", this.isAutomatic());
+        return pCompound;
+    }
 
-      public Vec3 getPosition() {
-         return Vec3.atCenterOf(CommandBlockEntity.this.worldPosition);
-      }
+    public void load(CompoundTag p_155383_)
+    {
+        super.load(p_155383_);
+        this.commandBlock.load(p_155383_);
+        this.powered = p_155383_.getBoolean("powered");
+        this.conditionMet = p_155383_.getBoolean("conditionMet");
+        this.setAutomatic(p_155383_.getBoolean("auto"));
+    }
 
-      public CommandSourceStack createCommandSourceStack() {
-         return new CommandSourceStack(this, Vec3.atCenterOf(CommandBlockEntity.this.worldPosition), Vec2.ZERO, this.getLevel(), 2, this.getName().getString(), this.getName(), this.getLevel().getServer(), (Entity)null);
-      }
-   };
+    @Nullable
+    public ClientboundBlockEntityDataPacket getUpdatePacket()
+    {
+        if (this.isSendToClient())
+        {
+            this.setSendToClient(false);
+            CompoundTag compoundtag = this.save(new CompoundTag());
+            return new ClientboundBlockEntityDataPacket(this.worldPosition, 2, compoundtag);
+        }
+        else
+        {
+            return null;
+        }
+    }
 
-   public CommandBlockEntity(BlockPos p_155380_, BlockState p_155381_) {
-      super(BlockEntityType.COMMAND_BLOCK, p_155380_, p_155381_);
-   }
+    public boolean onlyOpCanSetNbt()
+    {
+        return true;
+    }
 
-   public CompoundTag save(CompoundTag p_59134_) {
-      super.save(p_59134_);
-      this.commandBlock.save(p_59134_);
-      p_59134_.putBoolean("powered", this.isPowered());
-      p_59134_.putBoolean("conditionMet", this.wasConditionMet());
-      p_59134_.putBoolean("auto", this.isAutomatic());
-      return p_59134_;
-   }
+    public BaseCommandBlock getCommandBlock()
+    {
+        return this.commandBlock;
+    }
 
-   public void load(CompoundTag p_155383_) {
-      super.load(p_155383_);
-      this.commandBlock.load(p_155383_);
-      this.powered = p_155383_.getBoolean("powered");
-      this.conditionMet = p_155383_.getBoolean("conditionMet");
-      this.setAutomatic(p_155383_.getBoolean("auto"));
-   }
+    public void setPowered(boolean pPowered)
+    {
+        this.powered = pPowered;
+    }
 
-   @Nullable
-   public ClientboundBlockEntityDataPacket getUpdatePacket() {
-      if (this.isSendToClient()) {
-         this.setSendToClient(false);
-         CompoundTag compoundtag = this.save(new CompoundTag());
-         return new ClientboundBlockEntityDataPacket(this.worldPosition, 2, compoundtag);
-      } else {
-         return null;
-      }
-   }
+    public boolean isPowered()
+    {
+        return this.powered;
+    }
 
-   public boolean onlyOpCanSetNbt() {
-      return true;
-   }
+    public boolean isAutomatic()
+    {
+        return this.auto;
+    }
 
-   public BaseCommandBlock getCommandBlock() {
-      return this.commandBlock;
-   }
+    public void setAutomatic(boolean pAuto)
+    {
+        boolean flag = this.auto;
+        this.auto = pAuto;
 
-   public void setPowered(boolean p_59136_) {
-      this.powered = p_59136_;
-   }
+        if (!flag && pAuto && !this.powered && this.level != null && this.getMode() != CommandBlockEntity.Mode.SEQUENCE)
+        {
+            this.scheduleTick();
+        }
+    }
 
-   public boolean isPowered() {
-      return this.powered;
-   }
+    public void onModeSwitch()
+    {
+        CommandBlockEntity.Mode commandblockentity$mode = this.getMode();
 
-   public boolean isAutomatic() {
-      return this.auto;
-   }
+        if (commandblockentity$mode == CommandBlockEntity.Mode.AUTO && (this.powered || this.auto) && this.level != null)
+        {
+            this.scheduleTick();
+        }
+    }
 
-   public void setAutomatic(boolean p_59138_) {
-      boolean flag = this.auto;
-      this.auto = p_59138_;
-      if (!flag && p_59138_ && !this.powered && this.level != null && this.getMode() != CommandBlockEntity.Mode.SEQUENCE) {
-         this.scheduleTick();
-      }
+    private void scheduleTick()
+    {
+        Block block = this.getBlockState().getBlock();
 
-   }
+        if (block instanceof CommandBlock)
+        {
+            this.markConditionMet();
+            this.level.getBlockTicks().scheduleTick(this.worldPosition, block, 1);
+        }
+    }
 
-   public void onModeSwitch() {
-      CommandBlockEntity.Mode commandblockentity$mode = this.getMode();
-      if (commandblockentity$mode == CommandBlockEntity.Mode.AUTO && (this.powered || this.auto) && this.level != null) {
-         this.scheduleTick();
-      }
+    public boolean wasConditionMet()
+    {
+        return this.conditionMet;
+    }
 
-   }
+    public boolean markConditionMet()
+    {
+        this.conditionMet = true;
 
-   private void scheduleTick() {
-      Block block = this.getBlockState().getBlock();
-      if (block instanceof CommandBlock) {
-         this.markConditionMet();
-         this.level.getBlockTicks().scheduleTick(this.worldPosition, block, 1);
-      }
+        if (this.isConditional())
+        {
+            BlockPos blockpos = this.worldPosition.relative(this.level.getBlockState(this.worldPosition).getValue(CommandBlock.FACING).getOpposite());
 
-   }
+            if (this.level.getBlockState(blockpos).getBlock() instanceof CommandBlock)
+            {
+                BlockEntity blockentity = this.level.getBlockEntity(blockpos);
+                this.conditionMet = blockentity instanceof CommandBlockEntity && ((CommandBlockEntity)blockentity).getCommandBlock().getSuccessCount() > 0;
+            }
+            else
+            {
+                this.conditionMet = false;
+            }
+        }
 
-   public boolean wasConditionMet() {
-      return this.conditionMet;
-   }
+        return this.conditionMet;
+    }
 
-   public boolean markConditionMet() {
-      this.conditionMet = true;
-      if (this.isConditional()) {
-         BlockPos blockpos = this.worldPosition.relative(this.level.getBlockState(this.worldPosition).getValue(CommandBlock.FACING).getOpposite());
-         if (this.level.getBlockState(blockpos).getBlock() instanceof CommandBlock) {
-            BlockEntity blockentity = this.level.getBlockEntity(blockpos);
-            this.conditionMet = blockentity instanceof CommandBlockEntity && ((CommandBlockEntity)blockentity).getCommandBlock().getSuccessCount() > 0;
-         } else {
-            this.conditionMet = false;
-         }
-      }
+    public boolean isSendToClient()
+    {
+        return this.sendToClient;
+    }
 
-      return this.conditionMet;
-   }
+    public void setSendToClient(boolean p_59140_)
+    {
+        this.sendToClient = p_59140_;
+    }
 
-   public boolean isSendToClient() {
-      return this.sendToClient;
-   }
+    public CommandBlockEntity.Mode getMode()
+    {
+        BlockState blockstate = this.getBlockState();
 
-   public void setSendToClient(boolean p_59140_) {
-      this.sendToClient = p_59140_;
-   }
+        if (blockstate.is(Blocks.COMMAND_BLOCK))
+        {
+            return CommandBlockEntity.Mode.REDSTONE;
+        }
+        else if (blockstate.is(Blocks.REPEATING_COMMAND_BLOCK))
+        {
+            return CommandBlockEntity.Mode.AUTO;
+        }
+        else
+        {
+            return blockstate.is(Blocks.CHAIN_COMMAND_BLOCK) ? CommandBlockEntity.Mode.SEQUENCE : CommandBlockEntity.Mode.REDSTONE;
+        }
+    }
 
-   public CommandBlockEntity.Mode getMode() {
-      BlockState blockstate = this.getBlockState();
-      if (blockstate.is(Blocks.COMMAND_BLOCK)) {
-         return CommandBlockEntity.Mode.REDSTONE;
-      } else if (blockstate.is(Blocks.REPEATING_COMMAND_BLOCK)) {
-         return CommandBlockEntity.Mode.AUTO;
-      } else {
-         return blockstate.is(Blocks.CHAIN_COMMAND_BLOCK) ? CommandBlockEntity.Mode.SEQUENCE : CommandBlockEntity.Mode.REDSTONE;
-      }
-   }
+    public boolean isConditional()
+    {
+        BlockState blockstate = this.level.getBlockState(this.getBlockPos());
+        return blockstate.getBlock() instanceof CommandBlock ? blockstate.getValue(CommandBlock.CONDITIONAL) : false;
+    }
 
-   public boolean isConditional() {
-      BlockState blockstate = this.level.getBlockState(this.getBlockPos());
-      return blockstate.getBlock() instanceof CommandBlock ? blockstate.getValue(CommandBlock.CONDITIONAL) : false;
-   }
-
-   public static enum Mode {
-      SEQUENCE,
-      AUTO,
-      REDSTONE;
-   }
+    public static enum Mode
+    {
+        SEQUENCE,
+        AUTO,
+        REDSTONE;
+    }
 }

@@ -15,54 +15,67 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 
-public class FallingBlock extends Block implements Fallable {
-   public FallingBlock(BlockBehaviour.Properties p_53205_) {
-      super(p_53205_);
-   }
+public class FallingBlock extends Block implements Fallable
+{
+    public FallingBlock(BlockBehaviour.Properties p_53205_)
+    {
+        super(p_53205_);
+    }
 
-   public void onPlace(BlockState p_53233_, Level p_53234_, BlockPos p_53235_, BlockState p_53236_, boolean p_53237_) {
-      p_53234_.getBlockTicks().scheduleTick(p_53235_, this, this.getDelayAfterPlace());
-   }
+    public void onPlace(BlockState pState, Level pLevel, BlockPos pPos, BlockState pOldState, boolean pIsMoving)
+    {
+        pLevel.getBlockTicks().scheduleTick(pPos, this, this.getDelayAfterPlace());
+    }
 
-   public BlockState updateShape(BlockState p_53226_, Direction p_53227_, BlockState p_53228_, LevelAccessor p_53229_, BlockPos p_53230_, BlockPos p_53231_) {
-      p_53229_.getBlockTicks().scheduleTick(p_53230_, this, this.getDelayAfterPlace());
-      return super.updateShape(p_53226_, p_53227_, p_53228_, p_53229_, p_53230_, p_53231_);
-   }
+    public BlockState updateShape(BlockState pState, Direction pFacing, BlockState pFacingState, LevelAccessor pLevel, BlockPos pCurrentPos, BlockPos pFacingPos)
+    {
+        pLevel.getBlockTicks().scheduleTick(pCurrentPos, this, this.getDelayAfterPlace());
+        return super.updateShape(pState, pFacing, pFacingState, pLevel, pCurrentPos, pFacingPos);
+    }
 
-   public void tick(BlockState p_53216_, ServerLevel p_53217_, BlockPos p_53218_, Random p_53219_) {
-      if (isFree(p_53217_.getBlockState(p_53218_.below())) && p_53218_.getY() >= p_53217_.getMinBuildHeight()) {
-         FallingBlockEntity fallingblockentity = new FallingBlockEntity(p_53217_, (double)p_53218_.getX() + 0.5D, (double)p_53218_.getY(), (double)p_53218_.getZ() + 0.5D, p_53217_.getBlockState(p_53218_));
-         this.falling(fallingblockentity);
-         p_53217_.addFreshEntity(fallingblockentity);
-      }
-   }
+    public void tick(BlockState pState, ServerLevel pLevel, BlockPos pPos, Random pRand)
+    {
+        if (isFree(pLevel.getBlockState(pPos.below())) && pPos.getY() >= pLevel.getMinBuildHeight())
+        {
+            FallingBlockEntity fallingblockentity = new FallingBlockEntity(pLevel, (double)pPos.getX() + 0.5D, (double)pPos.getY(), (double)pPos.getZ() + 0.5D, pLevel.getBlockState(pPos));
+            this.falling(fallingblockentity);
+            pLevel.addFreshEntity(fallingblockentity);
+        }
+    }
 
-   protected void falling(FallingBlockEntity p_53206_) {
-   }
+    protected void falling(FallingBlockEntity pFallingEntity)
+    {
+    }
 
-   protected int getDelayAfterPlace() {
-      return 2;
-   }
+    protected int getDelayAfterPlace()
+    {
+        return 2;
+    }
 
-   public static boolean isFree(BlockState p_53242_) {
-      Material material = p_53242_.getMaterial();
-      return p_53242_.isAir() || p_53242_.is(BlockTags.FIRE) || material.isLiquid() || material.isReplaceable();
-   }
+    public static boolean isFree(BlockState pState)
+    {
+        Material material = pState.getMaterial();
+        return pState.isAir() || pState.is(BlockTags.FIRE) || material.isLiquid() || material.isReplaceable();
+    }
 
-   public void animateTick(BlockState p_53221_, Level p_53222_, BlockPos p_53223_, Random p_53224_) {
-      if (p_53224_.nextInt(16) == 0) {
-         BlockPos blockpos = p_53223_.below();
-         if (isFree(p_53222_.getBlockState(blockpos))) {
-            double d0 = (double)p_53223_.getX() + p_53224_.nextDouble();
-            double d1 = (double)p_53223_.getY() - 0.05D;
-            double d2 = (double)p_53223_.getZ() + p_53224_.nextDouble();
-            p_53222_.addParticle(new BlockParticleOption(ParticleTypes.FALLING_DUST, p_53221_), d0, d1, d2, 0.0D, 0.0D, 0.0D);
-         }
-      }
+    public void animateTick(BlockState pState, Level pLevel, BlockPos pPos, Random pRand)
+    {
+        if (pRand.nextInt(16) == 0)
+        {
+            BlockPos blockpos = pPos.below();
 
-   }
+            if (isFree(pLevel.getBlockState(blockpos)))
+            {
+                double d0 = (double)pPos.getX() + pRand.nextDouble();
+                double d1 = (double)pPos.getY() - 0.05D;
+                double d2 = (double)pPos.getZ() + pRand.nextDouble();
+                pLevel.addParticle(new BlockParticleOption(ParticleTypes.FALLING_DUST, pState), d0, d1, d2, 0.0D, 0.0D, 0.0D);
+            }
+        }
+    }
 
-   public int getDustColor(BlockState p_53238_, BlockGetter p_53239_, BlockPos p_53240_) {
-      return -16777216;
-   }
+    public int getDustColor(BlockState pState, BlockGetter pReader, BlockPos pPos)
+    {
+        return -16777216;
+    }
 }

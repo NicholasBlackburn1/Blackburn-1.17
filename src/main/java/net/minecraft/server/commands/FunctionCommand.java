@@ -11,34 +11,44 @@ import net.minecraft.commands.arguments.item.FunctionArgument;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.ServerFunctionManager;
 
-public class FunctionCommand {
-   public static final SuggestionProvider<CommandSourceStack> SUGGEST_FUNCTION = (p_137719_, p_137720_) -> {
-      ServerFunctionManager serverfunctionmanager = p_137719_.getSource().getServer().getFunctions();
-      SharedSuggestionProvider.suggestResource(serverfunctionmanager.getTagNames(), p_137720_, "#");
-      return SharedSuggestionProvider.suggestResource(serverfunctionmanager.getFunctionNames(), p_137720_);
-   };
+public class FunctionCommand
+{
+    public static final SuggestionProvider<CommandSourceStack> SUGGEST_FUNCTION = (p_137719_, p_137720_) ->
+    {
+        ServerFunctionManager serverfunctionmanager = p_137719_.getSource().getServer().getFunctions();
+        SharedSuggestionProvider.suggestResource(serverfunctionmanager.getTagNames(), p_137720_, "#");
+        return SharedSuggestionProvider.suggestResource(serverfunctionmanager.getFunctionNames(), p_137720_);
+    };
 
-   public static void register(CommandDispatcher<CommandSourceStack> p_137715_) {
-      p_137715_.register(Commands.literal("function").requires((p_137722_) -> {
-         return p_137722_.hasPermission(2);
-      }).then(Commands.argument("name", FunctionArgument.functions()).suggests(SUGGEST_FUNCTION).executes((p_137717_) -> {
-         return runFunction(p_137717_.getSource(), FunctionArgument.getFunctions(p_137717_, "name"));
-      })));
-   }
+    public static void register(CommandDispatcher<CommandSourceStack> pDispatcher)
+    {
+        pDispatcher.register(Commands.literal("function").requires((p_137722_) ->
+        {
+            return p_137722_.hasPermission(2);
+        }).then(Commands.argument("name", FunctionArgument.functions()).suggests(SUGGEST_FUNCTION).executes((p_137717_) ->
+        {
+            return runFunction(p_137717_.getSource(), FunctionArgument.getFunctions(p_137717_, "name"));
+        })));
+    }
 
-   private static int runFunction(CommandSourceStack p_137724_, Collection<CommandFunction> p_137725_) {
-      int i = 0;
+    private static int runFunction(CommandSourceStack pSource, Collection<CommandFunction> pFunctions)
+    {
+        int i = 0;
 
-      for(CommandFunction commandfunction : p_137725_) {
-         i += p_137724_.getServer().getFunctions().execute(commandfunction, p_137724_.withSuppressedOutput().withMaximumPermission(2));
-      }
+        for (CommandFunction commandfunction : pFunctions)
+        {
+            i += pSource.getServer().getFunctions().execute(commandfunction, pSource.withSuppressedOutput().withMaximumPermission(2));
+        }
 
-      if (p_137725_.size() == 1) {
-         p_137724_.sendSuccess(new TranslatableComponent("commands.function.success.single", i, p_137725_.iterator().next().getId()), true);
-      } else {
-         p_137724_.sendSuccess(new TranslatableComponent("commands.function.success.multiple", i, p_137725_.size()), true);
-      }
+        if (pFunctions.size() == 1)
+        {
+            pSource.sendSuccess(new TranslatableComponent("commands.function.success.single", i, pFunctions.iterator().next().getId()), true);
+        }
+        else
+        {
+            pSource.sendSuccess(new TranslatableComponent("commands.function.success.multiple", i, pFunctions.size()), true);
+        }
 
-      return i;
-   }
+        return i;
+    }
 }

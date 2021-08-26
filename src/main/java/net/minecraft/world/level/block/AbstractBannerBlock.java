@@ -12,38 +12,47 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 
-public abstract class AbstractBannerBlock extends BaseEntityBlock {
-   private final DyeColor color;
+public abstract class AbstractBannerBlock extends BaseEntityBlock
+{
+    private final DyeColor color;
 
-   protected AbstractBannerBlock(DyeColor p_48659_, BlockBehaviour.Properties p_48660_) {
-      super(p_48660_);
-      this.color = p_48659_;
-   }
+    protected AbstractBannerBlock(DyeColor p_48659_, BlockBehaviour.Properties p_48660_)
+    {
+        super(p_48660_);
+        this.color = p_48659_;
+    }
 
-   public boolean isPossibleToRespawnInThis() {
-      return true;
-   }
+    public boolean isPossibleToRespawnInThis()
+    {
+        return true;
+    }
 
-   public BlockEntity newBlockEntity(BlockPos p_151892_, BlockState p_151893_) {
-      return new BannerBlockEntity(p_151892_, p_151893_, this.color);
-   }
+    public BlockEntity newBlockEntity(BlockPos p_151892_, BlockState p_151893_)
+    {
+        return new BannerBlockEntity(p_151892_, p_151893_, this.color);
+    }
 
-   public void setPlacedBy(Level p_48668_, BlockPos p_48669_, BlockState p_48670_, @Nullable LivingEntity p_48671_, ItemStack p_48672_) {
-      if (p_48672_.hasCustomHoverName()) {
-         BlockEntity blockentity = p_48668_.getBlockEntity(p_48669_);
-         if (blockentity instanceof BannerBlockEntity) {
-            ((BannerBlockEntity)blockentity).setCustomName(p_48672_.getHoverName());
-         }
-      }
+    public void setPlacedBy(Level pLevel, BlockPos pPos, BlockState pState, @Nullable LivingEntity pPlacer, ItemStack pStack)
+    {
+        if (pStack.hasCustomHoverName())
+        {
+            BlockEntity blockentity = pLevel.getBlockEntity(pPos);
 
-   }
+            if (blockentity instanceof BannerBlockEntity)
+            {
+                ((BannerBlockEntity)blockentity).setCustomName(pStack.getHoverName());
+            }
+        }
+    }
 
-   public ItemStack getCloneItemStack(BlockGetter p_48664_, BlockPos p_48665_, BlockState p_48666_) {
-      BlockEntity blockentity = p_48664_.getBlockEntity(p_48665_);
-      return blockentity instanceof BannerBlockEntity ? ((BannerBlockEntity)blockentity).getItem() : super.getCloneItemStack(p_48664_, p_48665_, p_48666_);
-   }
+    public ItemStack getCloneItemStack(BlockGetter pLevel, BlockPos pPos, BlockState pState)
+    {
+        BlockEntity blockentity = pLevel.getBlockEntity(pPos);
+        return blockentity instanceof BannerBlockEntity ? ((BannerBlockEntity)blockentity).getItem() : super.getCloneItemStack(pLevel, pPos, pState);
+    }
 
-   public DyeColor getColor() {
-      return this.color;
-   }
+    public DyeColor getColor()
+    {
+        return this.color;
+    }
 }

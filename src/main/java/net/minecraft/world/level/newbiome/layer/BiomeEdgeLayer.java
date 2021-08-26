@@ -3,52 +3,75 @@ package net.minecraft.world.level.newbiome.layer;
 import net.minecraft.world.level.newbiome.context.Context;
 import net.minecraft.world.level.newbiome.layer.traits.CastleTransformer;
 
-public enum BiomeEdgeLayer implements CastleTransformer {
-   INSTANCE;
+public enum BiomeEdgeLayer implements CastleTransformer
+{
+    INSTANCE;
 
-   public int apply(Context p_76664_, int p_76665_, int p_76666_, int p_76667_, int p_76668_, int p_76669_) {
-      int[] aint = new int[1];
-      if (!this.checkEdge(aint, p_76669_) && !this.checkEdgeStrict(aint, p_76665_, p_76666_, p_76667_, p_76668_, p_76669_, 38, 37) && !this.checkEdgeStrict(aint, p_76665_, p_76666_, p_76667_, p_76668_, p_76669_, 39, 37) && !this.checkEdgeStrict(aint, p_76665_, p_76666_, p_76667_, p_76668_, p_76669_, 32, 5)) {
-         if (p_76669_ != 2 || p_76665_ != 12 && p_76666_ != 12 && p_76668_ != 12 && p_76667_ != 12) {
-            if (p_76669_ == 6) {
-               if (p_76665_ == 2 || p_76666_ == 2 || p_76668_ == 2 || p_76667_ == 2 || p_76665_ == 30 || p_76666_ == 30 || p_76668_ == 30 || p_76667_ == 30 || p_76665_ == 12 || p_76666_ == 12 || p_76668_ == 12 || p_76667_ == 12) {
-                  return 1;
-               }
+    public int apply(Context pContext, int pNorth, int pWest, int pSouth, int pEast, int pCenter)
+    {
+        int[] aint = new int[1];
 
-               if (p_76665_ == 21 || p_76667_ == 21 || p_76666_ == 21 || p_76668_ == 21 || p_76665_ == 168 || p_76667_ == 168 || p_76666_ == 168 || p_76668_ == 168) {
-                  return 23;
-               }
+        if (!this.m_76670_(aint, pCenter) && !this.m_76673_(aint, pNorth, pWest, pSouth, pEast, pCenter, 38, 37) && !this.m_76673_(aint, pNorth, pWest, pSouth, pEast, pCenter, 39, 37) && !this.m_76673_(aint, pNorth, pWest, pSouth, pEast, pCenter, 32, 5))
+        {
+            if (pCenter != 2 || pNorth != 12 && pWest != 12 && pEast != 12 && pSouth != 12)
+            {
+                if (pCenter == 6)
+                {
+                    if (pNorth == 2 || pWest == 2 || pEast == 2 || pSouth == 2 || pNorth == 30 || pWest == 30 || pEast == 30 || pSouth == 30 || pNorth == 12 || pWest == 12 || pEast == 12 || pSouth == 12)
+                    {
+                        return 1;
+                    }
+
+                    if (pNorth == 21 || pSouth == 21 || pWest == 21 || pEast == 21 || pNorth == 168 || pSouth == 168 || pWest == 168 || pEast == 168)
+                    {
+                        return 23;
+                    }
+                }
+
+                return pCenter;
+            }
+            else
+            {
+                return 34;
+            }
+        }
+        else
+        {
+            return aint[0];
+        }
+    }
+
+    private boolean m_76670_(int[] p_76671_, int p_76672_)
+    {
+        if (!Layers.isSame(p_76672_, 3))
+        {
+            return false;
+        }
+        else
+        {
+            p_76671_[0] = p_76672_;
+            return true;
+        }
+    }
+
+    private boolean m_76673_(int[] p_76674_, int p_76675_, int p_76676_, int p_76677_, int p_76678_, int p_76679_, int p_76680_, int p_76681_)
+    {
+        if (p_76679_ != p_76680_)
+        {
+            return false;
+        }
+        else
+        {
+            if (Layers.isSame(p_76675_, p_76680_) && Layers.isSame(p_76676_, p_76680_) && Layers.isSame(p_76678_, p_76680_) && Layers.isSame(p_76677_, p_76680_))
+            {
+                p_76674_[0] = p_76679_;
+            }
+            else
+            {
+                p_76674_[0] = p_76681_;
             }
 
-            return p_76669_;
-         } else {
-            return 34;
-         }
-      } else {
-         return aint[0];
-      }
-   }
-
-   private boolean checkEdge(int[] p_76671_, int p_76672_) {
-      if (!Layers.isSame(p_76672_, 3)) {
-         return false;
-      } else {
-         p_76671_[0] = p_76672_;
-         return true;
-      }
-   }
-
-   private boolean checkEdgeStrict(int[] p_76674_, int p_76675_, int p_76676_, int p_76677_, int p_76678_, int p_76679_, int p_76680_, int p_76681_) {
-      if (p_76679_ != p_76680_) {
-         return false;
-      } else {
-         if (Layers.isSame(p_76675_, p_76680_) && Layers.isSame(p_76676_, p_76680_) && Layers.isSame(p_76678_, p_76680_) && Layers.isSame(p_76677_, p_76680_)) {
-            p_76674_[0] = p_76679_;
-         } else {
-            p_76674_[0] = p_76681_;
-         }
-
-         return true;
-      }
-   }
+            return true;
+        }
+    }
 }

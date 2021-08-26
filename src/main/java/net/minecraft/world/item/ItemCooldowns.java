@@ -6,64 +6,82 @@ import java.util.Map;
 import java.util.Map.Entry;
 import net.minecraft.util.Mth;
 
-public class ItemCooldowns {
-   private final Map<Item, ItemCooldowns.CooldownInstance> cooldowns = Maps.newHashMap();
-   private int tickCount;
+public class ItemCooldowns
+{
+    private final Map<Item, ItemCooldowns.CooldownInstance> cooldowns = Maps.newHashMap();
+    private int tickCount;
 
-   public boolean isOnCooldown(Item p_41520_) {
-      return this.getCooldownPercent(p_41520_, 0.0F) > 0.0F;
-   }
+    public boolean isOnCooldown(Item pItem)
+    {
+        return this.getCooldownPercent(pItem, 0.0F) > 0.0F;
+    }
 
-   public float getCooldownPercent(Item p_41522_, float p_41523_) {
-      ItemCooldowns.CooldownInstance itemcooldowns$cooldowninstance = this.cooldowns.get(p_41522_);
-      if (itemcooldowns$cooldowninstance != null) {
-         float f = (float)(itemcooldowns$cooldowninstance.endTime - itemcooldowns$cooldowninstance.startTime);
-         float f1 = (float)itemcooldowns$cooldowninstance.endTime - ((float)this.tickCount + p_41523_);
-         return Mth.clamp(f1 / f, 0.0F, 1.0F);
-      } else {
-         return 0.0F;
-      }
-   }
+    public float getCooldownPercent(Item pItem, float pPartialTicks)
+    {
+        ItemCooldowns.CooldownInstance itemcooldowns$cooldowninstance = this.cooldowns.get(pItem);
 
-   public void tick() {
-      ++this.tickCount;
-      if (!this.cooldowns.isEmpty()) {
-         Iterator<Entry<Item, ItemCooldowns.CooldownInstance>> iterator = this.cooldowns.entrySet().iterator();
+        if (itemcooldowns$cooldowninstance != null)
+        {
+            float f = (float)(itemcooldowns$cooldowninstance.endTime - itemcooldowns$cooldowninstance.startTime);
+            float f1 = (float)itemcooldowns$cooldowninstance.endTime - ((float)this.tickCount + pPartialTicks);
+            return Mth.clamp(f1 / f, 0.0F, 1.0F);
+        }
+        else
+        {
+            return 0.0F;
+        }
+    }
 
-         while(iterator.hasNext()) {
-            Entry<Item, ItemCooldowns.CooldownInstance> entry = iterator.next();
-            if ((entry.getValue()).endTime <= this.tickCount) {
-               iterator.remove();
-               this.onCooldownEnded(entry.getKey());
+    public void tick()
+    {
+        ++this.tickCount;
+
+        if (!this.cooldowns.isEmpty())
+        {
+            Iterator<Entry<Item, ItemCooldowns.CooldownInstance>> iterator = this.cooldowns.entrySet().iterator();
+
+            while (iterator.hasNext())
+            {
+                Entry<Item, ItemCooldowns.CooldownInstance> entry = iterator.next();
+
+                if ((entry.getValue()).endTime <= this.tickCount)
+                {
+                    iterator.remove();
+                    this.onCooldownEnded(entry.getKey());
+                }
             }
-         }
-      }
+        }
+    }
 
-   }
+    public void addCooldown(Item pItem, int pTicks)
+    {
+        this.cooldowns.put(pItem, new ItemCooldowns.CooldownInstance(this.tickCount, this.tickCount + pTicks));
+        this.onCooldownStarted(pItem, pTicks);
+    }
 
-   public void addCooldown(Item p_41525_, int p_41526_) {
-      this.cooldowns.put(p_41525_, new ItemCooldowns.CooldownInstance(this.tickCount, this.tickCount + p_41526_));
-      this.onCooldownStarted(p_41525_, p_41526_);
-   }
+    public void removeCooldown(Item pItem)
+    {
+        this.cooldowns.remove(pItem);
+        this.onCooldownEnded(pItem);
+    }
 
-   public void removeCooldown(Item p_41528_) {
-      this.cooldowns.remove(p_41528_);
-      this.onCooldownEnded(p_41528_);
-   }
+    protected void onCooldownStarted(Item pItem, int pTicks)
+    {
+    }
 
-   protected void onCooldownStarted(Item p_41529_, int p_41530_) {
-   }
+    protected void onCooldownEnded(Item pItem)
+    {
+    }
 
-   protected void onCooldownEnded(Item p_41531_) {
-   }
+    class CooldownInstance
+    {
+        final int startTime;
+        final int endTime;
 
-   class CooldownInstance {
-      final int startTime;
-      final int endTime;
-
-      CooldownInstance(int p_41537_, int p_41538_) {
-         this.startTime = p_41537_;
-         this.endTime = p_41538_;
-      }
-   }
+        CooldownInstance(int p_41537_, int p_41538_)
+        {
+            this.startTime = p_41537_;
+            this.endTime = p_41538_;
+        }
+    }
 }

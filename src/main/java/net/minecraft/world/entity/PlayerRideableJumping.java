@@ -1,11 +1,12 @@
 package net.minecraft.world.entity;
 
-public interface PlayerRideableJumping extends PlayerRideable {
-   void onPlayerJump(int p_21696_);
+public interface PlayerRideableJumping extends PlayerRideable
+{
+    void onPlayerJump(int pJumpPower);
 
-   boolean canJump();
+    boolean canJump();
 
-   void handleStartJump(int p_21695_);
+    void handleStartJump(int pJumpPower);
 
-   void handleStopJump();
+    void handleStopJump();
 }
