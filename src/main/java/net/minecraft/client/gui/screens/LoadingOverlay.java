@@ -28,6 +28,8 @@ import net.optifine.render.GlBlendState;
 import net.optifine.shaders.config.ShaderPackParser;
 import net.optifine.util.PropertiesOrdered;
 
+import net.blackburn.Const;
+
 public class LoadingOverlay extends Overlay
 {
     static final ResourceLocation MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo.png");
@@ -126,13 +128,7 @@ public class LoadingOverlay extends Overlay
             GlStateManager._clear(16384, Minecraft.ON_OSX);
             f2 = 1.0F;
         }
-        int dsp_width = 300;
-
-        int image_width =  600;
-        int image_hight = 20;
-
-        int  dsp_hightx = 300;
-        int dsp_highty= 400;
+     
 
         int j2 = (int)((double)this.minecraft.getWindow().getGuiScaledWidth() * 0.5D);
         int k2 = (int)((double)this.minecraft.getWindow().getGuiScaledHeight() * 0.5D);
@@ -147,10 +143,9 @@ public class LoadingOverlay extends Overlay
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, f2);
 
-        blit(pMatrixStack, 100, image_hight, image_width, 270, -2, 30F, dsp_hightx, dsp_highty ,120, dsp_hightx);
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableBlend();
-        
+        // this allows me to add custom logo
+        blit(pMatrixStack,Const.px, Const.py, Const.pUOffset, Const.pVOffset, Const.pWidth, Const.pHight,Const.pTextureWidth,Const.pTextureHeight);
+      
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
         int k1 = (int)((double)this.minecraft.getWindow().getGuiScaledHeight() * 0.8325D);

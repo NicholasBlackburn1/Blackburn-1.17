@@ -1,9 +1,20 @@
+
+/***
+ * this is werre i
+ */
 package net.blackburn;
 
 public class Const {
-    int dsp_width = 300;
-    int image_width =  600;
-    int image_hight = 20;
-    int dsp_hightx = 500;
-    int dsp_highty = 200;
+   
+    // this is the logo dimention on the loading screen
+    public static int px =  0;
+    public static int py = 0;
+    public static int  pTextureWidth = 120;
+    public static int pTextureHeight= 120;
+
+    public static int pWidth =  120;
+    public static int pHight = 120;
+
+    public static int pUOffset = 0 ;
+    public static float pVOffset = 0;
 }
