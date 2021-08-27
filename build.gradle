@@ -87,7 +87,8 @@ task runclient(type: JavaExec) {
     args '--assetIndex', "1.17"
     args '--accessToken', '0'
     main 'net.minecraft.client.main.Main'
-    workingDir 'run'
+    workingDir 'run'\
+    
 }
 
 task setup() {

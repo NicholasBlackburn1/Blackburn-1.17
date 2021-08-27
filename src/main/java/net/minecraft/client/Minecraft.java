@@ -1872,7 +1872,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     public void tick()
-    {
+    {   
+        
         if (this.rightClickDelay > 0)
         {
             --this.rightClickDelay;
@@ -1903,7 +1904,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         }
 
         if (this.screen == null && this.player != null)
-        {
+        {   
+         
             if (this.player.isDeadOrDying() && !(this.screen instanceof DeathScreen))
             {
                 this.setScreen((Screen)null);

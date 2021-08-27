@@ -4,7 +4,11 @@
  */
 package net.blackburn;
 
+import org.apache.logging.log4j.LogManager;
+
 public class Const {
+    
+    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger();
    
     // this is the logo dimention on the loading screen
     public static int px =  160;
@@ -19,7 +23,35 @@ public class Const {
     public static float pVOffset = 0;
 
 
-    public static void debugLogger(String info){
-        System.out.print("[BLACKBURN]"+" "+info);
+
+    public static void dbg(String s)
+    {
+        LOGGER.info("[Blackburn] " + s);
     }
+
+    public static void warn(String s)
+    {
+        LOGGER.warn("[Blackburn] " + s);
+    }
+
+    public static void warn(String s, Throwable t)
+    {
+        LOGGER.warn("[Blackburn] " + s, t);
+    }
+
+    public static void error(String s)
+    {
+        LOGGER.error("[Blackburn] " + s);
+    }
+
+    public static void error(String s, Throwable t)
+    {
+        LOGGER.error("[Blackburn] " + s, t);
+    }
+
+    public static void log(String s)
+    {
+        dbg(s);
+    }
+
 }

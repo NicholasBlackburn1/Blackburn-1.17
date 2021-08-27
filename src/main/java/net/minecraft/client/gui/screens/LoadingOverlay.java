@@ -82,7 +82,7 @@ public class LoadingOverlay extends Overlay
         switch (calendar.get(Calendar.DAY_OF_WEEK) ) {
             case 1:
                 MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo.png");
-                Const.debugLogger("Loaded first logo");
+              
                 break;
 
             case 2:

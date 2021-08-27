@@ -53,7 +53,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import net.optifine.Config;
 public abstract class Screen extends AbstractContainerEventHandler implements Widget
 {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -90,6 +90,7 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
 
     public Component getTitle()
     {
+     
         return this.title;
     }
 
@@ -101,7 +102,8 @@ public abstract class Screen extends AbstractContainerEventHandler implements Wi
     public void render(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks)
     {
         for (Widget widget : this.renderables)
-        {
+        {   
+           
             widget.render(pMatrixStack, pMouseX, pMouseY, pPartialTicks);
         }
     }
