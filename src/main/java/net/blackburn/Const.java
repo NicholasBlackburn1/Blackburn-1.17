@@ -17,4 +17,9 @@ public class Const {
 
     public static int pUOffset = 0 ;
     public static float pVOffset = 0;
+
+
+    public static void debugLogger(String info){
+        System.out.print("[BLACKBURN]"+" "+info);
+    }
 }

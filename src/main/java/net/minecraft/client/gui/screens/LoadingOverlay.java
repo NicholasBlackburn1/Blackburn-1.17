@@ -6,6 +6,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Consumer;
@@ -32,7 +34,7 @@ import net.blackburn.Const;
 
 public class LoadingOverlay extends Overlay
 {
-    static final ResourceLocation MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo.png");
+    static ResourceLocation MOJANG_STUDIOS_LOGO_LOCATION;
     private static final int LOGO_BACKGROUND_COLOR = FastColor.ARGB32.color(255, 239, 50, 61);
     private static final int LOGO_BACKGROUND_COLOR_DARK = FastColor.ARGB32.color(255, 0, 0, 0);
     private static final IntSupplier BRAND_BACKGROUND = () ->
@@ -61,6 +63,7 @@ public class LoadingOverlay extends Overlay
     private GlBlendState blendState = null;
     private boolean fadeOut = false;
     
+    
     public LoadingOverlay(Minecraft p_96172_, ReloadInstance p_96173_, Consumer<Optional<Throwable>> p_96174_, boolean p_96175_)
     {
         this.minecraft = p_96172_;
@@ -71,6 +74,49 @@ public class LoadingOverlay extends Overlay
 
     public static void registerTextures(Minecraft pMc)
     {
+
+        // ALLOWS ME TO Swich the loading image based on day
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+
+        switch (calendar.get(Calendar.DAY_OF_WEEK) ) {
+            case 1:
+                MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo.png");
+                Const.debugLogger("Loaded first logo");
+                break;
+
+            case 2:
+                MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo2.png");
+                break;
+
+            case 3:
+                MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo3.png");
+                break;
+
+            case 4:
+                MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo4.png");
+                break;
+
+            case 5:
+                MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo5.png");
+                break;
+                
+            case 6:
+                MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo6.png");
+                break;
+            
+                       
+            case 7:
+                MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo7.png");
+                break;
+        
+            
+        
+            default:
+                MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo.png");
+                break;
+        }
+        
         pMc.getTextureManager().register(MOJANG_STUDIOS_LOGO_LOCATION, new LoadingOverlay.LogoTexture());
     }
 
