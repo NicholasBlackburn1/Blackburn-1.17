@@ -22,6 +22,10 @@ public class Const {
     public static int pUOffset = 0 ;
     public static float pVOffset = 0;
 
+    public static String RELEASE = "DEBUG";
+    public static String VERSION = "1.17.1-Blackburn";
+    public static String Date = "Saterday, Sept 4";
+
 
 
     public static void dbg(String s)

@@ -15,8 +15,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+
+import net.blackburn.client.AboutScreen;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
+import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
@@ -347,13 +350,14 @@ public class TitleScreen extends Screen {
    }
 
    public boolean mouseClicked(double p_96735_, double p_96736_, int p_96737_) {
+      
       if (super.mouseClicked(p_96735_, p_96736_, p_96737_)) {
          return true;
       } else if (this.realmsNotificationsEnabled() && this.realmsNotificationsScreen.mouseClicked(p_96735_, p_96736_, p_96737_)) {
          return true;
       } else {
          if (p_96735_ > (double)this.copyrightX && p_96735_ < (double)(this.copyrightX + this.copyrightWidth) && p_96736_ > (double)(this.height - 10) && p_96736_ < (double)this.height) {
-            this.minecraft.setScreen(new WinScreen(false, Runnables.doNothing()));
+            this.minecraft.setScreen(new AboutScreen(realmsNotificationsScreen, this.minecraft.options));
          }
 
          return false;

@@ -37,6 +37,7 @@ public class LoadingOverlay extends Overlay
     static ResourceLocation MOJANG_STUDIOS_LOGO_LOCATION;
     private static final int LOGO_BACKGROUND_COLOR = FastColor.ARGB32.color(255, 239, 50, 61);
     private static final int LOGO_BACKGROUND_COLOR_DARK = FastColor.ARGB32.color(255, 0, 0, 0);
+    private static final int LOGO_BACKGROUND_COLOR_NICK = FastColor.ARGB32.color(255, 50, 0, 0);
     private static final IntSupplier BRAND_BACKGROUND = () ->
     {
         return Minecraft.getInstance().options.darkMojangStudiosBackground ? LOGO_BACKGROUND_COLOR_DARK : LOGO_BACKGROUND_COLOR;
@@ -59,7 +60,7 @@ public class LoadingOverlay extends Overlay
     private int colorBackground = BRAND_BACKGROUND.getAsInt();
     private int colorBar = BRAND_BACKGROUND.getAsInt();
     private int colorOutline = 16777215;
-    private int colorProgress = 16777215;
+    private int colorProgress = BRAND_BACKGROUND.getAsInt();
     private GlBlendState blendState = null;
     private boolean fadeOut = false;
     
