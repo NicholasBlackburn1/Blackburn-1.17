@@ -75,7 +75,7 @@ jar {
         if (!configurations.compile.isEmpty()) {
             attributes(
                     'Class-Path': configurations.compile.collect{it.toURI().toString()}.join(' '),
-                    'Main-Class': 'net.blackburn.Start')
+                    'Main-Class': 'net.minecraft.client.main.Main')
         }
     }
         sourceSets {
