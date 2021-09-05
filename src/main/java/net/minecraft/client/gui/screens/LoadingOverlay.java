@@ -40,7 +40,7 @@ public class LoadingOverlay extends Overlay
     private static final int LOGO_BACKGROUND_COLOR_NICK = FastColor.ARGB32.color(255, 50, 0, 0);
     private static final IntSupplier BRAND_BACKGROUND = () ->
     {
-        return Minecraft.getInstance().options.darkMojangStudiosBackground ? LOGO_BACKGROUND_COLOR_DARK : LOGO_BACKGROUND_COLOR;
+        return Minecraft.getInstance().options.darkMojangStudiosBackground ? LOGO_BACKGROUND_COLOR_DARK : LOGO_BACKGROUND_COLOR_DARK;
     };
     private static final int LOGO_SCALE = 240;
     private static final float LOGO_QUARTER_FLOAT = 60.0F;
