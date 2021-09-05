@@ -42,9 +42,6 @@ repositories {
 
 dependencies {
     implementation 'net.minecraftforge:forgespi:' + spi_version
-    compileOnly('org.jetbrains:annotations:21.0.1')
-    implementation('net.minecraftforge:eventbus:5.0.+')
-    implementation('commons-io:commons-io:2.5')
     
 //    Use the shade to add the lib to the jar
 //    or use compile if you want to load the lib from the version.json
