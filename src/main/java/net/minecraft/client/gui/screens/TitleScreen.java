@@ -45,6 +45,8 @@ import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelSummary;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -326,8 +328,9 @@ public class TitleScreen extends Screen {
         
 
          if (true) {
-            s = s + I18n.m_118938_("menu.modded");
+            s = s + I18n.m_118938_("menu.modded")+" "+"Non_Forge";
          }
+         
 
          drawString(p_96739_, this.font, s, 2, this.height - 10, 16777215 | l);
          drawString(p_96739_, this.font, "Copyright Nicholas Blackburn!", this.copyrightX, this.height - 10, 16777215 | l);
