@@ -42,6 +42,7 @@ repositories {
 
 dependencies {
     implementation 'net.minecraftforge:forgespi:' + spi_version
+    
 //    Use the shade to add the lib to the jar
 //    or use compile if you want to load the lib from the version.json
 //    from a maven repo
@@ -70,8 +71,17 @@ jar {
     configurations.shade.each { dep ->
         from(project.zipTree(dep)) {
             exclude 'META-INF', 'META-INF/**'
+        classpath sourceSets.main.runtimeClasspath
+        sourceSets {
+        main {
+        resources {
+            srcDirs "src/main/resources/assets"
+            srcDirs "src/main/resources/data"
         }
     }
+    }
+        }
+}
 }
 
 task runclient(type: JavaExec) {
