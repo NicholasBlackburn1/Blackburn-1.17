@@ -14,9 +14,9 @@
 
 
   "blackburn.about": "§6BlackBurn's Furry Client",
-
+  "blackburn.message.NewVersion":"Eeeeep There is a new version...",
   "blackburn.message.Startup": "§bThanks For Downloading Blackburns Furries Minecraft Client",
-  "blackburn.message.commandstartup0": "§cThere are about",
+  "blackburn.message.commandstartup": "§cThere are about",
   "blackburn.message.commandstartup2": "§cCommands Loaded Into the Client!",
 
 
