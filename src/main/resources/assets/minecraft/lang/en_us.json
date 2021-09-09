@@ -1,8 +1,28 @@
 {
-  "Blackburn.message.Startup": "Thanks For Downloading Blackburns Furrie's Minecraft Client",
-  "Blackburn.message.commandstartup": "There are about",
-  "Blackburn.message.commandstartup2": "Commands Loaded Into the Client!",
-  "blackburn.about": "BlackBurn's Furry Client",
+
+  "blackburn.advancements.root.title": "Blackburns Advancements UWU",
+  "blackburn.advancements.root.description": "This is were i add the custom advancements for the client",
+
+  "blackburn.launched.title":"LAUNCHED UWU",
+  "blackburn.launched.description":"Thanks for Using Blackburn's Client",
+
+  "blackburn.informed.title":"Hehe used the cool commands UWU",
+  "blackburn.informed.description":"Thanks for Using Blackburn's Client",
+  
+  "blackburn.death.title":" Haha U died ",
+  "blackburn.death.description":"This is mocking u for dieing ",
+
+
+  "blackburn.about": "§6BlackBurn's Furry Client",
+
+  "blackburn.message.Startup": "§bThanks For Downloading Blackburns Furries Minecraft Client",
+  "blackburn.message.commandstartup0": "§cThere are about",
+  "blackburn.message.commandstartup2": "§cCommands Loaded Into the Client!",
+
+
+
+
+
   "language.name": "English",
   "language.region": "United States",
   "language.code": "en_us",

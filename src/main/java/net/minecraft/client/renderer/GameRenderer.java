@@ -1674,16 +1674,16 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             {       
                // CriteriaTriggers.LAUNCHED.trigger(this.minecraft.getSingleplayerServer()).getPlayerList().getPlayerByUUID(this.minecraft.player.getUUID()));
                 // This will display the start up message to client
-                TextComponent startup = new TextComponent(I18n.m_118938_("Blackburn.message.Startup"));
+                TextComponent startup = new TextComponent(I18n.m_118938_("blackburn.message.Startup"));
                 startup.setStyle(Style.EMPTY);
                 this.minecraft.gui.getChat().addMessage(startup);
 
                 // This will allow me to dsiplay commands for the user to use from client 
-                TextComponent commands = new TextComponent(I18n.m_118938_("Blackburn.message.commandstartup"+ Const.commandList.size()+"Blackburn.message.commandstartup2" ));
+                TextComponent commands = new TextComponent(I18n.m_118938_("blackburn.message.commandstartup"+"\u00A7r"+"  "+String.valueOf(Const.commandList.size())+"  "+"blackburn.message.commandstartup2"));
                 commands.setStyle(Style.EMPTY);
                 this.minecraft.gui.getChat().addMessage(commands);
 
-                TextComponent newversion = new TextComponent(I18n.m_118938_("Blackburn.message.NewVersion"));
+                TextComponent newversion = new TextComponent(I18n.m_118938_("lackburn.message.NewVersion"));
                 newversion.setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://nicholasblackburn.space/downloads")));
                 this.minecraft.gui.getChat().addMessage(newversion);
                 Config.setNewRelease((String)null);
