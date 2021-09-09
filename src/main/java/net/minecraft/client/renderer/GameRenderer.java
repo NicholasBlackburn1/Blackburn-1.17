@@ -29,6 +29,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
 import net.blackburn.Const;
+import net.blackburn.command.CommandRegister;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
@@ -93,6 +94,8 @@ import net.optifine.util.MemoryMonitor;
 import net.optifine.util.TimedEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import net.blackburn.util.ChatUtils;
 
 public class GameRenderer implements ResourceManagerReloadListener, AutoCloseable
 {
@@ -1663,11 +1666,15 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
 
         Level level = this.minecraft.level;
 
+       
+
         if (level != null)
         {   
-
-
-            
+           
+          
+          
+            CommandRegister reg = new CommandRegister();
+            reg.RegisterCommands(this.minecraft);
 
             // Allows me to add an update message when i get father in to dev
             if (Config.getNewRelease() != null)
