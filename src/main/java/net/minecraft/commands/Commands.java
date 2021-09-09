@@ -85,7 +85,7 @@ import net.minecraft.server.commands.SetSpawnCommand;
 import net.minecraft.server.commands.SetWorldSpawnCommand;
 import net.minecraft.server.commands.SpectateCommand;
 import net.minecraft.server.commands.SpreadPlayersCommand;
-import net.minecraft.server.commands.StopCommand;
+
 import net.minecraft.server.commands.StopSoundCommand;
 import net.minecraft.server.commands.SummonCommand;
 import net.minecraft.server.commands.TagCommand;
@@ -191,7 +191,7 @@ public class Commands
             SaveOffCommand.register(this.dispatcher);
             SaveOnCommand.register(this.dispatcher);
             SetPlayerIdleTimeoutCommand.register(this.dispatcher);
-            StopCommand.register(this.dispatcher);
+
             WhitelistCommand.register(this.dispatcher);
         }
 
