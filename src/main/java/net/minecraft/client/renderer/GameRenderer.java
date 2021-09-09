@@ -1683,11 +1683,12 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                 commands.setStyle(Style.EMPTY);
                 this.minecraft.gui.getChat().addMessage(commands);
 
+                Config.setNewRelease((String)null);
                 /*
                 TextComponent newversion = new TextComponent(I18n.m_118938_("blackburn.message.NewVersion"));
                 newversion.setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://nicholasblackburn.space/downloads")));
                 this.minecraft.gui.getChat().addMessage(newversion);
-                Config.setNewRelease((String)null);
+               
                 */
             }
 

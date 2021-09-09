@@ -12,3 +12,5 @@
 
 
 ### what it will do
+<li>has custom loading and main and about screens</li>
+<li> Going to have custom actions in minecraft </li>
