@@ -27,10 +27,13 @@ import java.util.Map;
 import java.util.Random;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+
+import net.blackburn.Const;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
@@ -1661,14 +1664,28 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         Level level = this.minecraft.level;
 
         if (level != null)
-        {
+        {   
+
+
+            
+
+            // Allows me to add an update message when i get father in to dev
             if (Config.getNewRelease() != null)
-            {
-                String s = "HD_U".replace("HD_U", "HD Ultra").replace("L", "Light");
-                String s1 = s + " " + Config.getNewRelease();
-                TextComponent textcomponent = new TextComponent(I18n.m_118938_("of.message.newVersion", "\u00a7n" + s1 + "\u00a7r"));
-                textcomponent.setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://optifine.net/downloads")));
-                this.minecraft.gui.getChat().addMessage(textcomponent);
+            {       
+               // CriteriaTriggers.LAUNCHED.trigger(this.minecraft.getSingleplayerServer()).getPlayerList().getPlayerByUUID(this.minecraft.player.getUUID()));
+                // This will display the start up message to client
+                TextComponent startup = new TextComponent(I18n.m_118938_("Blackburn.message.Startup"));
+                startup.setStyle(Style.EMPTY);
+                this.minecraft.gui.getChat().addMessage(startup);
+
+                // This will allow me to dsiplay commands for the user to use from client 
+                TextComponent commands = new TextComponent(I18n.m_118938_("Blackburn.message.commandstartup"+ Const.commandList.size()+"Blackburn.message.commandstartup2" ));
+                commands.setStyle(Style.EMPTY);
+                this.minecraft.gui.getChat().addMessage(commands);
+
+                TextComponent newversion = new TextComponent(I18n.m_118938_("Blackburn.message.NewVersion"));
+                newversion.setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://nicholasblackburn.space/downloads")));
+                this.minecraft.gui.getChat().addMessage(newversion);
                 Config.setNewRelease((String)null);
             }
 

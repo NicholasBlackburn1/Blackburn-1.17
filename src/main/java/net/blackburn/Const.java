@@ -4,6 +4,8 @@
  */
 package net.blackburn;
 
+import java.util.LinkedList;
+
 import org.apache.logging.log4j.LogManager;
 
 public class Const {
@@ -26,7 +28,7 @@ public class Const {
     public static String VERSION = "1.17.1-Blackburn";
     public static String Date = "Saterday, Sept 4";
 
-
+    public static LinkedList<String> commandList = new LinkedList<>();
 
     public static void dbg(String s)
     {

@@ -3,6 +3,8 @@ package net.minecraft.advancements;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.annotation.Nullable;
+
+import net.blackburn.client.triggers.CodeDefinedTrigger;
 import net.minecraft.advancements.critereon.BeeNestDestroyedTrigger;
 import net.minecraft.advancements.critereon.BredAnimalsTrigger;
 import net.minecraft.advancements.critereon.BrewedPotionTrigger;
@@ -94,6 +96,7 @@ public class CriteriaTriggers
     public static final StartRidingTrigger START_RIDING_TRIGGER = register(new StartRidingTrigger());
     public static final LightningStrikeTrigger LIGHTNING_STRIKE = register(new LightningStrikeTrigger());
     public static final UsingItemTrigger USING_ITEM = register(new UsingItemTrigger());
+    public static final CodeDefinedTrigger LAUNCHED = register(new CodeDefinedTrigger(new ResourceLocation("launched")));
 
     private static < T extends CriterionTrigger<? >> T register(T pCriterion)
     {

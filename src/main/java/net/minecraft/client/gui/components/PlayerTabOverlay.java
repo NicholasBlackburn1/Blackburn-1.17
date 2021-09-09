@@ -82,6 +82,8 @@ public class PlayerTabOverlay extends GuiComponent
         int i = 0;
         int j = 0;
 
+     
+
         for (PlayerInfo playerinfo : list)
         {
             int k = this.minecraft.font.width(this.getNameForDisplay(playerinfo));

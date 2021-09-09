@@ -84,6 +84,7 @@ public class MapRenderer implements AutoCloseable
             this.data = p_168784_;
             this.texture = new DynamicTexture(128, 128, true);
             ResourceLocation resourcelocation = MapRenderer.this.textureManager.register("map/" + p_168783_, this.texture);
+            
             this.renderType = RenderType.text(resourcelocation);
         }
 
