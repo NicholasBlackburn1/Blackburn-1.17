@@ -21,9 +21,13 @@
   "blackburn.message.commandstartup2": "§cCommands Loaded Into the Client!",
 
   "blackburn.command.help": ".help",
-  "blackburn.command.help.desc":"this will display all the commands in the list",
-
+  "blackburn.command.help.desc":"this will help u",
+  "blackburn.command.help.header":"this will display all the commands in the list",
+  
   "blackburn.command.version":"§e version:",
+  "blackburn.command.version.desc":"§6Tells the user what version the minecraft client is.",
+
+
 
 
 
