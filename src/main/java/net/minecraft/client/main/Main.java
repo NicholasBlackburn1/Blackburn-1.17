@@ -37,6 +37,11 @@ import net.minecraft.world.entity.player.Player;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.arikia.dev.drpc.DiscordEventHandlers;
+import net.arikia.dev.drpc.DiscordRPC;
+import net.arikia.dev.drpc.DiscordRichPresence;
+import net.blackburn.client.discordrpc.Discordrpc;
+
 public class Main
 {
     static final Logger LOGGER = LogManager.getLogger();
@@ -44,6 +49,9 @@ public class Main
     @DontObfuscate
     public static void main(String[] p_129642_)
     {
+        Discordrpc.setup();
+        Discordrpc.StartingPresence();
+        
         SharedConstants.tryDetectVersion();
         OptionParser optionparser = new OptionParser();
         optionparser.allowsUnrecognizedOptions();
