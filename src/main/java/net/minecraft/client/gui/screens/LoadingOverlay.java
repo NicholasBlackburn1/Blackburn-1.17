@@ -14,8 +14,10 @@ import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.font.FontManager;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.SimpleTexture;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
@@ -63,6 +65,8 @@ public class LoadingOverlay extends Overlay
     private int colorProgress = BRAND_BACKGROUND.getAsInt();
     private GlBlendState blendState = null;
     private boolean fadeOut = false;
+
+
     
     
     public LoadingOverlay(Minecraft p_96172_, ReloadInstance p_96173_, Consumer<Optional<Throwable>> p_96174_, boolean p_96175_)
@@ -71,6 +75,8 @@ public class LoadingOverlay extends Overlay
         this.reload = p_96173_;
         this.onFinish = p_96174_;
         this.fadeIn = false;
+
+     
     }
 
     public static void registerTextures(Minecraft pMc)
@@ -129,7 +135,7 @@ public class LoadingOverlay extends Overlay
     public void render(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks)
     {
         EarlyLoaderGUI easygui = new EarlyLoaderGUI(minecraft);
-        
+       
         int i = this.minecraft.getWindow().getGuiScaledWidth();
         int j = this.minecraft.getWindow().getGuiScaledHeight();
         long k = Util.getMillis();

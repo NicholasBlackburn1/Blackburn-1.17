@@ -742,7 +742,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         this.darkenWorldAmountO = this.darkenWorldAmount;
 
         if(this.minecraft.player.isAlive() && this.minecraft.level != null){
-            Const.rpc.CustomPresence("In Game... Hapy foxy girl noises", "Yay u are playing mc UwU");
+            Const.rpc.CustomPresenceWithImage("In Game... Hapy foxy girl noises", "Yay u are playing mc UwU","screem");
         }
 
         if (this.minecraft.gui.getBossOverlay().shouldDarkenScreen())

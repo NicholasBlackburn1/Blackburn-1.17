@@ -272,27 +272,29 @@ public class TitleScreen extends Screen {
        * 
        * This is where i add my custom background screens
        */
-        // this one will be for Setting backgrounds  between 12 am and 3 am
-      if(calendar.get(Calendar.HOUR_OF_DAY) > 3){
-         PANORAMA_OVERLAY =new ResourceLocation("textures/gui/title/background/background.png");
-      }
-      if(calendar.get(Calendar.HOUR_OF_DAY)==0){
-         PANORAMA_OVERLAY =new ResourceLocation("textures/gui/title/background/60c78e0cdf42a17e71c961126d83e09c.png");
+        // this one will be for Setting backgrounds  between 12 am and 3 am'
 
-      }
-      if(calendar.get(Calendar.HOUR_OF_DAY) ==1){
-         PANORAMA_OVERLAY= new ResourceLocation("textures/gui/title/background/me.png");
+      switch (calendar.get(Calendar.HOUR_OF_DAY)) {
+            case 0:
+            PANORAMA_OVERLAY =new ResourceLocation("textures/gui/title/background/60c78e0cdf42a17e71c961126d83e09c.png");
+            break;
+
+            case 1:
+            PANORAMA_OVERLAY= new ResourceLocation("textures/gui/title/background/me.png");
       
-      }
-      if(calendar.get(Calendar.HOUR_OF_DAY) ==2){
-         PANORAMA_OVERLAY= new ResourceLocation("textures/gui/title/background/cutiefurrie.png");
-         
-      }
+            break;
+            case 2:
+            PANORAMA_OVERLAY= new ResourceLocation("textures/gui/title/background/cutiefurrie.png");
+            break;
+            case 3:
+            PANORAMA_OVERLAY= new ResourceLocation("textures/gui/title/background/uwume.png");
+            break;
       
-      if(calendar.get(Calendar.HOUR_OF_DAY) ==3){
-         PANORAMA_OVERLAY= new ResourceLocation("textures/gui/title/background/uwume.png");
-         
-      } 
+         default:
+         PANORAMA_OVERLAY =new ResourceLocation("textures/gui/title/background/background.png");
+            break;
+      }
+
       
       if(calendar.get(Calendar.MONTH) == Calendar.DECEMBER && calendar.get(Calendar.DATE)  == 6){
          PANORAMA_OVERLAY = new ResourceLocation("textures/gui/title/background/Bday.png");

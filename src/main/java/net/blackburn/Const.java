@@ -11,6 +11,10 @@ import net.blackburn.client.discordrpc.Discordrpc;
 
 public class Const {
     
+    public static LinkedList<String> commandList = new LinkedList<>();
+
+    public static  Discordrpc rpc = new Discordrpc();
+
     private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger();
    
     // this is the logo dimention on the loading screen
@@ -29,12 +33,7 @@ public class Const {
     public static String VERSION = "1.17.1-Blackburn";
     public static String Date = "Saterday, Sept 4";
 
-    public boolean allowerpc;
-    
 
-    public static LinkedList<String> commandList = new LinkedList<>();
-
-    public static  Discordrpc rpc = new Discordrpc();
 
     public static void dbg(String s)
     {
@@ -66,13 +65,5 @@ public class Const {
         dbg(s);
     }
 
-    public void setRcp(boolean  state){
-        allowrpc == state
-        
-    }
-
-    public static boolean returnAllowRPC(){
-        return allowrpc;
-    }
-
+ 
 }
