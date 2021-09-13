@@ -29,6 +29,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
 import net.blackburn.Const;
+import net.blackburn.client.discordrpc.Discordrpc;
 import net.blackburn.command.CommandRegister;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -260,6 +261,8 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
     private float avgServerTickDiff = 0.0F;
     private PostChain[] fxaaShaders = new PostChain[10];
     private boolean guiLoadingVisible = false;
+
+    private  Discordrpc rpc = new Discordrpc();
 
     public GameRenderer(Minecraft p_109083_, ResourceManager p_109084_, RenderBuffers p_109085_)
     {
@@ -1167,6 +1170,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
 
                 if (this.minecraft.player != null)
                 {
+                   
                     float f = Mth.lerp(pPartialTicks, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime);
 
                     if (f > 0.0F && this.minecraft.player.hasEffect(MobEffects.CONFUSION) && this.minecraft.options.screenEffectScale < 1.0F)
@@ -1679,7 +1683,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             // Allows me to add an update message when i get father in to dev
             if (Config.getNewRelease() != null)
             {       
-               
+                rpc.CustomPresence("In Game... Hapy foxy girl noises", "Yay u are playing mc UwU");
                 // This will display the start up message to client
                 TextComponent startup = new TextComponent(I18n.m_118938_("blackburn.message.Startup"));
                 startup.setStyle(Style.EMPTY);

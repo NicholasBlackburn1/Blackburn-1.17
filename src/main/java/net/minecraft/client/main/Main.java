@@ -52,6 +52,7 @@ public class Main
         Discordrpc.setup();
         Discordrpc.StartingPresence();
         
+
         SharedConstants.tryDetectVersion();
         OptionParser optionparser = new OptionParser();
         optionparser.allowsUnrecognizedOptions();

@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
 import net.blackburn.client.AboutScreen;
+import net.blackburn.client.discordrpc.Discordrpc;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Options;
@@ -71,6 +72,8 @@ public class TitleScreen extends Screen {
    private final boolean fading;
    private long fadeInStart;
 
+   private Discordrpc rpc = new Discordrpc();
+
    public TitleScreen() {
       this(false);
    }
@@ -107,6 +110,7 @@ public class TitleScreen extends Screen {
    protected void init() {
       if (this.splash == null) {
          this.splash = this.minecraft.getSplashManager().getSplash();
+         rpc.LerkingPresence();
       }
 
       this.copyrightWidth = this.font.width("Copyright Nicholas Blackburn!");
@@ -125,6 +129,7 @@ public class TitleScreen extends Screen {
          this.minecraft.setScreen(new LanguageSelectScreen(this, this.minecraft.options, this.minecraft.getLanguageManager()));
       }, new TranslatableComponent("narrator.button.language")));
       */
+      
       
       this.addRenderableWidget(new Button(this.width / 2 - 200, j+72, 100, 20, new TranslatableComponent("menu.options"), (p_96788_) -> {
          this.minecraft.setScreen(new OptionsScreen(this, this.minecraft.options));
