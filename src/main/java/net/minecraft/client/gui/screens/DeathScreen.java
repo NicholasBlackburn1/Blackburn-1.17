@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import javax.annotation.Nullable;
+
+import net.blackburn.client.discordrpc.Discordrpc;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.ClickEvent;
@@ -20,6 +22,8 @@ public class DeathScreen extends Screen
     private Component deathScore;
     private final List<Button> exitButtons = Lists.newArrayList();
 
+    private Discordrpc rpc = new Discordrpc();
+
     public DeathScreen(@Nullable Component p_95911_, boolean p_95912_)
     {
         super(new TranslatableComponent(p_95912_ ? "deathScreen.title.hardcore" : "deathScreen.title"));
@@ -28,7 +32,9 @@ public class DeathScreen extends Screen
     }
 
     protected void init()
-    {
+    {   
+        rpc.ImageWithDescPersantes("haha I died", "Im bad at mc~","death", 0, 0);
+        
         this.delayTicker = 0;
         this.exitButtons.clear();
         this.exitButtons.add(this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 4 + 72, 200, 20, this.hardcore ? new TranslatableComponent("deathScreen.spectate") : new TranslatableComponent("deathScreen.respawn"), (p_95930_) ->
@@ -46,7 +52,10 @@ public class DeathScreen extends Screen
                 ConfirmScreen confirmscreen = new ConfirmScreen(this::confirmResult, new TranslatableComponent("deathScreen.quit.confirm"), TextComponent.EMPTY, new TranslatableComponent("deathScreen.titleScreen"), new TranslatableComponent("deathScreen.respawn"));
                 this.minecraft.setScreen(confirmscreen);
                 confirmscreen.setDelay(20);
+                
+
             }
+            
         })));
 
         for (Button button : this.exitButtons)
