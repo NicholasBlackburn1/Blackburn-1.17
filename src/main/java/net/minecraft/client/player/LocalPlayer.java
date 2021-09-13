@@ -323,7 +323,7 @@ public class LocalPlayer extends AbstractClientPlayer
 
     public void respawn()
     {
-       
+        
         this.connection.send(new ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.PERFORM_RESPAWN));
       
     }

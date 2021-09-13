@@ -1017,7 +1017,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             }
             else
             {
-               
+                
                 this.player.respawn();
             }
         }
@@ -1229,6 +1229,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             }
             else
             {
+               
                 this.timer.partialTick = this.pausePartialTick;
             }
 

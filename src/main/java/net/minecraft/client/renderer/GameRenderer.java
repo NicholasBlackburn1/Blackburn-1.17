@@ -741,6 +741,10 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         this.minecraft.levelRenderer.tickRain(this.mainCamera);
         this.darkenWorldAmountO = this.darkenWorldAmount;
 
+        if(this.minecraft.player.isAlive() && this.minecraft.level != null){
+            Const.rpc.CustomPresence("In Game... Hapy foxy girl noises", "Yay u are playing mc UwU");
+        }
+
         if (this.minecraft.gui.getBossOverlay().shouldDarkenScreen())
         {
             this.darkenWorldAmount += 0.05F;
@@ -1683,7 +1687,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             // Allows me to add an update message when i get father in to dev
             if (Config.getNewRelease() != null)
             {       
-                Const.rpc.CustomPresence("In Game... Hapy foxy girl noises", "Yay u are playing mc UwU");
+               
                 // This will display the start up message to client
                 TextComponent startup = new TextComponent(I18n.m_118938_("blackburn.message.Startup"));
                 startup.setStyle(Style.EMPTY);

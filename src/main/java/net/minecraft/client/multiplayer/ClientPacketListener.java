@@ -1955,13 +1955,13 @@ public class ClientPacketListener implements ClientGamePacketListener
                 int i = friendlybytebuf.readInt();
                 float f = friendlybytebuf.readFloat();
                 Path path = Path.createFromStream(friendlybytebuf);
-                this.minecraft.debugRenderer.pathfindingRenderer.addPath(i, path, f);
+                //this.minecraft.debugRenderer.pathfindingRenderer.addPath(i, path, f);
             }
             else if (ClientboundCustomPayloadPacket.DEBUG_NEIGHBORSUPDATE_PACKET.equals(resourcelocation))
             {
                 long k1 = friendlybytebuf.readVarLong();
                 BlockPos blockpos9 = friendlybytebuf.readBlockPos();
-                ((NeighborsUpdateRenderer)this.minecraft.debugRenderer.neighborsUpdateRenderer).addUpdate(k1, blockpos9);
+              //  ((NeighborsUpdateRenderer)this.minecraft.debugRenderer.neighborsUpdateRenderer).addUpdate(k1, blockpos9);
             }
             else if (ClientboundCustomPayloadPacket.DEBUG_STRUCTURES_PACKET.equals(resourcelocation))
             {
@@ -1977,11 +1977,11 @@ public class ClientPacketListener implements ClientGamePacketListener
                     list1.add(friendlybytebuf.readBoolean());
                 }
 
-                this.minecraft.debugRenderer.structureRenderer.addBoundingBox(boundingbox, list, list1, dimensiontype);
+               // this.minecraft.debugRenderer.structureRenderer.addBoundingBox(boundingbox, list, list1, dimensiontype);
             }
             else if (ClientboundCustomPayloadPacket.DEBUG_WORLDGENATTEMPT_PACKET.equals(resourcelocation))
             {
-                ((WorldGenAttemptRenderer)this.minecraft.debugRenderer.worldGenAttemptRenderer).addPos(friendlybytebuf.readBlockPos(), friendlybytebuf.readFloat(), friendlybytebuf.readFloat(), friendlybytebuf.readFloat(), friendlybytebuf.readFloat(), friendlybytebuf.readFloat());
+             //   ((WorldGenAttemptRenderer)this.minecraft.debugRenderer.worldGenAttemptRenderer).addPos(friendlybytebuf.readBlockPos(), friendlybytebuf.readFloat(), friendlybytebuf.readFloat(), friendlybytebuf.readFloat(), friendlybytebuf.readFloat(), friendlybytebuf.readFloat());
             }
             else if (ClientboundCustomPayloadPacket.DEBUG_VILLAGE_SECTIONS.equals(resourcelocation))
             {
@@ -1989,14 +1989,14 @@ public class ClientPacketListener implements ClientGamePacketListener
 
                 for (int j2 = 0; j2 < l1; ++j2)
                 {
-                    this.minecraft.debugRenderer.villageSectionsDebugRenderer.setVillageSection(friendlybytebuf.readSectionPos());
+                  //  this.minecraft.debugRenderer.villageSectionsDebugRenderer.setVillageSection(friendlybytebuf.readSectionPos());
                 }
 
                 int k2 = friendlybytebuf.readInt();
 
                 for (int l3 = 0; l3 < k2; ++l3)
                 {
-                    this.minecraft.debugRenderer.villageSectionsDebugRenderer.setNotVillageSection(friendlybytebuf.readSectionPos());
+                  //  this.minecraft.debugRenderer.villageSectionsDebugRenderer.setNotVillageSection(friendlybytebuf.readSectionPos());
                 }
             }
             else if (ClientboundCustomPayloadPacket.DEBUG_POI_ADDED_PACKET.equals(resourcelocation))
@@ -2005,18 +2005,18 @@ public class ClientPacketListener implements ClientGamePacketListener
                 String s8 = friendlybytebuf.readUtf();
                 int i4 = friendlybytebuf.readInt();
                 BrainDebugRenderer.PoiInfo braindebugrenderer$poiinfo = new BrainDebugRenderer.PoiInfo(blockpos2, s8, i4);
-                this.minecraft.debugRenderer.brainDebugRenderer.addPoi(braindebugrenderer$poiinfo);
+                //his.minecraft.debugRenderer.brainDebugRenderer.addPoi(braindebugrenderer$poiinfo);
             }
             else if (ClientboundCustomPayloadPacket.DEBUG_POI_REMOVED_PACKET.equals(resourcelocation))
             {
                 BlockPos blockpos3 = friendlybytebuf.readBlockPos();
-                this.minecraft.debugRenderer.brainDebugRenderer.removePoi(blockpos3);
+               // this.minecraft.debugRenderer.brainDebugRenderer.removePoi(blockpos3);
             }
             else if (ClientboundCustomPayloadPacket.DEBUG_POI_TICKET_COUNT_PACKET.equals(resourcelocation))
             {
                 BlockPos blockpos4 = friendlybytebuf.readBlockPos();
                 int l2 = friendlybytebuf.readInt();
-                this.minecraft.debugRenderer.brainDebugRenderer.setFreeTicketCount(blockpos4, l2);
+                //this.minecraft.debugRenderer.brainDebugRenderer.setFreeTicketCount(blockpos4, l2);
             }
             else if (ClientboundCustomPayloadPacket.DEBUG_GOAL_SELECTOR.equals(resourcelocation))
             {
@@ -2033,7 +2033,7 @@ public class ClientPacketListener implements ClientGamePacketListener
                     list2.add(new GoalSelectorDebugRenderer.DebugGoal(blockpos5, i6, s, flag));
                 }
 
-                this.minecraft.debugRenderer.goalSelectorRenderer.addGoalSelector(i3, list2);
+                //this.minecraft.debugRenderer.goalSelectorRenderer.addGoalSelector(i3, list2);
             }
             else if (ClientboundCustomPayloadPacket.DEBUG_RAIDS.equals(resourcelocation))
             {
@@ -2045,7 +2045,7 @@ public class ClientPacketListener implements ClientGamePacketListener
                     collection.add(friendlybytebuf.readBlockPos());
                 }
 
-                this.minecraft.debugRenderer.raidDebugRenderer.setRaidCenters(collection);
+                //this.minecraft.debugRenderer.raidDebugRenderer.setRaidCenters(collection);
             }
             else if (ClientboundCustomPayloadPacket.DEBUG_BRAIN.equals(resourcelocation))
             {
@@ -2123,7 +2123,7 @@ public class ClientPacketListener implements ClientGamePacketListener
                     braindebugrenderer$braindump.gossips.add(s7);
                 }
 
-                this.minecraft.debugRenderer.brainDebugRenderer.addOrUpdateBrainDump(braindebugrenderer$braindump);
+                //this.minecraft.debugRenderer.brainDebugRenderer.addOrUpdateBrainDump(braindebugrenderer$braindump);
             }
             else if (ClientboundCustomPayloadPacket.DEBUG_BEE.equals(resourcelocation))
             {
@@ -2175,7 +2175,7 @@ public class ClientPacketListener implements ClientGamePacketListener
                     beedebugrenderer$beeinfo.blacklistedHives.add(blockpos12);
                 }
 
-                this.minecraft.debugRenderer.beeDebugRenderer.addOrUpdateBeeInfo(beedebugrenderer$beeinfo);
+                //this.minecraft.debugRenderer.beeDebugRenderer.addOrUpdateBeeInfo(beedebugrenderer$beeinfo);
             }
             else if (ClientboundCustomPayloadPacket.DEBUG_HIVE.equals(resourcelocation))
             {
@@ -2185,11 +2185,11 @@ public class ClientPacketListener implements ClientGamePacketListener
                 int j5 = friendlybytebuf.readInt();
                 boolean flag3 = friendlybytebuf.readBoolean();
                 BeeDebugRenderer.HiveInfo beedebugrenderer$hiveinfo = new BeeDebugRenderer.HiveInfo(blockpos6, s9, l4, j5, flag3, this.level.getGameTime());
-                this.minecraft.debugRenderer.beeDebugRenderer.addOrUpdateHiveInfo(beedebugrenderer$hiveinfo);
+               // this.minecraft.debugRenderer.beeDebugRenderer.addOrUpdateHiveInfo(beedebugrenderer$hiveinfo);
             }
             else if (ClientboundCustomPayloadPacket.DEBUG_GAME_TEST_CLEAR.equals(resourcelocation))
             {
-                this.minecraft.debugRenderer.gameTestDebugRenderer.clear();
+              //  this.minecraft.debugRenderer.gameTestDebugRenderer.clear();
             }
             else if (ClientboundCustomPayloadPacket.DEBUG_GAME_TEST_ADD_MARKER.equals(resourcelocation))
             {
@@ -2197,13 +2197,13 @@ public class ClientPacketListener implements ClientGamePacketListener
                 int j3 = friendlybytebuf.readInt();
                 String s10 = friendlybytebuf.readUtf();
                 int k5 = friendlybytebuf.readInt();
-                this.minecraft.debugRenderer.gameTestDebugRenderer.addMarker(blockpos7, j3, s10, k5);
+               // this.minecraft.debugRenderer.gameTestDebugRenderer.addMarker(blockpos7, j3, s10, k5);
             }
             else if (ClientboundCustomPayloadPacket.DEBUG_GAME_EVENT.equals(resourcelocation))
             {
                 GameEvent gameevent = Registry.GAME_EVENT.get(new ResourceLocation(friendlybytebuf.readUtf()));
                 BlockPos blockpos8 = friendlybytebuf.readBlockPos();
-                this.minecraft.debugRenderer.gameEventListenerRenderer.trackGameEvent(gameevent, blockpos8);
+               // this.minecraft.debugRenderer.gameEventListenerRenderer.trackGameEvent(gameevent, blockpos8);
             }
             else if (ClientboundCustomPayloadPacket.DEBUG_GAME_EVENT_LISTENER.equals(resourcelocation))
             {
@@ -2213,7 +2213,7 @@ public class ClientPacketListener implements ClientGamePacketListener
                     return new IllegalArgumentException("Unknown position source type " + resourcelocation1);
                 }).read(friendlybytebuf);
                 int i5 = friendlybytebuf.readVarInt();
-                this.minecraft.debugRenderer.gameEventListenerRenderer.trackListener(positionsource, i5);
+                //this.minecraft.debugRenderer.gameEventListenerRenderer.trackListener(positionsource, i5);
             }
             else
             {

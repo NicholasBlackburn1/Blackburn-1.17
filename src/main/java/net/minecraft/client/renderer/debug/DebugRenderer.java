@@ -23,70 +23,24 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.blackburn.Const;
 
 public class DebugRenderer
 {
-    public final PathfindingRenderer pathfindingRenderer = new PathfindingRenderer();
-    public final DebugRenderer.SimpleDebugRenderer waterDebugRenderer;
-    public final DebugRenderer.SimpleDebugRenderer chunkBorderRenderer;
-    public final DebugRenderer.SimpleDebugRenderer heightMapRenderer;
-    public final DebugRenderer.SimpleDebugRenderer collisionBoxRenderer;
-    public final DebugRenderer.SimpleDebugRenderer neighborsUpdateRenderer;
-    public final StructureRenderer structureRenderer;
-    public final DebugRenderer.SimpleDebugRenderer lightDebugRenderer;
-    public final DebugRenderer.SimpleDebugRenderer worldGenAttemptRenderer;
-    public final DebugRenderer.SimpleDebugRenderer solidFaceRenderer;
-    public final DebugRenderer.SimpleDebugRenderer chunkRenderer;
-    public final BrainDebugRenderer brainDebugRenderer;
-    public final VillageSectionsDebugRenderer villageSectionsDebugRenderer;
-    public final BeeDebugRenderer beeDebugRenderer;
-    public final RaidDebugRenderer raidDebugRenderer;
-    public final GoalSelectorDebugRenderer goalSelectorRenderer;
-    public final GameTestDebugRenderer gameTestDebugRenderer;
-    public final GameEventListenerRenderer gameEventListenerRenderer;
+  
+
     private boolean renderChunkborder;
 
     public DebugRenderer(Minecraft p_113433_)
     {
-        this.waterDebugRenderer = new WaterDebugRenderer(p_113433_);
-        this.chunkBorderRenderer = new ChunkBorderRenderer(p_113433_);
-        this.heightMapRenderer = new HeightMapRenderer(p_113433_);
-        this.collisionBoxRenderer = new CollisionBoxRenderer(p_113433_);
-        this.neighborsUpdateRenderer = new NeighborsUpdateRenderer(p_113433_);
-        this.structureRenderer = new StructureRenderer(p_113433_);
-        this.lightDebugRenderer = new LightDebugRenderer(p_113433_);
-        this.worldGenAttemptRenderer = new WorldGenAttemptRenderer();
-        this.solidFaceRenderer = new SolidFaceRenderer(p_113433_);
-        this.chunkRenderer = new ChunkDebugRenderer(p_113433_);
-        this.brainDebugRenderer = new BrainDebugRenderer(p_113433_);
-        this.villageSectionsDebugRenderer = new VillageSectionsDebugRenderer();
-        this.beeDebugRenderer = new BeeDebugRenderer(p_113433_);
-        this.raidDebugRenderer = new RaidDebugRenderer(p_113433_);
-        this.goalSelectorRenderer = new GoalSelectorDebugRenderer(p_113433_);
-        this.gameTestDebugRenderer = new GameTestDebugRenderer();
-        this.gameEventListenerRenderer = new GameEventListenerRenderer(p_113433_);
+ 
+    
     }
 
     public void clear()
     {
-        this.pathfindingRenderer.clear();
-        this.waterDebugRenderer.clear();
-        this.chunkBorderRenderer.clear();
-        this.heightMapRenderer.clear();
-        this.collisionBoxRenderer.clear();
-        this.neighborsUpdateRenderer.clear();
-        this.structureRenderer.clear();
-        this.lightDebugRenderer.clear();
-        this.worldGenAttemptRenderer.clear();
-        this.solidFaceRenderer.clear();
-        this.chunkRenderer.clear();
-        this.brainDebugRenderer.clear();
-        this.villageSectionsDebugRenderer.clear();
-        this.beeDebugRenderer.clear();
-        this.raidDebugRenderer.clear();
-        this.goalSelectorRenderer.clear();
-        this.gameTestDebugRenderer.clear();
-        this.gameEventListenerRenderer.clear();
+        
+        
     }
 
     public boolean switchRenderChunkborder()
@@ -97,12 +51,8 @@ public class DebugRenderer
 
     public void render(PoseStack pMatrixStack, MultiBufferSource.BufferSource pBuffer, double pCamX, double p_113461_, double pCamY)
     {
-        if (this.renderChunkborder && !Minecraft.getInstance().showOnlyReducedInfo())
-        {
-            this.chunkBorderRenderer.render(pMatrixStack, pBuffer, pCamX, p_113461_, pCamY);
-        }
+        
 
-        this.gameTestDebugRenderer.render(pMatrixStack, pBuffer, pCamX, p_113461_, pCamY);
     }
 
     public static Optional<Entity> getTargetedEntity(@Nullable Entity pEntity, int pDistance)

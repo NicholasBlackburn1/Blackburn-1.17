@@ -23,7 +23,7 @@ public class DeathScreen extends Screen
     private Component deathScore;
     private final List<Button> exitButtons = Lists.newArrayList();
 
-    private Discordrpc rpc = new Discordrpc();
+
 
     public DeathScreen(@Nullable Component p_95911_, boolean p_95912_)
     {
@@ -35,7 +35,7 @@ public class DeathScreen extends Screen
     protected void init()
     {   
         
-        
+        Const.rpc.ImageWithDescPersantes("haha I died", "Im bad at mc~","death", 0, 0);
         this.delayTicker = 0;
         this.exitButtons.clear();
         this.exitButtons.add(this.addRenderableWidget(new Button(this.width / 2 - 100, this.height / 4 + 72, 200, 20, this.hardcore ? new TranslatableComponent("deathScreen.spectate") : new TranslatableComponent("deathScreen.respawn"), (p_95930_) ->
@@ -99,7 +99,6 @@ public class DeathScreen extends Screen
 
     public void render(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks)
     {
-        rpc.ImageWithDescPersantes("haha I died", "Im bad at mc~","death", 0, 0);
         this.fillGradient(pMatrixStack, 0, 0, this.width, this.height, 1615855616, -1602211792);
         pMatrixStack.pushPose();
         pMatrixStack.scale(2.0F, 2.0F, 2.0F);

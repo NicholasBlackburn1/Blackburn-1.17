@@ -29,6 +29,9 @@ public class Const {
     public static String VERSION = "1.17.1-Blackburn";
     public static String Date = "Saterday, Sept 4";
 
+    public boolean allowerpc;
+    
+
     public static LinkedList<String> commandList = new LinkedList<>();
 
     public static  Discordrpc rpc = new Discordrpc();
@@ -61,6 +64,15 @@ public class Const {
     public static void log(String s)
     {
         dbg(s);
+    }
+
+    public void setRcp(boolean  state){
+        allowrpc == state
+        
+    }
+
+    public static boolean returnAllowRPC(){
+        return allowrpc;
     }
 
 }
