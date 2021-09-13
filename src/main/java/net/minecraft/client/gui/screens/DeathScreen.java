@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import javax.annotation.Nullable;
 
+import net.blackburn.Const;
 import net.blackburn.client.discordrpc.Discordrpc;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
@@ -33,7 +34,7 @@ public class DeathScreen extends Screen
 
     protected void init()
     {   
-        rpc.ImageWithDescPersantes("haha I died", "Im bad at mc~","death", 0, 0);
+        
         
         this.delayTicker = 0;
         this.exitButtons.clear();
@@ -79,6 +80,7 @@ public class DeathScreen extends Screen
         }
         else
         {
+            Const.rpc.CustomPresence("In Game... Hapy foxy girl noises", "Yay u are playing mc UwU");
             this.minecraft.player.respawn();
             this.minecraft.setScreen((Screen)null);
         }
@@ -97,6 +99,7 @@ public class DeathScreen extends Screen
 
     public void render(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks)
     {
+        rpc.ImageWithDescPersantes("haha I died", "Im bad at mc~","death", 0, 0);
         this.fillGradient(pMatrixStack, 0, 0, this.width, this.height, 1615855616, -1602211792);
         pMatrixStack.pushPose();
         pMatrixStack.scale(2.0F, 2.0F, 2.0F);

@@ -253,6 +253,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
+import net.blackburn.Const;
 
 public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements SnooperPopulator, WindowEventHandler
 {
@@ -386,6 +387,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private final ResourceLoadStateTracker reloadStateTracker = new ResourceLoadStateTracker();
     private String debugPath = "root";
 
+    
     public Minecraft(GameConfig pGameConfig)
     {
         super("Client");
@@ -1015,6 +1017,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             }
             else
             {
+               
                 this.player.respawn();
             }
         }
@@ -1905,7 +1908,10 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
         if (this.screen == null && this.player != null)
         {   
-         
+            if(this.player.isDeadOrDying()){
+             //TTODO: add way to tell discord that im dead
+            }
+
             if (this.player.isDeadOrDying() && !(this.screen instanceof DeathScreen))
             {
                 this.setScreen((Screen)null);
@@ -2937,6 +2943,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     {
         if (this.singleplayerServer != null)
         {
+            
+           
             return this.singleplayerServer.isPublished() ? "hosting_lan" : "singleplayer";
         }
         else if (this.currentServer != null)

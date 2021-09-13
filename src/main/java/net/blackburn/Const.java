@@ -7,6 +7,7 @@ package net.blackburn;
 import java.util.LinkedList;
 
 import org.apache.logging.log4j.LogManager;
+import net.blackburn.client.discordrpc.Discordrpc;
 
 public class Const {
     
@@ -29,6 +30,8 @@ public class Const {
     public static String Date = "Saterday, Sept 4";
 
     public static LinkedList<String> commandList = new LinkedList<>();
+
+    public static  Discordrpc rpc = new Discordrpc();
 
     public static void dbg(String s)
     {

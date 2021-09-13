@@ -1204,6 +1204,7 @@ public abstract class LivingEntity extends Entity
 
     public boolean isDeadOrDying()
     {
+        
         return this.getHealth() <= 0.0F;
     }
 

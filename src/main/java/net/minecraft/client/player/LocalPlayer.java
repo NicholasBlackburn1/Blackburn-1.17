@@ -77,7 +77,7 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-
+import net.blackburn.Const;
 public class LocalPlayer extends AbstractClientPlayer
 {
     private static final int POSITION_REMINDER_INTERVAL = 20;
@@ -323,7 +323,9 @@ public class LocalPlayer extends AbstractClientPlayer
 
     public void respawn()
     {
+       
         this.connection.send(new ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.PERFORM_RESPAWN));
+      
     }
 
     protected void actuallyHurt(DamageSource pDamageSrc, float pDamageAmount)
