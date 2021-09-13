@@ -1679,7 +1679,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
             // Allows me to add an update message when i get father in to dev
             if (Config.getNewRelease() != null)
             {       
-               // CriteriaTriggers.LAUNCHED.trigger(this.minecraft.getSingleplayerServer()).getPlayerList().getPlayerByUUID(this.minecraft.player.getUUID()));
+               
                 // This will display the start up message to client
                 TextComponent startup = new TextComponent(I18n.m_118938_("blackburn.message.Startup"));
                 startup.setStyle(Style.EMPTY);
@@ -1699,6 +1699,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                 */
             }
 
+    
             if (Config.isNotify64BitJava())
             {
                 Config.setNotify64BitJava(false);
@@ -1799,6 +1800,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         if (this.itemActivationItem != null && this.itemActivationTicks > 0)
         {
             int i = 40 - this.itemActivationTicks;
+
             float f = ((float)i + pPartialTicks) / 40.0F;
             float f1 = f * f;
             float f2 = f * f1;
