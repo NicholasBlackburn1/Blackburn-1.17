@@ -2011,9 +2011,10 @@ public class Config
         int j = minecraft.levelRenderer.getCountActiveRenderers();
         int k = minecraft.levelRenderer.getCountEntitiesRendered();
         int l = minecraft.levelRenderer.getCountTileEntitiesRendered();
-        String s = getFpsString() + ", C: " + j + ", E: " + k + "+" + l + ", U: " + i;
+        String s = getFpsString();
         minecraft.font.draw(matrixStackIn, s, 2.0F, 2.0F, -2039584);
     }
+
 
     public static String getFpsString()
     {

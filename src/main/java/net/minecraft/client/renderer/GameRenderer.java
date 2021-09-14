@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 
 import net.blackburn.Const;
 import net.blackburn.client.discordrpc.Discordrpc;
+import net.blackburn.client.hud.Hud;
 import net.blackburn.command.CommandRegister;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -744,6 +745,10 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         if(this.minecraft.player.isAlive() && this.minecraft.level != null){
             Const.rpc.CustomPresenceWithImage("In Game... Hapy foxy girl noises", "Yay u are playing mc UwU","uwu");
         }
+        else{
+            
+        Const.rpc.ImageWithDescPersantes("haha I died", "Im bad at mc~","death", 0, 0);
+        }
 
         if (this.minecraft.gui.getBossOverlay().shouldDarkenScreen())
         {
@@ -1191,6 +1196,11 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                     if (this.minecraft.options.ofShowFps && !this.minecraft.options.renderDebug)
                     {
                         Config.drawFps(posestack1);
+                    }
+
+                    if (!this.minecraft.options.ofShowFps || this.minecraft.options.ofShowFps){
+                        Hud hud = new Hud();
+                        hud.drawXYZPlayerPos(posestack1, this.minecraft);
                     }
 
                     if (this.minecraft.options.renderDebug)
