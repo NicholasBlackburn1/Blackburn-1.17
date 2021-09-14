@@ -200,7 +200,12 @@ public class LoadingOverlay extends Overlay
         final float[] memorycolour = new float[] { 0.0f, 0.0f, 0.0f};
         // this allows me to add custom logo
         
-        blit(pMatrixStack,Const.px, Const.py, Const.pUOffset, Const.pVOffset, Const.pWidth, Const.pHight,Const.pTextureWidth,Const.pTextureHeight);
+        if(!this.minecraft.getWindow().isFullscreen()){
+
+            blit(pMatrixStack,Const.px, Const.py, Const.pUOffset, Const.pVOffset, Const.pWidth, Const.pHight,Const.pTextureWidth,Const.pTextureHeight);
+        } else{
+            blit(pMatrixStack,Const.pxfull, Const.pyfull, Const.pUOffsetfull, Const.pVOffsetfull, Const.pWidthfull, Const.pHightfull,Const.pTextureWidthfull,Const.pTextureHeightfull);
+        }
         //easygui.renderMessage("I HACKED MC 1.17", memorycolour, 2, 1);
 
         RenderSystem.defaultBlendFunc();

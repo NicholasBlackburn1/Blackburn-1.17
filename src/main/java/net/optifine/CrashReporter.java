@@ -2,6 +2,8 @@ package net.optifine;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import net.blackburn.Const;
 import net.minecraft.CrashReport;
 import net.minecraft.SystemReport;
 import net.minecraft.client.Options;
@@ -102,7 +104,7 @@ public class CrashReporter
     }
 
     public static void extendCrashReport(SystemReport cat)
-    {
+    {   cat.setDetail("Blackburn-Client Version", Const.VERSION);
         cat.setDetail("OptiFine Version", Config.getVersion());
         cat.setDetail("OptiFine Build", Config.getBuild());
 

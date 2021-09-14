@@ -30,7 +30,7 @@ import javax.annotation.Nullable;
 
 import net.blackburn.Const;
 import net.blackburn.client.discordrpc.Discordrpc;
-import net.blackburn.client.hud.Hud;
+import net.blackburn.client.gui.Hud;
 import net.blackburn.command.CommandRegister;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -1198,7 +1198,8 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                         Config.drawFps(posestack1);
                     }
 
-                    if (!this.minecraft.options.ofShowFps || this.minecraft.options.ofShowFps){
+
+                    if (this.minecraft.options.ofShowFps){
                         Hud hud = new Hud();
                         hud.drawXYZPlayerPos(posestack1, this.minecraft);
                     }

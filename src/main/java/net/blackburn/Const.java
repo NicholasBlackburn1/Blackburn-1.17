@@ -29,6 +29,18 @@ public class Const {
     public static int pUOffset = 0 ;
     public static float pVOffset = 0;
 
+    // Ufull
+    public static int pxfull =  190;
+    public static int pyfull = 80;
+    public static int  pTextureWidthfull = 120;
+    public static int pTextureHeightfull = 120;
+
+    public static int pWidthfull =  120;
+    public static int pHightfull = 120;
+
+    public static int pUOffsetfull = 0 ;
+    public static float pVOffsetfull = 0;
+
     public static String RELEASE = "DEBUG";
     public static String VERSION = "1.17.1-Blackburn";
     public static String Date = "Saterday, Sept 4";
