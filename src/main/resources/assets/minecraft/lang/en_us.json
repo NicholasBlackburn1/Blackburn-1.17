@@ -24,15 +24,15 @@
   "blackburn.command.help.desc":"this will help u",
   "blackburn.command.help.header":"§athis will display all the commands in the list",
   
-  "blackburn.command.version":"§e version:",
+  "blackburn.command.version":"§e .version",
   "blackburn.command.version.desc":"§6Tells the user what version the minecraft client is.",
 
-  "blackburn.command.testrpc":"§a Sent discord rpc update to discord~ UwU",
+  "blackburn.command.testrpc":"§e .testrpc",
 
   "blackburn.command.enabled":"§a ENABLED!",
   "blackburn.command.disbaled":"§5 DISABLED!",
-  
-  "blackburn.command.playerpos":"§e playerpos:",
+
+  "blackburn.command.playerpos":"§e .playerpos",
   "blackburn.command.playerpos.desc":"§6Toggles the players pos display",
   "blackburn.command.playerpos,useage":"To use command plz type .playerpos <enable/disable>",
 
