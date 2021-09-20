@@ -46,6 +46,13 @@ public class Const {
     public static String Date = "Saterday, Sept 4";
 
 
+    public static boolean enablePosInfo = false;
+
+
+    public boolean getEnablePos(){
+        return enablePosInfo;
+    }
+
 
     public static void dbg(String s)
     {

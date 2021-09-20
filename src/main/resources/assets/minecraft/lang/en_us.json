@@ -29,6 +29,13 @@
 
   "blackburn.command.testrpc":"§a Sent discord rpc update to discord~ UwU",
 
+  "blackburn.command.enabled":"§a ENABLED!",
+  "blackburn.command.disbaled":"§5 DISABLED!",
+  
+  "blackburn.command.playerpos":"§e playerpos:",
+  "blackburn.command.playerpos.desc":"§6Toggles the players pos display",
+  "blackburn.command.playerpos,useage":"To use command plz type .playerpos <enable/disable>",
+
 
 
 
