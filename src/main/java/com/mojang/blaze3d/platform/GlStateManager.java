@@ -59,6 +59,7 @@ public class GlStateManager
     private static boolean alphaTest = false;
     private static int alphaTestFunc = 519;
     private static float alphaTestRef = 0.0F;
+    private static boolean clientStateLocked = false;
     private static LockCounter alphaLock = new LockCounter();
     private static GlAlphaState alphaLockState = new GlAlphaState();
     private static LockCounter blendLock = new LockCounter();
@@ -149,6 +150,48 @@ public class GlStateManager
         SCISSOR.mode.enable();
     }
 
+    
+    @Deprecated
+    public static void enableClientState(int cap)
+    {
+        if (!clientStateLocked)
+        {
+            RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+            GL11.glEnableClientState(cap);
+        }
+    }
+
+    
+    @Deprecated
+    public static void scalef(float x, float y, float z)
+    {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        GL11.glScalef(x, y, z);
+    }
+
+    @Deprecated
+    public static void translatef(float x, float y, float z)
+    {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        GL11.glTranslatef(x, y, z);
+    }
+
+    @Deprecated
+    public static void translated(double x, double y, double z)
+    {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        GL11.glTranslated(x, y, z);
+    }
+
+    @Deprecated
+    public static void disableClientState(int cap)
+    {
+        if (!clientStateLocked)
+        {
+            RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+            GL11.glDisableClientState(cap);
+        }
+    }
     public static void _scissorBox(int p_84169_, int p_84170_, int p_84171_, int p_84172_)
     {
         RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);
@@ -583,7 +626,20 @@ public class GlStateManager
         RenderSystem.assertThread(RenderSystem::isOnRenderThread);
         GL30.glDeleteVertexArrays(p_157077_);
     }
+    
+    @Deprecated
+    public static void pushMatrix()
+    {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        GL11.glPushMatrix();
+    }
 
+    @Deprecated
+    public static void popMatrix()
+    {
+        RenderSystem.assertThread(RenderSystem::isOnRenderThread);
+        GL11.glPopMatrix();
+    }
     public static void _glBindFramebuffer(int pTarget, int pFramebuffer)
     {
         RenderSystem.assertThread(RenderSystem::isOnRenderThreadOrInit);

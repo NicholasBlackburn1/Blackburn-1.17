@@ -98,27 +98,27 @@ public class EarlyLoaderGUI {
 
    
     public void renderMessage(final String message, final float[] colour, int line, float alpha) {
-         GL11.glBegin(GL11.GL_QUADS);
-         GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
-         ByteBuffer charBuffer = MemoryUtil.memAlloc(message.length() * 270);
-         int quads = STBEasyFont.stb_easy_font_print(0, 0, message, null, charBuffer);
-         GL11.glVertexPointer(2, GL14.GL_FLOAT, 16, charBuffer);
-        
-         RenderSystem.enableBlend();
-         RenderSystem.disableTexture();
-          //STBEasyFont's quads are in reverse order or what OGGL expects, so it gets culled for facing the wrong way.
-          //So Disable culling https:github.com/MinecraftForge/MinecraftForge/pull/6824
-         RenderSystem.disableCull();
-         RenderSystem.blendFunc(GlStateManager.SourceFactor.CONSTANT_ALPHA, GlStateManager.DestFactor.ONE_MINUS_CONSTANT_ALPHA);
-         GL11.glColor3f(colour[0],colour[1],colour[2]);
-         GL11.glPushMatrix();
-         GL11.glTranslatef(10, line * 10, 0);
-         GL11.glScalef(1, 1, 0);
-         GL11.glDrawArrays(GL11.GL_QUADS, 0, quads * 4);
-         GL11.glPopMatrix();
-        
-         RenderSystem.enableCull();
-         GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
-         MemoryUtil.memFree(charBuffer);
+        GlStateManager.enableClientState(GL11.GL_VERTEX_ARRAY);
+        ByteBuffer charBuffer = MemoryUtil.memAlloc(message.length() * 270);
+        int quads = STBEasyFont.stb_easy_font_print(0, 0, message, null, charBuffer);
+        GL11.glVertexPointer(2, GL11.GL_FLOAT, 16, charBuffer);
+
+        RenderSystem.enableBlend();
+        RenderSystem.disableTexture();
+        // STBEasyFont's quads are in reverse order or what OGGL expects, so it gets culled for facing the wrong way.
+        // So Disable culling https://github.com/MinecraftForge/MinecraftForge/pull/6824
+        RenderSystem.disableCull();
+        GL14.glBlendColor(0,0,0, alpha);
+        RenderSystem.blendFunc(GlStateManager.SourceFactor.CONSTANT_ALPHA, GlStateManager.DestFactor.ONE_MINUS_CONSTANT_ALPHA);
+        GL11.glColor4f(239F / 255F, 50F / 255F, 61F / 255F, 255F / 255F); //Color from ResourceLoadProgressGui
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef(10, line * 10, 0);
+        RenderSystem.scalef(1, 1, 0);
+        RenderSystem.drawArrays(GL11.GL_QUADS, 0, quads * 4);
+        RenderSystem.popMatrix();
+
+        RenderSystem.enableCull();
+        GlStateManager.disableClientState(GL11.GL_VERTEX_ARRAY);
+        MemoryUtil.memFree(charBuffer);
     }
 }

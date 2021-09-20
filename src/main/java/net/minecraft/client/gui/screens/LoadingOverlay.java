@@ -19,6 +19,8 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
+import net.minecraft.client.resources.sounds.Sound;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.VanillaPackResources;
@@ -133,7 +135,8 @@ public class LoadingOverlay extends Overlay
     }
 
     public void render(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks)
-    {
+    {   
+        
         EarlyLoaderGUI easygui = new EarlyLoaderGUI(minecraft);
        
         int i = this.minecraft.getWindow().getGuiScaledWidth();
@@ -206,14 +209,18 @@ public class LoadingOverlay extends Overlay
         } else{
             blit(pMatrixStack,Const.pxfull, Const.pyfull, Const.pUOffsetfull, Const.pVOffsetfull, Const.pWidthfull, Const.pHightfull,Const.pTextureWidthfull,Const.pTextureHeightfull);
         }
-        //easygui.renderMessage("I HACKED MC 1.17", memorycolour, 2, 1);
+        
 
         RenderSystem.defaultBlendFunc();
+
         RenderSystem.disableBlend();
         int k1 = (int)((double)this.minecraft.getWindow().getGuiScaledHeight() * 0.8325D);
         float f6 = this.reload.getActualProgress();
+        
+        //Reflector.ClientModLoader_renderProgressText.call();
+        //easygui.renderMessage("I HACKED MC 1.17", memorycolour, 2, 1);
+
         this.currentProgress = Mth.clamp(this.currentProgress * 0.95F + f6 * 0.050000012F, 0.0F, 1.0F);
-        Reflector.ClientModLoader_renderProgressText.call();
 
         if (f < 1.0F)
         {

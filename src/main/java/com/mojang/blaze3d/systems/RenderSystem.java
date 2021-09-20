@@ -160,6 +160,45 @@ public class RenderSystem
         GLFW.glfwSwapBuffers(p_69496_);
         GLFW.glfwPollEvents();
     }
+    @Deprecated
+    public static void translatef(float p_translatef_0_, float p_translatef_1_, float p_translatef_2_)
+    {
+        assertThread(RenderSystem::isOnGameThread);
+        GlStateManager.translatef(p_translatef_0_, p_translatef_1_, p_translatef_2_);
+    }
+    @Deprecated
+    public static void scalef(float p_scalef_0_, float p_scalef_1_, float p_scalef_2_)
+    {
+        assertThread(RenderSystem::isOnGameThread);
+        GlStateManager.scalef(p_scalef_0_, p_scalef_1_, p_scalef_2_);
+    }
+    
+    public static void drawArrays(int p_drawArrays_0_, int p_drawArrays_1_, int p_drawArrays_2_)
+    {
+        assertThread(RenderSystem::isOnGameThread);
+        GlStateManager.drawArrays(p_drawArrays_0_, p_drawArrays_1_, p_drawArrays_2_);
+    }
+
+
+    @Deprecated
+    public static void translated(double p_translated_0_, double p_translated_2_, double p_translated_4_)
+    {
+        assertThread(RenderSystem::isOnGameThread);
+        GlStateManager.translated(p_translated_0_, p_translated_2_, p_translated_4_);
+    }
+
+    @Deprecated
+    public static void popMatrix()
+    {
+        assertThread(RenderSystem::isOnGameThread);
+        GlStateManager.popMatrix();
+    }
+    @Deprecated
+    public static void pushMatrix()
+    {
+        assertThread(RenderSystem::isOnGameThread);
+        GlStateManager.pushMatrix();
+    }
 
     public static void replayQueue()
     {
@@ -1083,6 +1122,7 @@ public class RenderSystem
         assertThread(RenderSystem::isOnRenderThread);
         return modelViewMatrix;
     }
+    
 
     public static PoseStack getModelViewStack()
     {
@@ -1277,4 +1317,9 @@ public class RenderSystem
             void accept(it.unimi.dsi.fastutil.ints.IntConsumer p_157488_, int p_157489_);
         }
     }
+   
+    
+
+    
 }
+
