@@ -1669,7 +1669,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
 
     private void frameInit()
     {
-        Config.frameStart();
+        Config.frameStart(); 
         GlErrors.frameStart();
 
         
