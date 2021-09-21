@@ -1686,20 +1686,22 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
 
         Level level = this.minecraft.level;
 
-       
+        
 
-        if (level != null)
-        {   
+        if (level != null){
+        
            
           
           
             CommandRegister reg = new CommandRegister();
             reg.RegisterCommands(this.minecraft);
+           
+            
 
             // Allows me to add an update message when i get father in to dev
             if (Config.getNewRelease() != null)
             {       
-               
+                reg.initCommands();
                 // This will display the start up message to client
                 TextComponent startup = new TextComponent(I18n.m_118938_("blackburn.message.Startup"));
                 startup.setStyle(Style.EMPTY);

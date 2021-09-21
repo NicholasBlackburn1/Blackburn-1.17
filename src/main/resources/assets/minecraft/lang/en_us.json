@@ -20,8 +20,8 @@
   "blackburn.message.commandstartup": "§cThere are about",
   "blackburn.message.commandstartup2": "§cCommands Loaded Into the Client!",
 
-  "blackburn.command.help": ".help",
-  "blackburn.command.help.desc":"this will help u",
+  "blackburn.command.help": "§e .help",
+  "blackburn.command.help.desc":"§6this will help u",
   "blackburn.command.help.header":"§athis will display all the commands in the list",
   
   "blackburn.command.version":"§e .version",
@@ -30,7 +30,7 @@
   "blackburn.command.testrpc":"§e .testrpc",
 
   "blackburn.command.enabled":"§a ENABLED!",
-  "blackburn.command.disbaled":"§5 DISABLED!",
+  "blackburn.command.disabled":"§5 DISABLED!",
 
   "blackburn.command.playerpos":"§e .playerpos",
   "blackburn.command.playerpos.desc":"§6Toggles the players pos display",
