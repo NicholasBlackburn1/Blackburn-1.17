@@ -1672,6 +1672,12 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         Config.frameStart();
         GlErrors.frameStart();
 
+        
+        CommandRegister reg = new CommandRegister();
+        reg.RegisterCommands(this.minecraft);
+       
+        
+
         if (!this.initialized)
         {
             ReflectorResolver.resolve();
@@ -1690,13 +1696,6 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
 
         if (level != null){
         
-           
-          
-          
-            CommandRegister reg = new CommandRegister();
-            reg.RegisterCommands(this.minecraft);
-           
-            
 
             // Allows me to add an update message when i get father in to dev
             if (Config.getNewRelease() != null)

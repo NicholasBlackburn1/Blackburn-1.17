@@ -28,6 +28,9 @@
   "blackburn.command.version.desc":"§6Tells the user what version the minecraft client is.",
 
   "blackburn.command.testrpc":"§e .testrpc",
+  "blackburn.command.testrpc.desc":"§6 Tests The discord api by sending the custom status message",
+  "blackburn.command.testrpc.ran": "§a Ran and set an custom status to discord!",
+
 
   "blackburn.command.enabled":"§a ENABLED!",
   "blackburn.command.disabled":"§5 DISABLED!",
