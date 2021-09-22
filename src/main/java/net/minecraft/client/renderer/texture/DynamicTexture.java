@@ -3,6 +3,9 @@ package net.minecraft.client.renderer.texture;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
+
+import java.awt.image.BufferedImage;
+
 import javax.annotation.Nullable;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.optifine.Config;
@@ -15,10 +18,11 @@ public class DynamicTexture extends AbstractTexture
     private static final Logger LOGGER = LogManager.getLogger();
     @Nullable
     private NativeImage pixels;
+    private BufferedImage pixels2;
 
-    public DynamicTexture(NativeImage p_117984_)
+    public DynamicTexture(NativeImage bufferedImage)
     {
-        this.pixels = p_117984_;
+        this.pixels = bufferedImage;
 
         if (!RenderSystem.isOnRenderThread())
         {
@@ -36,6 +40,35 @@ public class DynamicTexture extends AbstractTexture
         else
         {
             TextureUtil.prepareImage(this.getId(), this.pixels.getWidth(), this.pixels.getHeight());
+            this.upload();
+
+            if (Config.isShaders())
+            {
+                ShadersTex.initDynamicTextureNS(this);
+            }
+        }
+    }
+
+    public DynamicTexture(BufferedImage bufferedImage)
+    {
+        this.pixels2 = bufferedImage;
+
+        if (!RenderSystem.isOnRenderThread())
+        {
+            RenderSystem.recordRenderCall(() ->
+            {
+                TextureUtil.prepareImage(this.getId(), this.pixels2.getWidth(), this.pixels2.getHeight());
+                this.upload();
+
+                if (Config.isShaders())
+                {
+                    ShadersTex.initDynamicTextureNS(this);
+                }
+            });
+        }
+        else
+        {
+            TextureUtil.prepareImage(this.getId(), this.pixels2.getWidth(), this.pixels2.getHeight());
             this.upload();
 
             if (Config.isShaders())

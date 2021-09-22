@@ -137,7 +137,7 @@ public class TextureManager implements PreparableReloadListener, Tickable, AutoC
         p_118510_.releaseId();
     }
 
-    private AbstractTexture loadTexture(ResourceLocation p_118516_, AbstractTexture p_118517_)
+    public AbstractTexture loadTexture(ResourceLocation p_118516_, AbstractTexture p_118517_)
     {
         try
         {

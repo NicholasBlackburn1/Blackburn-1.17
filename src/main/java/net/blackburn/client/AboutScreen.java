@@ -1,3 +1,6 @@
+
+//* this class is for handling the custom about screen like when u click the copyrigted text on title screen
+
 package net.blackburn.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -31,6 +34,7 @@ public class AboutScreen extends GuiScreenOF
     {
         this.clearWidgets();
 
+        // UWU
         for (int i = 0; i < enumOptions.length; ++i)
         {
             Option option = enumOptions[i];
