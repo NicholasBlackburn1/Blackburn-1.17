@@ -8,6 +8,8 @@
 1.17+ Needs JDK 16
 
 ### What this client does 
+it changes loadign screen and title screen
+adds custom commands
 
 
 
