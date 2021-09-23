@@ -43,7 +43,7 @@
 
   "blackburn.command.lightlevel":"§e .lightlevel",
   "blackburn.command.lightlevel.desc":"§6Toggles the Light level display",
-  "blackburn.command.lightlevel,useage":"§5To use command plz type .lightlevel <enable/disable>",
+  "blackburn.command.lightlevel.useage":"§5To use command plz type .lightlevel <enable/disable>",
 
 
 
