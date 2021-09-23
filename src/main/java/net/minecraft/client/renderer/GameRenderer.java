@@ -1708,10 +1708,16 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
 
                 // This will allow me to dsiplay commands for the user to use from client 
                 TextComponent commands = new TextComponent(I18n.m_118938_("blackburn.message.commandstartup")+" "+"\u00A7r"+String.valueOf(Const.commandList.size())+" "+I18n.m_118938_("blackburn.message.commandstartup2"));
+                TextComponent usecommands = new TextComponent(I18n.m_118938_("blackburn.message.howto"));
+
                 commands.setStyle(Style.EMPTY);
+                usecommands.setStyle(Style.EMPTY);
+
                 this.minecraft.gui.getChat().addMessage(commands);
+                this.minecraft.gui.getChat().addMessage(usecommands);
 
                 Config.setNewRelease((String)null);
+                
                 /*
                 TextComponent newversion = new TextComponent(I18n.m_118938_("blackburn.message.NewVersion"));
                 newversion.setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://nicholasblackburn.space/downloads")));

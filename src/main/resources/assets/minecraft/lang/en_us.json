@@ -20,6 +20,8 @@
   "blackburn.message.commandstartup": "§cThere are about",
   "blackburn.message.commandstartup2": "§cCommands Loaded Into the Client!",
 
+  "blackburn.message.howto": "§atype .help for client commands!",
+
   "blackburn.command.help": "§e .help",
   "blackburn.command.help.desc":"§6this will help u",
   "blackburn.command.help.header":"§athis will display all the commands in the list",
