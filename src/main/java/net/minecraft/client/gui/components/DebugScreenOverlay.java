@@ -118,13 +118,13 @@ public class DebugScreenOverlay extends GuiComponent
         this.serverChunk = null;
         this.clientChunk = null;
     }
-
+    //* this is for rendering the debug screen for mc 
     public void render(PoseStack p_94057_)
     {
         this.minecraft.getProfiler().push("debug");
         Entity entity = this.minecraft.getCameraEntity();
-        this.block = entity.pick(20.0D, 0.0F, false);
-        this.liquid = entity.pick(20.0D, 0.0F, true);
+       this.block = entity.pick(20.0D, 0.0F, false);
+       this.liquid = entity.pick(20.0D, 0.0F, true);
         this.drawGameInformation(p_94057_);
         this.drawSystemInformation(p_94057_);
 
@@ -365,13 +365,6 @@ public class DebugScreenOverlay extends GuiComponent
             {
                 list.add(s2);
             }
-
-            list.add(this.minecraft.level.dimension().location() + " FC: " + longset.size());
-            list.add("");
-            list.add(String.format(Locale.ROOT, "XYZ: %.3f / %.5f / %.3f", this.minecraft.getCameraEntity().getX(), this.minecraft.getCameraEntity().getY(), this.minecraft.getCameraEntity().getZ()));
-            list.add(String.format("Block: %d %d %d", blockpos.getX(), blockpos.getY(), blockpos.getZ()));
-            list.add(String.format("Chunk: %d %d %d in %d %d %d", blockpos.getX() & 15, blockpos.getY() & 15, blockpos.getZ() & 15, SectionPos.blockToSectionCoord(blockpos.getX()), SectionPos.blockToSectionCoord(blockpos.getY()), SectionPos.blockToSectionCoord(blockpos.getZ())));
-            list.add(String.format(Locale.ROOT, "Facing: %s (%s) (%.1f / %.1f)", direction, s1, Mth.wrapDegrees(entity.getYRot()), Mth.wrapDegrees(entity.getXRot())));
             LevelChunk levelchunk = this.getClientChunk();
 
             if (levelchunk.isEmpty())
@@ -383,7 +376,7 @@ public class DebugScreenOverlay extends GuiComponent
                 int i = this.minecraft.level.getChunkSource().getLightEngine().getRawBrightness(blockpos, 0);
                 int j = this.minecraft.level.getBrightness(LightLayer.SKY, blockpos);
                 int k = this.minecraft.level.getBrightness(LightLayer.BLOCK, blockpos);
-                list.add("Client Light: " + i + " (" + j + " sky, " + k + " block)");
+                //list.add("Client Light: " + i + " (" + j + " sky, " + k + " block)");
                 LevelChunk levelchunk1 = this.getServerChunk();
                 StringBuilder stringbuilder = new StringBuilder("CH");
 
@@ -431,7 +424,7 @@ public class DebugScreenOverlay extends GuiComponent
                     }
 
                     DifficultyInstance difficultyinstance = new DifficultyInstance(level.getDifficulty(), level.getDayTime(), i1, f2);
-                    list.add(String.format(Locale.ROOT, "Local Difficulty: %.2f // %.2f (Day %d)", difficultyinstance.getEffectiveDifficulty(), difficultyinstance.getSpecialMultiplier(), this.minecraft.level.getDayTime() / 24000L));
+                   // list.add(String.format(Locale.ROOT, "Local Difficulty: %.2f // %.2f (Day %d)", difficultyinstance.getEffectiveDifficulty(), difficultyinstance.getSpecialMultiplier(), this.minecraft.level.getDayTime() / 24000L));
                 }
             }
 
@@ -445,10 +438,10 @@ public class DebugScreenOverlay extends GuiComponent
                 {
                     Object2IntMap<MobCategory> object2intmap = naturalspawner$spawnstate.getMobCategoryCounts();
                     int l = naturalspawner$spawnstate.getSpawnableChunkCount();
-                    list.add("SC: " + l + ", " + (String)Stream.of(MobCategory.values()).map((p_94066_1_) ->
+                   /* list.add("SC: " + l + ", " + (String)Stream.of(MobCategory.values()).map((p_94066_1_) ->
                     {
                         return Character.toUpperCase(p_94066_1_.getName().charAt(0)) + ": " + object2intmap.getInt(p_94066_1_);
-                    }).collect(Collectors.joining(", ")));
+                    }).collect(Collectors.joining(", ")));*/
                 }
                 else
                 {

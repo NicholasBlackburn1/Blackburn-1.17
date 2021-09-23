@@ -77,8 +77,9 @@ public class Config
     public static final String OF_EDITION = "HD_U";
     public static final String OF_RELEASE = "G9_pre34";
     public static final String VERSION = "OptiFine_1.17.1_HD_U_G9_pre34";
+    
     private static String build = null;
-    private static String newRelease = null;
+    private static String newRelease = "1.17";
     private static boolean notify64BitJava = false;
     public static String openGlVersion = null;
     public static String openGlRenderer = null;

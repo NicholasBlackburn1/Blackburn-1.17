@@ -1672,15 +1672,15 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
         Config.frameStart(); 
         GlErrors.frameStart();
 
-        
+            
         CommandRegister reg = new CommandRegister();
         reg.RegisterCommands(this.minecraft);
-       
         
 
         if (!this.initialized)
         {
             ReflectorResolver.resolve();
+        
 
             if (Config.getBitsOs() == 64 && Config.getBitsJre() == 32)
             {
@@ -1717,7 +1717,7 @@ public class GameRenderer implements ResourceManagerReloadListener, AutoCloseabl
                 this.minecraft.gui.getChat().addMessage(usecommands);
 
                 Config.setNewRelease((String)null);
-                
+
                 /*
                 TextComponent newversion = new TextComponent(I18n.m_118938_("blackburn.message.NewVersion"));
                 newversion.setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://nicholasblackburn.space/downloads")));

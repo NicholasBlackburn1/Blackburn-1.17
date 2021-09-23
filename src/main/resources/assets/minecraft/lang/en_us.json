@@ -39,7 +39,11 @@
 
   "blackburn.command.playerpos":"§e .playerpos",
   "blackburn.command.playerpos.desc":"§6Toggles the players pos display",
-  "blackburn.command.playerpos,useage":"To use command plz type .playerpos <enable/disable>",
+  "blackburn.command.playerpos,useage":"§5To use command plz type .playerpos <enable/disable>",
+
+  "blackburn.command.lightlevel":"§e .lightlevel",
+  "blackburn.command.lightlevel.desc":"§6Toggles the Light level display",
+  "blackburn.command.lightlevel,useage":"§5To use command plz type .lightlevel <enable/disable>",
 
 
 

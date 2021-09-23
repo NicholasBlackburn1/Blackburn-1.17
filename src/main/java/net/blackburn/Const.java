@@ -47,6 +47,7 @@ public class Const {
 
 
     public static boolean enablePosInfo = false;
+    public static boolean enableLightInfo = false;
 
 
     public boolean getEnablePos(){
