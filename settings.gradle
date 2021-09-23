@@ -1,4 +1,4 @@
-rootProject.name ="Blackburn's Client"
+rootProject.name ="BlackburnsClient"
 
 include ':mcp'
 project(":mcp").projectDir = file("projects/mcp")
