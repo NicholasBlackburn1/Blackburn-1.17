@@ -6,8 +6,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.Zombie;
 
 public abstract class AbstractZombieRenderer<T extends Zombie, M extends ZombieModel<T>> extends HumanoidMobRenderer<T, M>
-{
-    private static final ResourceLocation ZOMBIE_LOCATION = new ResourceLocation("textures/entity/zombie/zombie.png");
+{   
+    static int i = 1;
+    private static final ResourceLocation ZOMBIE_LOCATION = new ResourceLocation("textures/entity/furry/wolf/"+i+".png");
 
     protected AbstractZombieRenderer(EntityRendererProvider.Context p_173910_, M p_173911_, M p_173912_, M p_173913_)
     {

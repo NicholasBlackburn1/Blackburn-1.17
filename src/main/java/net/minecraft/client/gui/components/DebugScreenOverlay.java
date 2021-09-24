@@ -187,8 +187,8 @@ public class DebugScreenOverlay extends GuiComponent
         if (list == null || System.currentTimeMillis() > this.updateInfoRightTimeMs)
         {
             list = this.getSystemInformation();
-            this.debugInfoRight = list;
-            this.updateInfoRightTimeMs = System.currentTimeMillis() + 100L;
+            //this.debugInfoRight = list;
+            //this.updateInfoRightTimeMs = System.currentTimeMillis() + 100L;
         }
 
         GuiPoint[] aguipoint = new GuiPoint[list.size()];
@@ -384,7 +384,7 @@ public class DebugScreenOverlay extends GuiComponent
                 {
                     if (heightmap$types.sendToClient())
                     {
-                        stringbuilder.append(" ").append(HEIGHTMAP_NAMES.get(heightmap$types)).append(": ").append(levelchunk.getHeight(heightmap$types, blockpos.getX(), blockpos.getZ()));
+                       // stringbuilder.append(" ").append(HEIGHTMAP_NAMES.get(heightmap$types)).append(": ").append(levelchunk.getHeight(heightmap$types, blockpos.getX(), blockpos.getZ()));
                     }
                 }
 

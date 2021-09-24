@@ -1,27 +1,44 @@
 package net.minecraft.client.gui.screens.inventory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Calendar;
+import java.util.Date;
+
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
+
+import net.blackburn.Const;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.texture.SimpleTexture;
+import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.VanillaPackResources;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 
+
+
 public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMenu> implements RecipeUpdateListener
-{
+{   
+    public static ResourceLocation MOJANG_STUDIOS_LOGO_LOCATION;
     private static final ResourceLocation RECIPE_BUTTON_LOCATION = new ResourceLocation("textures/gui/recipe_button.png");
     private float xMouse;
     private float yMouse;
@@ -49,6 +66,56 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
         }
     }
 
+    public static void registerTextures(Minecraft pMc)
+    {
+
+        // ALLOWS ME TO Swich the loading image based on day
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+
+        switch (calendar.get(Calendar.DAY_OF_WEEK) ) {
+            case 1:
+                MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo.png");
+              
+                break;
+
+            case 2:
+                MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo2.png");
+                break;
+
+            case 3:
+                MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo3.png");
+                break;
+
+            case 4:
+                MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo4.png");
+                break;
+
+            case 5:
+                MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo5.png");
+                break;
+                
+            case 6:
+                MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo6.png");
+                break;
+            
+                       
+            case 7:
+                MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo7.png");
+                break;
+        
+            
+        
+            default:
+                MOJANG_STUDIOS_LOGO_LOCATION = new ResourceLocation("textures/gui/title/logo.png");
+                break;
+        }
+        
+        pMc.getTextureManager().register(MOJANG_STUDIOS_LOGO_LOCATION, new LogoTexture());
+    }
+    
+    
+
     protected void init()
     {
         if (this.minecraft.gameMode.hasInfiniteItems())
@@ -70,6 +137,7 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
                 this.buttonClicked = true;
             }));
             this.addWidget(this.recipeBookComponent);
+            registerTextures(minecraft);
             this.setInitialFocus(this.recipeBookComponent);
         }
     }
@@ -80,7 +148,8 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
     }
 
     public void render(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks)
-    {
+    {   
+        blit(pMatrixStack,Const.px, Const.py, Const.pUOffset, Const.pVOffset, Const.pWidth, Const.pHight,Const.pTextureWidth,Const.pTextureHeight);
         this.renderBackground(pMatrixStack);
         this.doRenderEffects = !this.recipeBookComponent.isVisible();
 
@@ -222,5 +291,63 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
     public RecipeBookComponent getRecipeBookComponent()
     {
         return this.recipeBookComponent;
+    }
+
+    private static InputStream getLogoInputStream(ResourceManager resourceManager, VanillaPackResources vanillapack) throws IOException
+        {
+            return resourceManager.hasResource(MOJANG_STUDIOS_LOGO_LOCATION) ? resourceManager.getResource(MOJANG_STUDIOS_LOGO_LOCATION).getInputStream() : vanillapack.getResource(PackType.CLIENT_RESOURCES, MOJANG_STUDIOS_LOGO_LOCATION);
+        }
+
+        
+    static class LogoTexture extends SimpleTexture
+    {
+        public LogoTexture()
+        {
+            super(MOJANG_STUDIOS_LOGO_LOCATION);
+        }
+
+        protected SimpleTexture.TextureImage getTextureImage(ResourceManager pResourceManager)
+        {
+            Minecraft minecraft = Minecraft.getInstance();
+            VanillaPackResources vanillapackresources = minecraft.getClientPackSource().getVanillaPack();
+
+            try
+            {
+                InputStream inputstream = getLogoInputStream(pResourceManager, vanillapackresources);
+                SimpleTexture.TextureImage simpletexture$textureimage;
+
+                try
+                {
+                    simpletexture$textureimage = new SimpleTexture.TextureImage(new TextureMetadataSection(true, true), NativeImage.read(inputstream));
+                }
+                catch (Throwable throwable1)
+                {
+                    if (inputstream != null)
+                    {
+                        try
+                        {
+                            inputstream.close();
+                        }
+                        catch (Throwable throwable)
+                        {
+                            throwable1.addSuppressed(throwable);
+                        }
+                    }
+
+                    throw throwable1;
+                }
+
+                if (inputstream != null)
+                {
+                    inputstream.close();
+                }
+
+                return simpletexture$textureimage;
+            }
+            catch (IOException ioexception1)
+            {
+                return new SimpleTexture.TextureImage(ioexception1);
+            }
+        }
     }
 }

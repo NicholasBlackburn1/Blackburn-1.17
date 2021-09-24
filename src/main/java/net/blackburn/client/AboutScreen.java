@@ -22,7 +22,7 @@ public class AboutScreen extends GuiScreenOF
     private Options settings;
     private static Option[] enumOptions = new Option[] {};
     private TooltipManager tooltipManager = new TooltipManager(this, new TooltipProviderOptions());
-
+    private String splash;
     public AboutScreen(Screen guiscreen, Options gamesettings)
     {
         super(new TextComponent(I18n.m_118938_("blackburn.about")));
@@ -34,6 +34,7 @@ public class AboutScreen extends GuiScreenOF
     {
         this.clearWidgets();
 
+        splash = this.minecraft.getSplashManager().getSplash();
         // UWU
         for (int i = 0; i < enumOptions.length; ++i)
         {
@@ -63,7 +64,7 @@ public class AboutScreen extends GuiScreenOF
         this.renderBackground(pMatrixStack);
         drawCenteredString(pMatrixStack, this.minecraft.font, this.title, this.width / 2, 15, 16777215);
 
-        this.drawCenteredString(pMatrixStack, this.font, this.minecraft.getSplashManager().getSplash(),this.width/2 ,30, 16776960);
+        this.drawCenteredString(pMatrixStack, this.font, splash,this.width/2 ,30, 16776960);
 
         this.drawCenteredString(pMatrixStack, fontRenderer,"§6Blackburn Software Stats UwU",this.width/2 ,140, 16777215);
         this.drawCenteredString(pMatrixStack, fontRenderer,"§6Version:"+"§r "+Const.VERSION+Const.RELEASE,this.width/2 ,150, 16777215);
