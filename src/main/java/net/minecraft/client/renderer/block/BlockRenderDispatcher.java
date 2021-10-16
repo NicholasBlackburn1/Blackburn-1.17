@@ -21,10 +21,10 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.resource.IResourceType;
-import net.minecraftforge.resource.VanillaResourceType;
+import net.minecraftforgeop.client.model.data.EmptyModelData;
+import net.minecraftforgeop.client.model.data.IModelData;
+import net.minecraftforgeop.resource.IResourceType;
+import net.minecraftforgeop.resource.VanillaResourceType;
 import net.optifine.reflect.Reflector;
 
 public class BlockRenderDispatcher implements ResourceManagerReloadListener

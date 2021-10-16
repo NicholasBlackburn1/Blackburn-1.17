@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.extensions.IForgeBakedModel;
+import net.minecraftforgeop.client.extensions.IForgeBakedModel;
 
 public interface BakedModel extends IForgeBakedModel
 {

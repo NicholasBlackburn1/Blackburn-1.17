@@ -122,7 +122,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforgeop.eventbus.api.Event;
 import net.optifine.Log;
 import net.optifine.util.ArrayUtils;
 import org.apache.logging.log4j.LogManager;

@@ -60,7 +60,7 @@ import net.minecraft.world.level.material.FogType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.client.RenderProperties;
+import net.minecraftforgeop.client.RenderProperties;
 import net.optifine.Config;
 import net.optifine.reflect.Reflector;
 

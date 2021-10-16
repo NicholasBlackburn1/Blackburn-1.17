@@ -13,7 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.extensions.IForgeVertexConsumer;
+import net.minecraftforgeop.client.extensions.IForgeVertexConsumer;
 import net.optifine.Config;
 import net.optifine.IRandomEntity;
 import net.optifine.RandomEntities;

@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraftforge.common.extensions.IForgeBlockState;
+import net.minecraftforgeop.common.extensions.IForgeBlockState;
 import net.optifine.Config;
 import net.optifine.util.BlockUtils;
 

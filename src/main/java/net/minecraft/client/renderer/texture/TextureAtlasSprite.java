@@ -26,7 +26,7 @@ import net.minecraft.client.resources.metadata.animation.AnimationMetadataSectio
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraftforge.client.extensions.IForgeTextureAtlasSprite;
+import net.minecraftforgeop.client.extensions.IForgeTextureAtlasSprite;
 import net.optifine.Config;
 import net.optifine.SmartAnimations;
 import net.optifine.shaders.Shaders;

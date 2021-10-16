@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.main.SilentInitException;
-import net.minecraftforge.fml.loading.progress.EarlyProgressVisualization;
+import net.minecraftforgeop.fml.loading.progress.EarlyProgressVisualization;
 import net.optifine.Config;
 import net.optifine.reflect.Reflector;
 import net.optifine.util.TextureUtils;

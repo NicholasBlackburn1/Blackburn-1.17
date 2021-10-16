@@ -21,7 +21,7 @@ public class FollowOwnerGoal extends Goal
     private static final int MAX_HORIZONTAL_DISTANCE_FROM_PLAYER_WHEN_TELEPORTING = 3;
     private static final int MAX_VERTICAL_DISTANCE_FROM_PLAYER_WHEN_TELEPORTING = 1;
     private final TamableAnimal tamable;
-    private final Zombie tamablezombie;
+   
     private LivingEntity owner;
     private final LevelReader level;
     private final double speedModifier;
@@ -50,22 +50,7 @@ public class FollowOwnerGoal extends Goal
     }
 
     
-    public FollowOwnerGoal(Zombie p_25294_, double p_25295_, float p_25296_, float p_25297_, boolean p_25298_)
-    {
-        this.tamablezombie = p_25294_;
-        this.level = p_25294_.level;
-        this.speedModifier = p_25295_;
-        this.navigation = p_25294_.getNavigation();
-        this.startDistance = p_25296_;
-        this.stopDistance = p_25297_;
-        this.canFly = p_25298_;
-        this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
 
-        if (!(p_25294_.getNavigation() instanceof GroundPathNavigation) && !(p_25294_.getNavigation() instanceof FlyingPathNavigation))
-        {
-            throw new IllegalArgumentException("Unsupported mob type for FollowOwnerGoal");
-        }
-    }
 
 
     public boolean canUse()

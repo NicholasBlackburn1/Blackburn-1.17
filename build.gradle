@@ -94,6 +94,13 @@ jar {
 }
 
 task runclient(type: JavaExec) {
+    
+    patcher {
+        parent = project(':mcp')
+        mcVersion = '1.17.1'
+        patchedSrc = file('src/main/java')
+    }
+    
     group = "MCP"
     description = "Runs the client"
     classpath sourceSets.main.runtimeClasspath
@@ -109,7 +116,6 @@ task runclient(type: JavaExec) {
     workingDir 'run'\
     
 }
-
 task setup() {
     group = "MCP"
     description = "Setups the dev workspace"

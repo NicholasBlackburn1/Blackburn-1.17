@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.material.MaterialColor;
-import net.minecraftforge.common.Tags;
+import net.minecraftforgeop.common.Tags;
 import net.optifine.reflect.Reflector;
 
 public enum DyeColor implements StringRepresentable

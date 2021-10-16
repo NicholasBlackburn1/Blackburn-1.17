@@ -67,7 +67,7 @@ public class BundleTutorial
             }
             else if (p_175007_.is(Items.BUNDLE) && !p_175008_.isEmpty() && p_175009_ == ClickAction.SECONDARY)
             {
-                this.clearToast();
+                this.clearToast(); 
             }
         }
     }
