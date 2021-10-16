@@ -3,7 +3,7 @@ package net.minecraft.client.gui;
 import com.google.common.collect.Lists;
 import com.ibm.icu.text.ArabicShaping;
 import com.ibm.icu.text.ArabicShapingException;
-import com.ibm.icu.text.Bidi;   
+import com.ibm.icu.text.Bidi;
 import com.mojang.blaze3d.font.GlyphInfo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -60,9 +60,9 @@ public class Font
         return this.fonts.apply(pFontLocation);
     }
 
-    public int drawShadow(PoseStack pMatrixStack, String pText, float pX, Object object, int pColor)
+    public int drawShadow(PoseStack pMatrixStack, String pText, float pX, float pY, int pColor)
     {
-        return this.drawInternal(pText, pX, object, pColor, pMatrixStack.last().pose(), true, this.isBidirectional());
+        return this.drawInternal(pText, pX, pY, pColor, pMatrixStack.last().pose(), true, this.isBidirectional());
     }
 
     public int drawShadow(PoseStack pMatrixStack, String pText, float pX, float pY, int pColor, boolean p_92762_)
