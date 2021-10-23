@@ -19,3 +19,5 @@ gradle-app.setting
 run/
 
 out/
+bin/
+*.class
