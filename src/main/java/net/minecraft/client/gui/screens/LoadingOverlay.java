@@ -4,6 +4,9 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+
+import org.lwjgl.system.Platform;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
@@ -203,13 +206,27 @@ public class LoadingOverlay extends Overlay
         final float[] memorycolour = new float[] { 0.0f, 0.0f, 0.0f};
         // this allows me to add custom logo
         
-        if(!this.minecraft.getWindow().isFullscreen()){
+        if( Platform.get() == Platform.LINUX){
 
-            blit(pMatrixStack,Const.px, Const.py, Const.pUOffset, Const.pVOffset, Const.pWidth, Const.pHight,Const.pTextureWidth,Const.pTextureHeight);
-        } else{
-            blit(pMatrixStack,Const.pxfull, Const.pyfull, Const.pUOffsetfull, Const.pVOffsetfull, Const.pWidthfull, Const.pHightfull,Const.pTextureWidthfull,Const.pTextureHeightfull);
+            if(!this.minecraft.getWindow().isFullscreen()){
+
+                blit(pMatrixStack,Const.px, Const.py, Const.pUOffset, Const.pVOffset, Const.pWidth, Const.pHight,Const.pTextureWidth,Const.pTextureHeight);
+            } else{
+                blit(pMatrixStack,Const.pxfull, Const.pyfull, Const.pUOffsetfull, Const.pVOffsetfull, Const.pWidthfull, Const.pHightfull,Const.pTextureWidthfull,Const.pTextureHeightfull);
+            }
         }
-        
+
+
+        if( Platform.get() == Platform.WINDOWS){
+            
+            if(!this.minecraft.getWindow().isFullscreen()){
+
+                blit(pMatrixStack,Const.px, Const.py, Const.pUOffset, Const.pVOffset, Const.pWidth, Const.pHight,Const.pTextureWidth,Const.pTextureHeight);
+            } else{
+                blit(pMatrixStack,Const.pxfull, Const.pyfull, Const.pUOffsetfull, Const.pVOffsetfull, Const.pWidthfull, Const.pHightfull,Const.pTextureWidthfull,Const.pTextureHeightfull);
+            }
+        }
+            
 
         RenderSystem.defaultBlendFunc();
 
