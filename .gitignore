@@ -2,7 +2,7 @@
 build/
 
 # Source code
-src/*
+
 
 #Run files
 runclient

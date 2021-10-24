@@ -37,6 +37,7 @@ import net.optifine.render.GlBlendState;
 import net.optifine.shaders.config.ShaderPackParser;
 import net.optifine.util.PropertiesOrdered;
 import net.blackburn.client.EarlyLoaderGUI;
+import net.blackburn.client.SimpleFontRenderer;
 import net.blackburn.Const;
 
 public class LoadingOverlay extends Overlay
@@ -85,8 +86,8 @@ public class LoadingOverlay extends Overlay
     }
 
     public static void registerTextures(Minecraft pMc)
-    {
-
+    {   
+        SimpleFontRenderer.init();
         // ALLOWS ME TO Swich the loading image based on day
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
@@ -137,11 +138,12 @@ public class LoadingOverlay extends Overlay
         return p_169325_ & 16777215 | p_169326_ << 24;
     }
 
+    // this renders the Screen of the loading info
     public void render(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks)
     {   
         
-        EarlyLoaderGUI easygui = new EarlyLoaderGUI(minecraft);
-       
+  
+
         int i = this.minecraft.getWindow().getGuiScaledWidth();
         int j = this.minecraft.getWindow().getGuiScaledHeight();
         long k = Util.getMillis();
@@ -203,9 +205,9 @@ public class LoadingOverlay extends Overlay
         RenderSystem.blendFunc(770, 1);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, f2);
-        final float[] memorycolour = new float[] { 0.0f, 0.0f, 0.0f};
-        // this allows me to add custom logo
+        final float[] memorycolour = new float[] { 0.0f, 255.0f,250f};
         
+        // this allows me to add custom logo
         if( Platform.get() == Platform.LINUX){
 
             if(!this.minecraft.getWindow().isFullscreen()){
@@ -216,7 +218,7 @@ public class LoadingOverlay extends Overlay
             }
         }
 
-
+        
         if( Platform.get() == Platform.WINDOWS){
             
             if(!this.minecraft.getWindow().isFullscreen()){
@@ -226,8 +228,6 @@ public class LoadingOverlay extends Overlay
                 blit(pMatrixStack,Const.pxfull, Const.pyfull, Const.pUOffsetfull, Const.pVOffsetfull, Const.pWidthfull, Const.pHightfull,Const.pTextureWidthfull,Const.pTextureHeightfull);
             }
         }
-            
-
         RenderSystem.defaultBlendFunc();
 
         RenderSystem.disableBlend();
@@ -235,7 +235,8 @@ public class LoadingOverlay extends Overlay
         float f6 = this.reload.getActualProgress();
         
         //Reflector.ClientModLoader_renderProgressText.call();
-        //easygui.renderMessage("I HACKED MC 1.17", memorycolour, 2, 1);
+        SimpleFontRenderer.drawString(pMatrixStack,"Status:"+" "+"InsertMessage", 0,200, memorycolour, 2, 1);
+        SimpleFontRenderer.renderMeMInfo(pMatrixStack);
 
         this.currentProgress = Mth.clamp(this.currentProgress * 0.95F + f6 * 0.050000012F, 0.0F, 1.0F);
 

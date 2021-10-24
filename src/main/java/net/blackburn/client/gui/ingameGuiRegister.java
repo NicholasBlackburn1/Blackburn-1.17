@@ -51,6 +51,8 @@ public class ingameGuiRegister {
                 float[] large = { 335.0F, 240.0F,250.0F,260.0F};
 
                 hud.drawXYZPlayerPos(matrixStackIn, mc,small,large);
+
+                Const.dbg("Enabled command");
             }
 
             //* enable light info

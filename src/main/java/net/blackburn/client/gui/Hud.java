@@ -29,7 +29,7 @@ public class Hud {
         int y = (int)mc.player.getY();
         int z = (int)mc.player.getZ();
     
-        mc.font.drawShadow(matrixStackIn,"x:"+x, pos[0],  pos[1], color);
+        mc.font.drawShadow(matrixStackIn,"x:"+x, 10F,  100.3F, color);
         mc.font.drawShadow(matrixStackIn,"Y:"+y, pos[0],  pos[2], color);
         mc.font.drawShadow(matrixStackIn,"Z:"+z, pos[0],  pos[3], color);
         }

@@ -38,4 +38,3 @@ public class CritAllThetime implements CommandBase{
     
 }
     
-}

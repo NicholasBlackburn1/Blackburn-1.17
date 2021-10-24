@@ -25,7 +25,7 @@ public class TogglePlayerPosInfo implements CommandBase{
                 
                 command.clear();
               
-                TextComponent playersposenable = new TextComponent(" §5"+I18n.m_118938_("blackburn.command.playerpos,useage"));
+                TextComponent playersposenable = new TextComponent(" §5"+I18n.m_118938_("blackburn.command.playerpos.useage"));
                 mc.gui.getChat().addMessage(playersposenable);
             
                 
